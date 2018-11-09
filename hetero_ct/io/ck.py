@@ -102,7 +102,6 @@ class SurfaceCK(MSONable):
         """Initialize from dictionary"""
         pass
 
-ass
 
 class TubeCK(MSONable):
     """
