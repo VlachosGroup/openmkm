@@ -1,0 +1,67 @@
+!BEP input.  In the lines below specify the number and specifics of linear correlations used.
+!------------------------------------------------
+   5         !number of correlations
+!------------------------------------------------
+! BEP #, BEP Type, m, b, decomposition/synthesis, mean/std dev uncertainty
+!   BEP Type: -1/0/1 is TSS IS/BEP/TSS FS
+!   m/b defined by
+!     -1: (ETS)=m(EIS)+b 
+!      0: (Ea)=m(deltaHrxn)+b
+!      1: (ETS)=m(EFS)+b 
+!     All intercepts are in kcal/mol and EIS, EFS, ETS are the heats of
+!       formation of the species (/NOT/ the binding energies)
+!   decomposition/synthesis reference direction denoted by -1/1
+!   If uncertainty values not needed, can use zeros as dummy entries
+!
+! Sutton JE, Vlachos DG (2012) A theoretical and computational analysis of
+! linear free energy relations for the estimation of activation energies
+! (Supplemental). ACS Catal 2:1624–1634 . doi: 10.1021/cs3003269
+!-------------------------------------------------------------
+  1  0  0.66    32.37  -1  0.21  3.00    ! C-C   0.66    36.67 27.00
+  2  0  0.84    38.82  -1  0.17  4.38    ! C-O   0.84    43.12 34.12
+  3  0  0.69    29.48  -1  0.33  8.07    ! C-OH  0.69    32.98 24.98
+  4  0  1.02    24.44  -1  0.16  1.84    ! C-H   1.02    24.44
+  5  0  0.86    12.91  -1  0.28  2.54    ! O-H   0.86    12.91
+!-------------------------------------------------------------
+!Specify BEP number and reaction direction for all reactions below.
+!The BEP number is given above (enter 0 if BEP should not be used for
+!this reaction). The reaction direction is one of -1/1 for
+!decomposition/synthesis. If BEPs are not used, then the reaction
+!direction does not need to be specified (use 0 as a dummy value).
+!Only those reactions using BEPs need to be specified. This is done
+!via the reaction string in the third column. This reaction string must
+!/exactly/ match the reaction string in surf.out (aside from the line break
+!and writing repeated species with a summed stoichiometric coefficient);
+!any deviation is a fatal error which will terminate the program. The first
+!line following the comments should be the total number of reactions using
+!BEP correlations.
+!------------------------------------------------
+!*******************************************************************************
+!Surface Rxn
+!*******************************************************************************
+24  Number of non-zero values
+1  -1  CC(S)+PT(S)<=>2C(S)+PT(B)      
+1  -1  CCH(S)+PT(S)<=>C(S)+CH(S)+PT(B)      
+4  -1  CCH(S)+PT(S)<=>CC(S)+H(S)+PT(B)      
+1  -1  CCH2(S)+PT(S)<=>C(S)+CH2(S)+PT(B)      
+4  -1  CCH2(S)+PT(S)<=>CCH(S)+H(S)+PT(B)      
+1  -1  CCH3(S)+PT(S)<=>C(S)+CH3(S)+PT(B)      
+4  -1  CCH3(S)+PT(S)<=>CCH2(S)+H(S)+PT(B)      
+4  -1  CH(S)+PT(S)<=>C(S)+H(S)+PT(B)      
+4  -1  CH2(S)+PT(S)<=>CH(S)+H(S)+PT(B)      
+1  -1  CH2CH2(S)+PT(S)<=>2CH2(S)+PT(B)      
+0  -1  CH2CH2(S)+PT(S)<=>CHCH2(S)+H(S)+PT(B)      
+1  -1  CH2CH3(S)+PT(S)<=>CH2(S)+CH3(S)+PT(B)      
+4  -1  CH2CH3(S)+PT(S)<=>CH2CH2(S)+H(S)+PT(B)      
+4  -1  CH2CH3(S)+PT(S)<=>CHCH3(S)+H(S)+PT(B)      
+4  -1  CH4(S)+PT(S)<=>CH3(S)+H(S)+PT(B)      
+4  -1  CH3(S)+PT(S)<=>CH2(S)+H(S)+PT(B)      
+4  -1  CHCH(S)+PT(S)<=>CCH(S)+H(S)+PT(B)      
+0  -1  CHCH(S)+PT(S)<=>2CH(S)+PT(B)      
+4  -1  CHCH2(S)+PT(S)<=>CCH2(S)+H(S)+PT(B)      
+1  -1  CHCH2(S)+PT(S)<=>CH(S)+CH2(S)+PT(B)      
+4  -1  CHCH2(S)+PT(S)<=>CHCH(S)+H(S)+PT(B)      
+4  -1  CHCH3(S)+PT(S)<=>CCH3(S)+H(S)+PT(B)      
+1  -1  CHCH3(S)+PT(S)<=>CH(S)+CH3(S)+PT(B)      
+4  -1  CHCH3(S)+PT(S)<=>CHCH2(S)+H(S)+PT(B)      
+EOF

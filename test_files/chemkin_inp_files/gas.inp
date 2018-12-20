@@ -1,0 +1,24 @@
+ELEMENTS
+H
+C
+O
+N
+PT
+END
+
+SPECIES
+CH2CH2
+CH3CH3
+CH4
+CHCH
+H2
+N2
+END
+
+!THERMO
+! Insert GRI-Mech thermodynamics here or use in default file
+!END
+REACTIONS
+
+
+END

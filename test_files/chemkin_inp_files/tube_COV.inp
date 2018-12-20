@@ -1,0 +1,244 @@
+!NUMSPEC -- If /NO/ coverage effects are desired, set lcov=F in tube.inp
+!This is the total number of species blocks
+14
+!Additional options
+!BE -- adjusted for binding energy (only important if scaling relations used)
+!Model -- 1 for old-style (simple linear), 2 for new-style (two parameter
+!3: 3-parameter piecewise model with 'slope1 threshold slope2' specified
+!5: 5-parameter piecewise model with 'slope1 threshold1 slope2 threshold2 slope3' specified
+!BE    Model
+F      3
+!Each species block has the following format:
+! 'Species/Phase/' n
+! where n is the number of lines that follow the format
+! 'Species/Phase/' val1 val2
+!The first line is the species that is affected by the species on the
+!following lines. Subsequent lines have up to two values: the interaction
+!parameter val1 (both model types) and possibly a coverage threshold val2
+!(model type 2 only). The Species/Phase/ pair should be in quotes.
+!------------------------------------------------------------
+'H(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -6
+'C(S)/TERRACE/'  0  0.11  -19
+'CC(S)/TERRACE/'  0  0.11  -8
+'CCH(S)/TERRACE/'  0  0.11  -10
+'CCH2(S)/TERRACE/'  0  0.11  -19
+'CCH3(S)/TERRACE/'  0  0.11  -18
+'CH(S)/TERRACE/'  0  0.11  -17
+'CH2(S)/TERRACE/'  0  0.11  -10
+'CH2CH2(S)/TERRACE/'  0  0.11  -16
+'CH2CH3(S)/TERRACE/'  0  0.11  -12
+'CH3(S)/TERRACE/'  0  0.11  -8
+'CHCH(S)/TERRACE/'  0  0.11  -19
+'CHCH2(S)/TERRACE/'  0  0.11  -17
+'CHCH3(S)/TERRACE/'  0  0.11  -16
+!--      
+'C(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -19
+'C(S)/TERRACE/'  0  0.11  -58
+'CC(S)/TERRACE/'  0  0.11  -8
+'CCH(S)/TERRACE/'  0  0.11  -30
+'CCH2(S)/TERRACE/'  0  0.11  -58
+'CCH3(S)/TERRACE/'  0  0.11  -53
+'CH(S)/TERRACE/'  0  0.11  -50
+'CH2(S)/TERRACE/'  0  0.11  -29
+'CH2CH2(S)/TERRACE/'  0  0.11  -48
+'CH2CH3(S)/TERRACE/'  0  0.11  -35
+'CH3(S)/TERRACE/'  0  0.11  -23
+'CHCH(S)/TERRACE/'  0  0.11  -58
+'CHCH2(S)/TERRACE/'  0  0.11  -52
+'CHCH3(S)/TERRACE/'  0  0.11  -48
+!--      
+'CC(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -8
+'C(S)/TERRACE/'  0  0.11  -8
+'CC(S)/TERRACE/'  0  0.11  -10
+'CCH(S)/TERRACE/'  0  0.11  -12
+'CCH2(S)/TERRACE/'  0  0.11  -24
+'CCH3(S)/TERRACE/'  0  0.11  -22
+'CH(S)/TERRACE/'  0  0.11  -21
+'CH2(S)/TERRACE/'  0  0.11  -12
+'CH2CH2(S)/TERRACE/'  0  0.11  -20
+'CH2CH3(S)/TERRACE/'  0  0.11  -15
+'CH3(S)/TERRACE/'  0  0.11  -9
+'CHCH(S)/TERRACE/'  0  0.11  -24
+'CHCH2(S)/TERRACE/'  0  0.11  -22
+'CHCH3(S)/TERRACE/'  0  0.11  -20
+!--      
+'CCH(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -10
+'C(S)/TERRACE/'  0  0.11  -30
+'CC(S)/TERRACE/'  0  0.11  -12
+'CCH(S)/TERRACE/'  0  0.11  -15
+'CCH2(S)/TERRACE/'  0  0.11  -30
+'CCH3(S)/TERRACE/'  0  0.11  -27
+'CH(S)/TERRACE/'  0  0.11  -25
+'CH2(S)/TERRACE/'  0  0.11  -15
+'CH2CH2(S)/TERRACE/'  0  0.11  -25
+'CH2CH3(S)/TERRACE/'  0  0.11  -18
+'CH3(S)/TERRACE/'  0  0.11  -11
+'CHCH(S)/TERRACE/'  0  0.11  -30
+'CHCH2(S)/TERRACE/'  0  0.11  -27
+'CHCH3(S)/TERRACE/'  0  0.11  -24
+!--      
+'CCH2(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -19
+'C(S)/TERRACE/'  0  0.11  -58
+'CC(S)/TERRACE/'  0  0.11  -24
+'CCH(S)/TERRACE/'  0  0.11  -30
+'CCH2(S)/TERRACE/'  0  0.11  -59
+'CCH3(S)/TERRACE/'  0  0.11  -53
+'CH(S)/TERRACE/'  0  0.11  -50
+'CH2(S)/TERRACE/'  0  0.11  -29
+'CH2CH2(S)/TERRACE/'  0  0.11  -49
+'CH2CH3(S)/TERRACE/'  0  0.11  -36
+'CH3(S)/TERRACE/'  0  0.11  -23
+'CHCH(S)/TERRACE/'  0  0.11  -58
+'CHCH2(S)/TERRACE/'  0  0.11  -52
+'CHCH3(S)/TERRACE/'  0  0.11  -48
+!--      
+'CCH3(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -18
+'C(S)/TERRACE/'  0  0.11  -53
+'CC(S)/TERRACE/'  0  0.11  -22
+'CCH(S)/TERRACE/'  0  0.11  -27
+'CCH2(S)/TERRACE/'  0  0.11  -53
+'CCH3(S)/TERRACE/'  0  0.11  -48
+'CH(S)/TERRACE/'  0  0.11  -45
+'CH2(S)/TERRACE/'  0  0.11  -27
+'CH2CH2(S)/TERRACE/'  0  0.11  -44
+'CH2CH3(S)/TERRACE/'  0  0.11  -32
+'CH3(S)/TERRACE/'  0  0.11  -21
+'CHCH(S)/TERRACE/'  0  0.11  -53
+'CHCH2(S)/TERRACE/'  0  0.11  -47
+'CHCH3(S)/TERRACE/'  0  0.11  -44
+!--      
+'CH(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -17
+'C(S)/TERRACE/'  0  0.11  -50
+'CC(S)/TERRACE/'  0  0.11  -21
+'CCH(S)/TERRACE/'  0  0.11  -25
+'CCH2(S)/TERRACE/'  0  0.11  -50
+'CCH3(S)/TERRACE/'  0  0.11  -45
+'CH(S)/TERRACE/'  0  0.11  -43
+'CH2(S)/TERRACE/'  0  0.11  -25
+'CH2CH2(S)/TERRACE/'  0  0.11  -42
+'CH2CH3(S)/TERRACE/'  0  0.11  -30
+'CH3(S)/TERRACE/'  0  0.11  -19
+'CHCH(S)/TERRACE/'  0  0.11  -50
+'CHCH2(S)/TERRACE/'  0  0.11  -45
+'CHCH3(S)/TERRACE/'  0  0.11  -41
+!--      
+'CH2(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -10
+'C(S)/TERRACE/'  0  0.11  -29
+'CC(S)/TERRACE/'  0  0.11  -12
+'CCH(S)/TERRACE/'  0  0.11  -15
+'CCH2(S)/TERRACE/'  0  0.11  -29
+'CCH3(S)/TERRACE/'  0  0.11  -27
+'CH(S)/TERRACE/'  0  0.11  -25
+'CH2(S)/TERRACE/'  0  0.11  -15
+'CH2CH2(S)/TERRACE/'  0  0.11  -24
+'CH2CH3(S)/TERRACE/'  0  0.11  -18
+'CH3(S)/TERRACE/'  0  0.11  -11
+'CHCH(S)/TERRACE/'  0  0.11  -29
+'CHCH2(S)/TERRACE/'  0  0.11  -26
+'CHCH3(S)/TERRACE/'  0  0.11  -24
+!--      
+'CH2CH2(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -16
+'C(S)/TERRACE/'  0  0.11  -48
+'CC(S)/TERRACE/'  0  0.11  -20
+'CCH(S)/TERRACE/'  0  0.11  -25
+'CCH2(S)/TERRACE/'  0  0.11  -49
+'CCH3(S)/TERRACE/'  0  0.11  -44
+'CH(S)/TERRACE/'  0  0.11  -42
+'CH2(S)/TERRACE/'  0  0.11  -24
+'CH2CH2(S)/TERRACE/'  0  0.11  -41
+'CH2CH3(S)/TERRACE/'  0  0.11  -30
+'CH3(S)/TERRACE/'  0  0.11  -19
+'CHCH(S)/TERRACE/'  0  0.11  -48
+'CHCH2(S)/TERRACE/'  0  0.11  -44
+'CHCH3(S)/TERRACE/'  0  0.11  -40
+!--      
+'CH2CH3(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -12
+'C(S)/TERRACE/'  0  0.11  -35
+'CC(S)/TERRACE/'  0  0.11  -15
+'CCH(S)/TERRACE/'  0  0.11  -18
+'CCH2(S)/TERRACE/'  0  0.11  -36
+'CCH3(S)/TERRACE/'  0  0.11  -32
+'CH(S)/TERRACE/'  0  0.11  -30
+'CH2(S)/TERRACE/'  0  0.11  -18
+'CH2CH2(S)/TERRACE/'  0  0.11  -30
+'CH2CH3(S)/TERRACE/'  0  0.11  -22
+'CH3(S)/TERRACE/'  0  0.11  -14
+'CHCH(S)/TERRACE/'  0  0.11  -35
+'CHCH2(S)/TERRACE/'  0  0.11  -32
+'CHCH3(S)/TERRACE/'  0  0.11  -29
+!--      
+'CH3(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -8
+'C(S)/TERRACE/'  0  0.11  -23
+'CC(S)/TERRACE/'  0  0.11  -9
+'CCH(S)/TERRACE/'  0  0.11  -11
+'CCH2(S)/TERRACE/'  0  0.11  -23
+'CCH3(S)/TERRACE/'  0  0.11  -21
+'CH(S)/TERRACE/'  0  0.11  -19
+'CH2(S)/TERRACE/'  0  0.11  -11
+'CH2CH2(S)/TERRACE/'  0  0.11  -19
+'CH2CH3(S)/TERRACE/'  0  0.11  -14
+'CH3(S)/TERRACE/'  0  0.11  -9
+'CHCH(S)/TERRACE/'  0  0.11  -23
+'CHCH2(S)/TERRACE/'  0  0.11  -20
+'CHCH3(S)/TERRACE/'  0  0.11  -19
+!--      
+'CHCH(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -19
+'C(S)/TERRACE/'  0  0.11  -58
+'CC(S)/TERRACE/'  0  0.11  -24
+'CCH(S)/TERRACE/'  0  0.11  -30
+'CCH2(S)/TERRACE/'  0  0.11  -58
+'CCH3(S)/TERRACE/'  0  0.11  -53
+'CH(S)/TERRACE/'  0  0.11  -50
+'CH2(S)/TERRACE/'  0  0.11  -29
+'CH2CH2(S)/TERRACE/'  0  0.11  -48
+'CH2CH3(S)/TERRACE/'  0  0.11  -35
+'CH3(S)/TERRACE/'  0  0.11  -23
+'CHCH(S)/TERRACE/'  0  0.11  -58
+'CHCH2(S)/TERRACE/'  0  0.11  -52
+'CHCH3(S)/TERRACE/'  0  0.11  -48
+!--      
+'CHCH2(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -17
+'C(S)/TERRACE/'  0  0.11  -52
+'CC(S)/TERRACE/'  0  0.11  -22
+'CCH(S)/TERRACE/'  0  0.11  -27
+'CCH2(S)/TERRACE/'  0  0.11  -52
+'CCH3(S)/TERRACE/'  0  0.11  -47
+'CH(S)/TERRACE/'  0  0.11  -45
+'CH2(S)/TERRACE/'  0  0.11  -26
+'CH2CH2(S)/TERRACE/'  0  0.11  -44
+'CH2CH3(S)/TERRACE/'  0  0.11  -32
+'CH3(S)/TERRACE/'  0  0.11  -20
+'CHCH(S)/TERRACE/'  0  0.11  -52
+'CHCH2(S)/TERRACE/'  0  0.11  -47
+'CHCH3(S)/TERRACE/'  0  0.11  -43
+!--      
+'CHCH3(S)/TERRACE/'  14    
+'H(S)/TERRACE/'  0  0.11  -16
+'C(S)/TERRACE/'  0  0.11  -48
+'CC(S)/TERRACE/'  0  0.11  -20
+'CCH(S)/TERRACE/'  0  0.11  -24
+'CCH2(S)/TERRACE/'  0  0.11  -48
+'CCH3(S)/TERRACE/'  0  0.11  -44
+'CH(S)/TERRACE/'  0  0.11  -41
+'CH2(S)/TERRACE/'  0  0.11  -24
+'CH2CH2(S)/TERRACE/'  0  0.11  -40
+'CH2CH3(S)/TERRACE/'  0  0.11  -29
+'CH3(S)/TERRACE/'  0  0.11  -19
+'CHCH(S)/TERRACE/'  0  0.11  -48
+'CHCH2(S)/TERRACE/'  0  0.11  -43
+'CHCH3(S)/TERRACE/'  0  0.11  -40
+!--      
+EOF      

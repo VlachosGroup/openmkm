@@ -1,0 +1,13 @@
+!Specify the 'species/phase/' pair /(in quotes!)/ and the associated
+!composition values. If the composition does not sum to 1 for each phase or
+!site type, it will be renormalized to 1. At the end of a calculation, a
+!file containing the complete composition and mass flux (the last entry) will
+!be generated. This file's format is completely compatible with the current
+!input file and can be used to restart that calculation.
+0       itube_restart -- will be >0 if a restart file is used or 0 for the first run
+4       Number of nonzero species        
+'CH3CH3/GAS/'  0.033  0.033  0.033  0.033
+'N2/GAS/'  0.93410525  0.93410525  0.93410525  0.93410525
+'H2/GAS/'  0.03289475  0.03289475  0.03289475  0.03289475
+'PT(S)/TERRACE/'  1  1  1  1
+EOF

@@ -1,0 +1,11 @@
+!The first line is the number of reactions. Subsequent lines follow the format
+!of rxn (from surf.out) followed by the EA/RT value at each run condition.
+!There may be one slight deviation from surf.out: any repeated species should
+!be included in the reaction string with a stoichiometric coefficient equal to
+!the number of times the species appears in the reaction. If not using
+!MultiInput, then only the first value is used.
+ 2 !Number of reactions
+!             700      600    500     400 
+ CH2CH2(S)+PT(S)<=>CHCH2(S)+H(S)+PT(B)     15.91   21.72   31.33   49.03
+ CHCH(S)+PT(S)<=>2CH(S)+PT(B)             8.1     11.06   15.95   24.95
+EOF
