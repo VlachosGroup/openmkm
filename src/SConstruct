@@ -1,0 +1,10 @@
+env = Environment(CPPPATH=["/home/mbkumar/Research/Vlachos/cantera/include", 
+                           "/home/mbkumar/Research/Vlachos/cantera/ext/eigen"],
+                  CCFLAGS=["-std=c++0x", "-Wall", "-Wno-inline", "-fprofile-arcs", 
+                           "-ftest-coverage", "-pthread"],
+                  LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
+
+env.Program(target="hetero_ct", source=["read_input.cpp"], 
+            LIBS=["sundials_cvodes", "sundials_ida", "sundials_nvecserial", "cantera", "yaml-cpp"],
+            #LIBS=[ "cantera"],
+            LIBPATH=["/home/mbkumar/Research/Vlachos/cantera/build/lib", "/usr/lib64/"])
