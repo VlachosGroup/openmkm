@@ -1,0 +1,57 @@
+# Input file defining the reactor parameters for hetero_ct
+# The thermodynamic information of phases and species is supplied in a different file
+# This file uses YAML format. Important YAML conventions employed are given in comments.
+# If comments doesn't clarify any point, refer to YAML documentation.
+#
+# For quantities that have units, default units are SI. In that case
+# just specify the value. Otherwise give the value and units as tuple
+# Ex (temp in K) :
+# temperature: 950 
+# or (temp in C)
+# temperature: 
+#   - 950
+#   - C
+
+reactor: 
+    type: cstr   # Options are cstr, batch, pfr, pfr_0d
+    # Each option may require additional keywords specific to that option
+    # Some of the subsequent (required) keywords are dependent on reactor type
+    # Not all keywords are applicable for all reactors models
+    # For consistency, one could specify null as value for keywords that are not required 
+
+    # cstr, pfr_0d, batch use volume and entry gas velocity is cubic units/sec
+    # pfr uses area and length and entry gas velocity is in units/sec
+    volume: 
+      - 1
+      - cm3
+    length: NULL
+    area: NULL
+
+    # Mode: Options isothermal, adiabatic, tpd, heat, tprofile
+    mode: 'isothermal' 
+
+    temperature:  950
+    pressure:  
+        - 1
+        - atm
+    Tramp: NULL         # For tpd, heat ramp beta value
+    Tend: NULL          # For tpd, final temperature
+    Text: NULL          # For heat, external temperature
+    Tprofile: NULL      # For tprofile, list of dist: T keyvalue pairs
+    ext_abyv: NULL      # For heat, reactor outer area / volume
+    htc: NULL           # For heat, heat transfer coefficient
+
+    cat_abyv:
+        - 1500
+        - cm-1
+
+velocity:
+    - 1
+    - cm3/s
+
+solver:
+    atol: 1e-10         # Absolute tolerance  (Refer to SUNDIALs documentation)
+    rtol: 1e-8          # Relative tolerance
+
+
+
