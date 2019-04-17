@@ -2,6 +2,8 @@
 #include <memory>
 #include <map>
 #include <iostream>
+#include <fstream>
+
 #include <yaml-cpp/yaml.h>
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ct_defs.h"
@@ -34,7 +36,7 @@ map<string, RctrType> rt = {{"batch", BATCH},
                             {"pfr_0d", PFR_0D}, 
                             {"pfr", PFR}}; 
 
-shared_ptr<ReactorNet> get_0d_reactor(RctrType rctr_type, YAML::Node& tube_node,
+shared_ptr<Reactor> get_0d_reactor(YAML::Node& tube_node,
                                       IdealGasMix& gas, 
                                       vector<shared_ptr<InterfaceInteractions>> surfaces)
 {
@@ -50,9 +52,10 @@ shared_ptr<ReactorNet> get_0d_reactor(RctrType rctr_type, YAML::Node& tube_node,
 
     // Read the reactor dimensions
     int nodes = 1;
-    if (rctr_type == PFR_0D) // Update nodes
-        if (rctr_node["nodes"])
-            nodes = rctr_node["nodes"].as<int>();
+    auto nd_node = rctr_node["nodes"];
+    if (nd_node)
+        if (!nd_node.IsNull())
+            nodes = nd_node.as<int>();
 
     double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
     if (!rctr_vol) {
@@ -89,12 +92,12 @@ shared_ptr<ReactorNet> get_0d_reactor(RctrType rctr_type, YAML::Node& tube_node,
     auto restime_node = inlet_node["residence_time"];
     auto mfr_node = inlet_node["mass_flow_rate"];
     double velocity{0}, residence_time{0}, mfr{0};
-    if (vel_node){
+    if (vel_node && !vel_node.IsNull()) {
         velocity = strSItoDbl(inlet_node["velocity"].as<string>());
         //residence_time = rctr_vol/velocity;
         mfr = rctr->mass() * velocity /rctr_vol;
     }
-    else if (restime_node) {
+    else if (restime_node && !restime_node.IsNull()) {
         residence_time = strSItoDbl(inlet_node["residence_time"].as<string>());
         mfr = rctr->mass()/residence_time;
     }
@@ -104,17 +107,118 @@ shared_ptr<ReactorNet> get_0d_reactor(RctrType rctr_type, YAML::Node& tube_node,
     inlet_mfc->setMassFlowRate(mfr);
     outlet->setMaster(inlet_mfc.get());
     outlet->setPressureCoeff(0.0001);
+    inlet_mfc->install(*in_rsrv, *rctr);
+    outlet->install(*rctr, *exhst);
 
-    auto rnet = make_shared<ReactorNet>();
-    rnet->addReactor(*rctr);
-    return rnet;
-            
+    return rctr;
 }
+
+vector<double> get_times(double end_time)
+{
+    vector<double> times;
+    auto scale = 1e-6;
+    auto r_time=0;
+    while (r_time < end_time) {
+        for (size_t i=1; i < 10; i++){
+            r_time = i*scale;
+            if (r_time > end_time)
+                break;
+            times.push_back(r_time);
+        }
+        if (r_time > end_time)
+            break;
+        scale *= 10;
+    }
+    return times;
+}
+
+void print_formation_enthalpy(vector<ThermoPhase*> phases, string output_file) 
+{
+    vector<doublereal> hform; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Dimensionless formation enthalpies of species (H/RT)\n" << endl;
+    for  (const auto phase: phases){
+        hform.resize(phase->nSpecies());
+        phase->getEnthalpy_RT(hform.data());
+        for (size_t k = 0; k < phase->nSpecies(); k++) {
+            out.width(12); 
+            out << std::left << phase->speciesName(k); 
+            out.width(12); 
+            out << std::right << hform[k] << endl;
+        }   
+    }   
+    out.close();
+}
+
+void print_formation_entropy(vector<ThermoPhase*> phases, string output_file) 
+{
+    vector<doublereal> sform; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Dimensionless formation entropies of species (S/R)\n" << endl;
+    for  (const auto phase: phases){
+        sform.resize(phase->nSpecies());
+        phase->getEntropy_R(sform.data());
+        for (size_t k = 0; k < phase->nSpecies(); k++) {
+            out.width(12); 
+            out << std::left << phase->speciesName(k); 
+            out.width(12); 
+            out << std::right << sform[k] << endl;
+        }   
+    }   
+    out.close();
+}
+
+void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string output_file)
+{
+    vector<doublereal> hrxn;
+    ofstream out;
+    out.open(output_file);
+    out << "#Dimensionless enthalpies of reactions (H/RT)\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            hrxn.resize(size);
+            mgr->getDeltaEnthalpy(hrxn.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12);
+                out << std::left << hrxn[k]/(GasConstant*T) ;
+                out.width(12);
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    vector<doublereal> kc;
+    ofstream out;
+    out.open(output_file);
+    out << "#Equilibrium constants of reactions\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            kc.resize(size);
+            mgr->getEquilibriumConstants(kc.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12);
+                out << std::left << kc[k];
+                out.width(12);
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
 
 int main(int argc, char* argv[]) 
 {
     if (argc < 3) {
-        // Throw error
+        // TODO: Throw error
         ;
     };
 
@@ -124,11 +228,9 @@ int main(int argc, char* argv[])
     
     // Read the phase definitions
     auto phase_node = tube_node["phases"];
-    cout << "Reached till here1" << endl;
     string gas_phase_name = phase_node["gas"]["name"].as<string>();
     string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
     string blk_phase_name = phase_node["bulk"]["name"].as<string>();
-    cout << "Reached till here2" << endl;
     auto surface_nodes = phase_node["surfaces"];
     vector<string> surface_phase_names; 
     vector<string> surface_states;
@@ -146,20 +248,19 @@ int main(int argc, char* argv[])
     vector<shared_ptr<InterfaceInteractions>> surf_phases;
     for (size_t i=0; i < surface_phase_names.size(); i++) {
         auto surf_ph_name = surface_phase_names[i];
-        surf_phases.push_back(
-                make_shared<InterfaceInteractions>(phase_file_name, 
-                                                   surf_ph_name, 
-                                                   gb_phases));
+        surf_phases.push_back(make_shared<InterfaceInteractions>(
+                    phase_file_name, 
+                    surf_ph_name, 
+                    gb_phases));
     }
 
     /* Read the reactor definition */
     auto rctr_node = tube_node["reactor"];
     if (!rctr_node) {
-        // Throw error
+        // TODO: Throw error
         ;
     };
 
-    cout << "Reached till here" << endl;
     // Set the temp and press for all phases
     auto temp = strSItoDbl(rctr_node["temperature"].as<string>());
     auto press = strSItoDbl(rctr_node["pressure"].as<string>());
@@ -172,13 +273,31 @@ int main(int argc, char* argv[])
     auto rctr_type_node = rctr_node["type"];
     auto rctr_type = rt[rctr_type_node.as<string>()];
 
-    cout << "Reached till here" << endl;
+
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
-        shared_ptr<ReactorNet> rnet = get_0d_reactor(rctr_type, tube_node, 
-                                                     gas, surf_phases);
+        auto rctr = get_0d_reactor(tube_node, gas, surf_phases);
+
+        int nodes = 1;
+        auto nd_node = rctr_node["nodes"];
+        if (nd_node)
+            if (!nd_node.IsNull())
+                nodes = nd_node.as<int>();
+
+        auto simul_node = tube_node["simulation"];
+        auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
+        auto solver_node = simul_node["solver"];
+        auto abs_tol = solver_node["atol"].as<double>();
+        auto rel_tol = solver_node["rtol"].as<double>();
+
+        ReactorNet rnet;
+        rnet.addReactor(*rctr);
+        rnet.setTolerances(rel_tol, abs_tol);
+
+        //TODO: Implement the advancing function
+        //advance_0d_reactor(rnet, nodes, end_time);
     }
     else if (rctr_type == PFR) { // 1d reactor
-        ;
+        ; //TODO: Add 1d PFR implementation
     }
     
     /*
