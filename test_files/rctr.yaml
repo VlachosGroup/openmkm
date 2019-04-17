@@ -49,11 +49,14 @@ reactor:                # Mandatory YAML node
 inlet_gas:              # All three quants related. Give one of them. First nonzero quantity used
     velocity: "1 cm3/s" # Can be supplied for all reactor_types. Units depend on rctr_type
     residence_time: NULL # Makes sense for CSTR
-    mass_flow_rate: NULL # Can be supplied for all reactor_types. Units depend on rctr_type
+    mass_flow_rate: NULL # Can be supplied for all reactor_types. 
 
-solver:
-    atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info)
-    rtol: 1e-8          # Relative tolerance
+simulation:
+    end_time: 50
+
+    solver:
+        atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info)
+        rtol: 1e-8          # Relative tolerance
 
 # Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
 # A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
