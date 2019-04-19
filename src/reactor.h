@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <memory>
+#include <fstream>
 #include <yaml-cpp/yaml.h>
 #include "cantera/IdealGasMix.h"
 #include "cantera/InterfaceLatInt.h"
@@ -29,7 +30,8 @@ enum RctrType {
 
 void run_0d_reactor(YAML::Node& tube_node,
                     std::shared_ptr<Cantera::IdealGasMix> gas, 
-                    std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces);
+                    std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces,
+                    std::ofstream& gen_info);
 
 }
 

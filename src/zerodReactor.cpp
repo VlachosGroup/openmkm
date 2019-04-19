@@ -33,7 +33,8 @@ using namespace Cantera;
 
 void run_0d_reactor(YAML::Node& tube_node,
                     shared_ptr<IdealGasMix> gas, 
-                    vector<shared_ptr<InterfaceInteractions>> surfaces)
+                    vector<shared_ptr<InterfaceInteractions>> surfaces,
+                    ofstream& gen_info)
 {
     //Define the reactor based on the input file
     auto rctr_node = tube_node["reactor"];
@@ -41,7 +42,8 @@ void run_0d_reactor(YAML::Node& tube_node,
     //auto rctr_type = rt[rctr_type_node.as<string>()];
 
     auto rctr = make_shared<Reactor>();
-    shared_ptr<Reservoir> in_rsrv (new Reservoir), exhst (new Reservoir);
+    auto in_rsrv = make_shared<Reservoir>();
+    auto exhst = make_shared<Reservoir>();
     rctr->insert(*gas);
     in_rsrv->insert(*gas);
     exhst->insert(*gas);
@@ -55,7 +57,7 @@ void run_0d_reactor(YAML::Node& tube_node,
 
     double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
     if (!rctr_vol) {
-        // Raise Error
+        // TODO: Raise Error
         ;
     }
     rctr_vol /= nodes;
@@ -66,29 +68,15 @@ void run_0d_reactor(YAML::Node& tube_node,
     double cat_area = strSItoDbl(rctr_node["cat_abyv"].as<string>());
     cat_area *= rctr_vol;
     for (const auto surf : surfaces) {
-        cout << "surf address: " << surf << endl;
-        shared_ptr<ReactorSurface> cat_surf(new ReactorSurface());
+        auto cat_surf = make_shared<ReactorSurface>(); 
         cat_surf->setKinetics(surf.get());
         vector<double> coverages(surf->nSpecies());
         surf->getCoverages(coverages.data());
         cat_surf->setCoverages(coverages.data());
         cat_surf->setArea(cat_area);
-        auto* ip = cat_surf.get();
-        cout << "cat_surf.get() address: " << ip << endl;
         cat_surfs.push_back(cat_surf);
         rctr->addSurface(cat_surf.get());
     }
-    shared_ptr<ReactorSurface> cat_surf1(new ReactorSurface());
-    auto* ip = cat_surf1.get();
-    cout << "cat_surf1.get() raw pointer address: " << ip << endl;
-    shared_ptr<ReactorSurface> cat_surf2(new ReactorSurface());
-    ip = cat_surf2.get();
-    cout << "cat_surf2.get() raw pointer address: " << ip << endl;
-
-    auto *s1 = rctr->surface(0);
-    cout << "s1 thermo address: " << s1->thermo() << endl;
-    auto *s2 = rctr->surface(1);
-    cout << "s2 thermo address: " << s2->thermo() << endl;
 
     rctr->setChemistry();
     string mode = rctr_node["mode"].as<string>();
@@ -138,12 +126,9 @@ void run_0d_reactor(YAML::Node& tube_node,
     rnet.setTolerances(rel_tol, abs_tol);
     auto times = get_times(end_time);
     for (const auto & tm : times) {
-        //if (tm < 2e-6) {
-            rnet.advance(tm);//(tm);
-        //}
+        rnet.advance(tm);
     }
    
-
     //return rctr;
 }
 

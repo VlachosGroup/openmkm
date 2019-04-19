@@ -4,7 +4,7 @@ env = Environment(CPPPATH=["/home/mbkumar/Research/Vlachos/cantera/include",
                            "-ftest-coverage", "-pthread"],
                   LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
 
-sources = ["read_input.cpp", "util.cpp", "zerodReactor.cpp", "io.cpp"]
+sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "io.cpp"]
 
 env.Program(target="hetero_ct", source=sources, 
             LIBS=["sundials_cvodes", "sundials_ida", "sundials_nvecserial", "cantera", "yaml-cpp"],

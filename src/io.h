@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 #include "cantera/base/config.h"
 #include "cantera/kinetics.h"
@@ -21,6 +23,9 @@ void print_rxn_enthalpy(std::vector<Cantera::Kinetics*> kinetic_mgrs,
                         doublereal T, 
                         std::string output_file);
 
+void print_rxn_entropy(std::vector<Cantera::Kinetics*> kinetic_mgrs, 
+                       std::string output_file);
+
 void print_rxn_eq_consts(std::vector<Cantera::Kinetics*> kinetic_mgrs, 
                          std::string output_file);
 
@@ -36,6 +41,9 @@ void print_rxn_kf(std::vector<Cantera::Kinetics*> kinetic_mgrs,
 
 void print_rxn_kr(std::vector<Cantera::Kinetics*> kinetic_mgrs, 
                   std::string output_file);
+
+void print_htrct_header(std::ofstream& out); 
+
 
 }
 #endif

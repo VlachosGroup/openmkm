@@ -70,6 +70,29 @@ void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string out
     out.close();
 }
 
+void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    vector<doublereal> sRxn;
+    ofstream out;
+    out.open(output_file);
+    out << "#Dimensionless entropies of reactions (S/R)\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            sRxn.resize(size);
+            mgr->getDeltaSSEntropy(sRxn.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12);
+                out << std::left << sRxn[k]/GasConstant ;
+                out.width(12);
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+
 void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> kc;
@@ -182,5 +205,15 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
     out.close();
 }
 
+void print_htrct_header(std::ofstream& out) {
+    out << "-----------------------------------------------------------\n" 
+        << "Hetero_ct: version 0.0.1\n" 
+        << "-----------------------------------------------------------\n\n" 
+        << "Hetero_ct is a multiphysics and multiscale software aimed at" << std::endl
+        << "modelng chemical kinetics for heterogeneous catalysis." << std::endl
+        << "Hetero_ct is open source and is developed at Delaware Energy" << std::endl
+        << "Institute, Unitversity of Delaware. Hetero_ct uses Cantera," << std::endl
+        << "an open source software available at www.cantera.org, as backend.\n\n\n"; 
+}
 
 }
