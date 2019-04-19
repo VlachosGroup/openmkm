@@ -32,24 +32,11 @@ using namespace HeteroCt;
 
 
 
-/*
+std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH}, 
+                                               {"cstr", CSTR}, 
+                                               {"pfr_0d", PFR_0D}, 
+                                               {"pfr", PFR}}; 
 
-
-void advance_0d_reactor(shared_ptr<ReactorNet> rnet, int nodes, double end_time)
-{
-    cout << "Reached advance function" << endl;
-    auto times = get_times(end_time);
-    cout << "time 1 "  << times[0] << endl;
-    cout << "rctr density " << rnet->reactor(0).density() << endl;
-    //rnet->step();
-    for (const auto & tm : times) {
-        if (tm < 2e-6) {
-            rnet->advance(tm);//(tm);
-        }
-    }
-
-}
-*/
 
 int main(int argc, char* argv[]) 
 {
@@ -108,65 +95,14 @@ int main(int argc, char* argv[])
     }
 
     auto rctr_type_node = rctr_node["type"];
-    auto rctr_type = HeteroCt::RctrTypeMap[rctr_type_node.as<string>()];
+    auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
 
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
         run_0d_reactor(tube_node, gas, surf_phases);
 
-        /*int nodes = 1;
-        auto nd_node = rctr_node["nodes"];
-        if (nd_node)
-            if (!nd_node.IsNull())
-                nodes = nd_node.as<int>();
-
-                
-        auto rnet = make_shared<ReactorNet>();
-        rnet->addReactor(*rctr);
-        cout << "rel tol: " << rel_tol << "  abs tol: " << abs_tol << endl;
-        rnet->setTolerances(rel_tol, abs_tol);
-
-        //TODO: Implement the advancing function
-        cout << "Reached here" << endl;
-        auto times = get_times(end_time);
-        cout << "time 1 "  << times[0] << endl;
-        cout << "rctr density " << rnet->reactor(0).density() << endl;
-        //rnet->step();
-        for (const auto & tm : times) {
-            if (tm < 2e-6) {
-                rnet->advance(tm);//(tm);
-            }
-        }
-
-        advance_0d_reactor(rnet, nodes, end_time);
-
-        */
     }
     else if (rctr_type == PFR) { // 1d reactor
         ; //TODO: Add 1d PFR implementation
     }
     
-    /*
-    switch (rctr_type) {
-        case BATCH:
-        case CSTR:
-        case PFR_0D:
-            rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
-            cout << rctr_vol << endl;
-            if (!rctr_vol) {
-                // Raise Error
-                ;
-            }
-            break;
-        case PFR:
-            rctr_len = strSItoDbl(rctr_node["length"].as<string>());
-            rctr_area = strSItoDbl(rctr_node["area"].as<string>());
-            if (!rctr_len || !rctr_area) {
-                // Raise Error
-                ;
-            }
-            break;
-    }
-    */
-
-    // Start setting the reactor
 }

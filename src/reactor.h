@@ -26,12 +26,6 @@ enum RctrType {
     PFR
 };
 
-std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH}, 
-                                               {"cstr", CSTR}, 
-                                               {"pfr_0d", PFR_0D}, 
-                                               {"pfr", PFR}}; 
-
-
 
 void run_0d_reactor(YAML::Node& tube_node,
                     std::shared_ptr<Cantera::IdealGasMix> gas, 

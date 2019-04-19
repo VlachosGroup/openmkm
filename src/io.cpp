@@ -92,4 +92,95 @@ void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
     out.close();
 }
 
+void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,  
+        string output_file)
+{
+    vector<doublereal> muRxn; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Dimensionless Gibbs Energies of reactions (G/RT)\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            muRxn.resize(size);
+            mgr->getDeltaSSGibbs(muRxn.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12); 
+                out << std::left << muRxn[k]/(GasConstant*T) ;
+                out.width(12); 
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+
+void print_rxn_kc(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    vector<doublereal> kc; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Equilibrium constants of reactions\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            kc.resize(size);
+            mgr->getEquilibriumConstants(kc.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12); 
+                out << std::left << kc[k];
+                out.width(12); 
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+void print_rxn_kf(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    vector<doublereal> kf; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Forward rate constants of reactions\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            kf.resize(size);
+            mgr->getFwdRateConstants(kf.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12); 
+                out << std::left << kf[k];
+                out.width(12); 
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    vector<doublereal> kr; 
+    ofstream out;
+    out.open(output_file);
+    out << "#Reverse rate constants of reactions\n" << endl;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            kr.resize(size);
+            mgr->getRevRateConstants(kr.data());
+            for (size_t k = 0; k < size; k++) {
+                out.width(12); 
+                out << std::left << kr[k];
+                out.width(12); 
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+    out.close();
+}
+
+
 }
