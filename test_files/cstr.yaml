@@ -1,0 +1,29 @@
+reactor:                
+    type: cstr          
+    mode: isothermal  
+    volume: "1 cm3"
+    temperature:  950   
+    pressure:  "1 atm"  
+    cat_abyv: "1500 /cm"
+
+inlet_gas:              
+    velocity: "1 cm3/s" 
+
+simulation:
+    end_time: 50
+    solver:
+        atol: 1e-10         
+        rtol: 1e-8          
+
+phases:                     
+    gas: 
+        name: gas            
+        initial_state: "NH3:1" 
+    bulk: 
+        name: bulk            
+    surfaces:                   
+        - name: terrace
+          initial_state: "RU(S1):1"   
+        - name: step
+          initial_state: "RU(S2):1"
+
