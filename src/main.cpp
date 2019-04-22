@@ -23,6 +23,7 @@ include <yaml-cpp/yaml.h>
 #include "cantera/IdealGasMix.h"
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/InterfaceLatInt.h"
+#include "cantera/Interface.h"
 
 #include "io.h"
 #include "reactor.h"
@@ -118,7 +119,7 @@ int main(int argc, char* argv[])
     auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
 
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
-        run_0d_reactor(tube_node, gas, surf_phases, gen_info);
+        run_0d_reactor(tube_node, gas, surf_phases, gen_info, true);
 
     }
     else if (rctr_type == PFR) { // 1d reactor
