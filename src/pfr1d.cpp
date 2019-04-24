@@ -36,7 +36,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     }
 
     m_W.resize(m_nsp);
-    m_gas->getMolecularWeights(m_W);
+    m_gas->getMolecularWeights(m_W.data());
     m_wdot.resize(m_nsp);
     fill(m_wdot.begin(), m_wdot.end(), 0.0);
     m_sdot.resize(m_nsp);
@@ -73,24 +73,8 @@ int PFR1d::getInitialConditions(const double t0,
         loc += s_ph->nSpecies();
     }
 
-    m_gas->getNetProductionRates(&m_wdot[0]);
-
 
     
-    // Gas phase species
-    /*
-    for (unsigned i = 0; i != idx0; ++i)
-    {
-        // For species equations.
-        A(i, i) = rho0 * m_u0;
-        b(i) = m_wdot[i] * m_W[i];
-
-        // Yk' for other equations, exceptionally here!
-        A(idx2, i) = P0 * Wavg * Wavg / m_W[i];
-    }
-    */
-    
-
     // Continuity equation elements.
     A(0, 0) = rho0;           // u'
     A(0, 1) = m_u0;           // rho'
@@ -106,13 +90,28 @@ int PFR1d::getInitialConditions(const double t0,
     A(2, 1) = RT;             // rho'
     A(2, 2) = -Wavg;          // p'
 
-    // TODO: change b(0) 
-    b(0) = 0;                    // RHS continuity
-    b(1) = 0;                    // RHS momentum
-    b(2) = 0;                    // RHS state
+    double mdot_surf = evalSurfaces();
+    b(0) = m_surf_sp_area * mdot_surf;      // RHS continuity
+    b(1) = 0;                               // RHS momentum
+    b(2) = 0;                               // RHS state
 
-    //Eigen::VectorXd x = A.fullPivLu().solve(b);
-    //Eigen::VectorXd::Map(ydot, x.rows()) = x;
+    // Gas phase species
+    m_gas->getNetProductionRates(&m_wdot[0]);
+    for (unsigned k = 3; k < m_nsp + 3; ++k)
+    {
+        auto i = k - 3;
+        // For species equations.
+        A(k, k) = rho0 * m_u0;
+        b(k) = (m_wdot[i] + m_sdot[i] * m_surf_sp_area) * m_W[i] -
+               y[k] * mdot_surf * m_surf_sp_area;
+
+        // Yk' for other equations, exceptionally here!
+        A(2, k) = P0 * Wavg * Wavg / m_W[i];
+    }
+    
+
+    Eigen::VectorXd x = A.fullPivLu().solve(b);
+    Eigen::VectorXd::Map(ydot, x.rows()) = x;
 
     return 0;
 }
@@ -143,18 +142,44 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
 
     // Get species production rates
     m_gas->getNetProductionRates(&m_wdot[0]);
+    //double mdot_surf = evalSurfaces();
+    vector_fp work(m_nsp);
+    fill(m_sdot.begin(), m_sdot.end(), 0.0);
+    double mdot_surf = 0.0; // net mass flux from surface
 
-    double mdot_surf = evalSurfaces(ydot + m_nsp + 3);
+    loc = m_nsp;
+    for (auto i = 0; i < m_surf_phases.size(); i++) {
+        double cov_sum = 0.0;
+        InterfaceKinetics* kin = m_surf_kins[i];
+        SurfPhase* surf = m_surf_phases[i];
+        work.resize(kin->nTotalSpecies());
+
+        kin->getNetProductionRates(work.data());
+        for (size_t k = m_nsp + 1; k < kin->nTotalSpecies()-1; k++){ // Gas + bulk + surface species
+            resid[3 + loc + k - m_nsp - 1] = work[k];
+            cov_sum = y[loc + 3 + k];
+        }
+        loc += surf->nSpecies();
+        resid[loc+2] = 1.0 - cov_sum; 
+
+        for (size_t k = 0; k < m_nsp; k++) {
+            m_sdot[k] += work[k];
+            mdot_surf += m_sdot[k] * m_W[k];
+        }
+    }
+
 
     resid[0] = u * drdz + r * dudz - m_surf_sp_area * mdot_surf;
     resid[1] = 2 * r * u * dudz + u *u * drdz + dpdz;
     resid[2] = m_gas->density() - r;
-    for (unsigned k = 0; k < m_gas->nSpecies(); ++k)
+
+    for (unsigned k = 0; k < m_nsp; ++k)
     {
         resid[3+k] = u * r * ydot[3+k] + y[3+k] * mdot_surf * m_surf_sp_area 
                      - (m_wdot[k] + m_sdot[k] * m_surf_sp_area) * m_W[k];
     }
 
+    /* TODO: Delete the commented code
     loc = m_nsp; 
     for (auto s_ph : m_surf_phases) {
         double cov_sum = 0.0;
@@ -166,6 +191,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
         resid[loc + 2] = 1.0 - cov_sum;
 
     }
+    */
     //resid[2+m_nsp] = 1 - 
     //resid[idx0] = r * dudz + u * drdz;
     //resid[idx1] = u * r * dudz;
@@ -174,9 +200,9 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     return 0;
 }
 
-double PFR1d::evalSurfaceInit() 
+double PFR1d::evalSurfaces() 
 {
-    const vector_fp& mw = m_gas->molecularWeights();
+    //const vector_fp& mw = m_gas->molecularWeights();
     vector_fp work(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
     double mdot_surf = 0.0; // net mass flux from surface
@@ -185,20 +211,22 @@ double PFR1d::evalSurfaceInit()
     for (auto i = 0; i < m_surf_phases.size(); i++) {
         InterfaceKinetics* kin = m_surf_kins[i];
         SurfPhase* surf = m_surf_phases[i];
+        work.resize(kin->nTotalSpecies());
 
-        double rs0 = 1.0/surf->siteDensity();
+        //double rs0 = 1.0/surf->siteDensity();
         //surf->setTemperature(m_state[0]);
         kin->getNetProductionRates(work.data());
 
         for (size_t k = 0; k < m_nsp; k++) {
             m_sdot[k] += work[k];
-            mdot_surf += m_sdot[k] * mw[k];
+            mdot_surf += m_sdot[k] * m_W[k];
         }
     }
 
     return mdot_surf;
 }
 
+/*
 double PFR1d::evalSurfaces(const double* const ydot)
 {
     const vector_fp& mw = m_gas->molecularWeights();
@@ -206,7 +234,7 @@ double PFR1d::evalSurfaces(const double* const ydot)
     size_t loc = 0; // offset into ydot
     double mdot_surf = 0.0; // net mass flux from surface
 
-    /*
+    
     for (auto i = 0; i < m_surf_phases.size(); i++) {
         InterfaceKinetics* kin = m_surf_kins[i];
         SurfPhase* surf = m_surf_phases[i];
@@ -214,17 +242,17 @@ double PFR1d::evalSurfaces(const double* const ydot)
         double rs0 = 1.0/surf->siteDensity();
         size_t nk = surf->nSpecies();
         double sum = 0.0;
-        surf->setTemperature(m_state[0]);
+        //surf->setTemperature(m_state[0]);
         // S->syncCoverages(); TODO: Add replacement statement
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->surfacePhaseIndex();
-        size_t surfloc = kin->kineticsSpeciesIndex(0, ns);
-        for (size_t k = 1; k < nk; k++) {
-            ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-            sum -= ydot[loc + k];
-        }
-        ydot[loc] = sum;
-        loc += nk;
+        //size_t ns = kin->surfacePhaseIndex();
+        //size_t surfloc = kin->kineticsSpeciesIndex(0, ns);
+        //for (size_t k = 1; k < nk; k++) {
+        //    ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+        //    sum -= ydot[loc + k];
+        //}
+        //ydot[loc] = sum;
+        //loc += nk;
 
         double wallarea = S->area();
         for (size_t k = 0; k < m_nsp; k++) {
@@ -232,9 +260,10 @@ double PFR1d::evalSurfaces(const double* const ydot)
             mdot_surf += m_sdot[k] * mw[k];
         }
     }
-    */
+   /
     return mdot_surf;
 }
+*/
 
 void PFR1d::getSurfaceProductionRates(double* y)
 {

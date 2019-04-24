@@ -107,9 +107,7 @@ public:
                     const double delta_x = 0.0);
 
     //! Evaluate the production rates of the species at the surfaces
-    double evalSurfaces(const double* const ydot);
-
-    double evalSurfaceInit();
+    double evalSurfaces();
 
     unsigned getSpeciesIndex(std::string name) const
     {
