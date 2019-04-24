@@ -40,6 +40,20 @@ void run_0d_reactor(YAML::Node& tube_node,
                     std::ofstream& gen_info,
                     bool log_transient);
 
+
+void run_1d_reactor(YAML::Node& tube_node,
+                    std::shared_ptr<Cantera::IdealGasMix> gas, 
+                    std::vector<std::shared_ptr<Cantera::Interface>> surfaces,
+                    std::ofstream& gen_info,
+                    bool log_transient);
+/*
+void run_1d_reactor(YAML::Node& tube_node,
+                    std::shared_ptr<Cantera::IdealGasMix> gas, 
+                    std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces,
+                    std::ofstream& gen_info,
+                    bool log_transient);
+                    */
+
 }
 
 #endif 

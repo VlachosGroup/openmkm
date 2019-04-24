@@ -6,7 +6,7 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
                            "-ftest-coverage", "-pthread"],
                   LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
 
-sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "io.cpp", "pfr1d_isothermal.cpp"]
+sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", "io.cpp", "pfr1d.cpp"]
 
 env.Program(target="hetero_ct", source=sources, 
             LIBS=["sundials_cvodes", "sundials_ida", "sundials_nvecserial", "cantera", "yaml-cpp"],
