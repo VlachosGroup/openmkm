@@ -4,23 +4,23 @@
 namespace HeteroCt
 {
 
-std::vector<double> get_times(double end_time)
+std::vector<double> get_log_intervals(double end_val)
 {
-    std::vector<double> times;
+    std::vector<double> intervals;
     auto scale = 1e-6;
-    auto r_time=0;
-    while (r_time < end_time) {
+    auto r_val=0;
+    while (r_val < end_val) {
         for (size_t i=1; i < 10; i++){
-            r_time = i*scale;
-            if (r_time > end_time)
+            r_val = i*scale;
+            if (r_val > end_val)
                 break;
-            times.push_back(r_time);
+            intervals.push_back(r_val);
         }
-        if (r_time > end_time)
+        if (r_val > end_val)
             break;
         scale *= 10;
     }
-    return times;
+    return intervals;
 }
 
 }

@@ -6,7 +6,7 @@
 namespace HeteroCt
 {
 
-std::vector<double> get_times(double end_time);
+std::vector<double> get_log_intervals(double end_val);
 
 }
 
