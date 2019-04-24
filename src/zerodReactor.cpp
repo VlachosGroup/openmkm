@@ -131,7 +131,7 @@ void run_0d_reactor(YAML::Node& tube_node,
     vector<double> times;
 
     if (transient_log)
-        times = get_times(end_time);
+        times = get_log_intervals(end_time);
     else
         times.push_back(end_time);
 
@@ -268,7 +268,7 @@ void run_0d_reactor(YAML::Node& tube_node,
     vector<double> times;
 
     if (transient_log)
-        times = get_times(end_time);
+        times = get_log_intervals(end_time);
     else
         times.push_back(end_time);
 
