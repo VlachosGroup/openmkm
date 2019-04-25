@@ -1,0 +1,9 @@
+# Hetero_ct
+
+## Welcome to Hetero_ct!
+
+Hetero_ct is a multiphysics and multiscale software aimed at Chemical Engineers interested in 
+modeling chemical kinetics for heterogeneous catalytic reactions. Hetero_ct is opensource software 
+and is developed at Delaware Energy Institute, University of Delaware. 
+Hetero_ct is dependent on Cantera (www.cantera.org). Development of hetero_ct is funded by 
+RAPID Manufacturing Institute (www.aiche.org/rapid).
