@@ -22,8 +22,8 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/SurfLatIntPhase.h"
-#include "cantera/numerics/IDA_Solver.h"
 #include "cantera/numerics/eigen_dense.h"
+#include "cantera/numerics/ResidJacEval.h"
 #include "cantera/transport.h"
 
 #ifndef SUPPRESS_WARNINGS
@@ -72,6 +72,7 @@ public:
           std::vector<Cantera::InterfaceKinetics*> surf_kins,       
           std::vector<Cantera::SurfPhase*> surf_phases,
           double pfr_crosssection_area,
+          double cat_abyv, 
           double inlet_gas_velocity);
 
     ~PFR1d()

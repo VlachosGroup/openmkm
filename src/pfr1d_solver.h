@@ -6,14 +6,18 @@
 #ifndef HTRCT_SOLVER_1D
 #define HTRCT_SOLVER_1D
 
-#include "pfr1d_base.h"
+#include "pfr1d.h"
+#include "cantera/numerics/IDA_Solver.h"
+
+using namespace Cantera;
+using namespace std;
 
 namespace HeteroCt {
 
 class PFR1dSolver
 {
 public:
-    PFR1dSolver(PFR1dBase* pfr)
+    PFR1dSolver(PFR1d* pfr)
     {
         m_neq = pfr->nEquations();
         m_vec.resize(m_neq);
@@ -58,7 +62,7 @@ public:
     }
 
     int solve(double xout)
-    {
+    { 
         int retcode = 0;
 
         if (!m_ss_started)
@@ -146,4 +150,3 @@ protected:
 } 
 
 #endif 
-

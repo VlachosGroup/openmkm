@@ -13,10 +13,11 @@ namespace HeteroCt
 {
 
 PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
-             vector<SurfPhase*> surf_phases, double area, 
+             vector<SurfPhase*> surf_phases, double area, double cat_abyv,
              double inlet_gas_velocity) 
    : ResidJacEval{}, m_gas(gas), m_surf_kins(surf_kins), 
-     m_surf_phases(surf_phases), m_Ac(area), m_u0(inlet_gas_velocity)
+     m_surf_phases(surf_phases), m_Ac(area), m_surf_sp_area(cat_abyv), 
+     m_u0(inlet_gas_velocity)
 {
    
     suppress_thermo_warnings(SUPPRESS_WARNINGS);
@@ -42,7 +43,14 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     m_sdot.resize(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
 
+    m_var.resize(neq_ - 3);
     m_var = m_gas->speciesNames();
+    for (const auto s_ph : m_surf_phases) {
+        auto sp_nm = s_ph->speciesNames();
+        for (auto i = 0; i < sp_nm.size(); i++){
+            m_var.push_back(sp_nm[i]);
+        }
+    }
 
     m_T0 = gas->temperature();
     m_P0 = gas->pressure();
@@ -67,9 +75,12 @@ int PFR1d::getInitialConditions(const double t0,
     y[2] = P0;
 
     m_gas->getMassFractions(y+3);
+
     auto loc = m_nsp + 3;
     for (const auto s_ph : m_surf_phases) {
-        s_ph->getCoverages(ydot+loc);
+        //cout << "loc: " << loc << endl;
+        //cout << "Surf numbers: " << s_ph->nSpecies() << endl;
+        s_ph->getCoverages(y+loc);
         loc += s_ph->nSpecies();
     }
 
@@ -97,11 +108,15 @@ int PFR1d::getInitialConditions(const double t0,
 
     // Gas phase species
     m_gas->getNetProductionRates(&m_wdot[0]);
+    cout << "m_surf_sp_area: " << m_surf_sp_area << endl;
+    cout << "mdot_surf: " << mdot_surf << endl;
     for (unsigned k = 3; k < m_nsp + 3; ++k)
     {
         auto i = k - 3;
         // For species equations.
         A(k, k) = rho0 * m_u0;
+        cout << "k: " << k <<  "  m_sdot[k-3] " << m_sdot[i] << endl;
+        cout << "k: " << k << "  y[k]: " << y[k] << endl;
         b(k) = (m_wdot[i] + m_sdot[i] * m_surf_sp_area) * m_W[i] -
                y[k] * mdot_surf * m_surf_sp_area;
 
@@ -110,7 +125,13 @@ int PFR1d::getInitialConditions(const double t0,
     }
     
 
+    cout << "A matrix: \n"  
+         << A << endl;
+    cout << "b matrix: \n"  
+         << b << endl;
     Eigen::VectorXd x = A.fullPivLu().solve(b);
+    cout << "output of eigen solver\n"  
+         << x << endl;
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
 
     return 0;
