@@ -92,17 +92,24 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
+    vector<double> cov(100);
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
+        surf->getCoverages(cov.data());
+
+        for (auto i = 0; i < surf->nSpecies(); i++)
+            cout << "i: " << i << " cov: " << cov[i] << endl;
     }
 
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_area, cat_abyv, velocity);
+    /*
     vector<double> ydot(25);
     vector<double> y(25);
     pfr.getInitialConditions(0, y.data(), ydot.data());
     for (size_t i = 0; i < 25; i++){
         cout << "i:   " << i << "   y: " << y[i] << "   ydot:   " << ydot[i] << endl;
     }
+    */
 
     auto simul_node = tube_node["simulation"];
     //auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
@@ -112,7 +119,8 @@ void run_1d_reactor(YAML::Node& tube_node,
 
     PFR1dSolver pfr_solver {&pfr};
     pfr_solver.setTolerances(rel_tol, abs_tol);
-    pfr_solver.setMaxNumSteps(30000);  //TODO: Make this optional input option
+    pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
+    pfr_solver.setInitialStepSize(1e-18);
 
     //pfr_solver(rctr_len);
 
@@ -126,8 +134,6 @@ void run_1d_reactor(YAML::Node& tube_node,
     pfr_solver.writeResults("1d_pfr.out");
 
     //vector<double> gas_X(gas->nSpecies());
-
-    
 
 
    

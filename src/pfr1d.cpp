@@ -35,6 +35,9 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     for (const auto s_ph : m_surf_phases) {
         neq_ += s_ph->nSpecies();
     }
+    for (const auto sp_name : gas->speciesNames())
+        cout << sp_name << " " ;
+    cout << endl;
 
     m_W.resize(m_nsp);
     m_gas->getMolecularWeights(m_W.data());
@@ -67,8 +70,10 @@ int PFR1d::getInitialConditions(const double t0,
     const double RT = m_gas->temperature() * GasConstant;
 
 
-    Eigen::MatrixXd A(m_nsp+3, m_nsp+3);
-    Eigen::VectorXd b(m_nsp+3);
+    //Eigen::MatrixXd A(m_nsp+3, m_nsp+3) = Eigen::MatrixXd::Zero(m_nsp+3, m_nsp+3);
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(m_nsp+3, m_nsp+3);
+    //Eigen::VectorXd b(m_nsp+3) = Eigen::VectorXd::Zero(m_nsp+3);
+    Eigen::VectorXd b = Eigen::VectorXd::Zero(m_nsp+3);
 
     y[0] = m_u0;
     y[1] = rho0;
@@ -90,11 +95,15 @@ int PFR1d::getInitialConditions(const double t0,
     A(0, 0) = rho0;           // u'
     A(0, 1) = m_u0;           // rho'
     A(0, 2) = 0;              // p'
+    for (unsigned k = 3; k < m_nsp + 3; ++k)
+        A(0, k) = 0.0;
 
     // Momentum equation elements.
     A(1, 0) = 2* rho0 * m_u0; // u'
     A(1, 1) = m_u0 * m_u0;    // rho'
     A(1, 2) = 1;              // p'
+    for (unsigned k = 3; k < m_nsp + 3; ++k)
+        A(1, k) = 0.0;
 
     // State equation elements.
     A(2, 0) = 0;              // u'
@@ -134,6 +143,10 @@ int PFR1d::getInitialConditions(const double t0,
          << x << endl;
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
 
+    for (size_t i = 0; i < 25; i++){
+           cout << "i:   " << i << "   y: " << y[i] << "   ydot:   " << ydot[i] << endl;
+   }
+
     return 0;
 }
 
@@ -152,18 +165,18 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double dpdz = ydot[2];
 
     m_gas->setMassFractions_NoNorm(y+3);
-    m_gas->setState_TP(m_T0, y[2]);
+    m_gas->setState_TP(m_T0, p);
 
     auto loc = 3 + m_nsp;
     for (auto s_ph : m_surf_phases) {
-        s_ph->setState_TP(m_T0, y[2]);
+        s_ph->setState_TP(m_T0, p);
         s_ph->setCoveragesNoNorm(y+loc);
         loc += s_ph->nSpecies();
     }
 
     // Get species production rates
     m_gas->getNetProductionRates(&m_wdot[0]);
-    //double mdot_surf = evalSurfaces();
+    //double mdot_surf = s();
     vector_fp work(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
     double mdot_surf = 0.0; // net mass flux from surface
@@ -174,13 +187,15 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
         InterfaceKinetics* kin = m_surf_kins[i];
         SurfPhase* surf = m_surf_phases[i];
         work.resize(kin->nTotalSpecies());
+        //cout << "nTotalSpecies " << kin->nTotalSpecies() << endl;
 
         kin->getNetProductionRates(work.data());
         for (size_t k = m_nsp + 1; k < kin->nTotalSpecies()-1; k++){ // Gas + bulk + surface species
             resid[3 + loc + k - m_nsp - 1] = work[k];
-            cov_sum = y[loc + 3 + k];
+            cov_sum += y[loc + 3 + k - m_nsp -1];
         }
         loc += surf->nSpecies();
+        cov_sum += y[loc+2];
         resid[loc+2] = 1.0 - cov_sum; 
 
         for (size_t k = 0; k < m_nsp; k++) {
@@ -232,14 +247,20 @@ double PFR1d::evalSurfaces()
     for (auto i = 0; i < m_surf_phases.size(); i++) {
         InterfaceKinetics* kin = m_surf_kins[i];
         SurfPhase* surf = m_surf_phases[i];
+        for (const auto sp_name : surf->speciesNames())
+            cout << sp_name << " ";
+        cout << endl; 
         work.resize(kin->nTotalSpecies());
+        fill(work.begin(), work.end(), 0.0);
 
         //double rs0 = 1.0/surf->siteDensity();
         //surf->setTemperature(m_state[0]);
         kin->getNetProductionRates(work.data());
 
+        cout << "PFR1d::evaSurfaces"  << endl;
         for (size_t k = 0; k < m_nsp; k++) {
             m_sdot[k] += work[k];
+            cout << "k " << k << " msdot[k]   " << m_sdot[k] << endl;
             mdot_surf += m_sdot[k] * m_W[k];
         }
     }
