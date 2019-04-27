@@ -30,11 +30,13 @@ location of cantera and the sundials libraries.
 Run *scons -j 4* command to compile.
 
 ## Usage
+
 Hetero_ct requires two input files, which are specified as arguments in the command line. 
 
 1. The first is an yaml file specifying the reactor model parameters, operating conditions, and the names of 
 thermodynamic phases (which are defined in the Cantera XML file supplied as second argument) and the 
 starting composition and coverages of gas and surface phases respectively.
+
 2. Cantera input file in XML format which provides the definitions of species, reactions, interactions, and 
 gas, solid and  catalyst surface phases.
 
