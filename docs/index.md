@@ -3,7 +3,7 @@ Welcome to Hetero_ct!
 Hetero_ct is a multiphysics and multiscale software aimed at Chemical Engineers interested in 
 modeling chemical kinetics for heterogeneous catalytic reactions. Hetero_ct is opensource software 
 and is developed at Delaware Energy Institute, University of Delaware. Hetero_ct uses 
-[Cantera](www.cantera.org) as backend library for kinetics and thermodynamics processing.
+[Cantera](http://www.cantera.org) as backend library for kinetics and thermodynamics processing.
 
 Hetero_ct is written in C++ and is compiled and executed from command line. 
 
@@ -53,7 +53,7 @@ RAPID Manufacturing Institute (www.aiche.org/rapid).
 
 ## Reading Material
 
-1. The documentation on Cantera at its [website](www.cantera.org).
+1. The documentation on Cantera can be found at its [website](http://www.cantera.org).
 
 2. The governing equations of the  reactor models implemented can be found [here](ReactorModels.pdf).
 
