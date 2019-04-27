@@ -51,6 +51,12 @@ Examples of both files can be found in *hetero_ct/test_files* folder. For syntax
 RAPID Manufacturing Institute (www.aiche.org/rapid).
 
 
-## References
-1.[Cantera][www.cantera.org]
+## Reading Material
+
+1. The documentation on Cantera at its [website](www.cantera.org).
+
+2. The governing equations of the  reactor models implemented can be found [here](ReactorModels.pdf).
+
+3. Coverage dependent surface lateral interactions and how to specify them in the Cantera XML file 
+are explained [here](SurfaceInteractions.pdf).
 
