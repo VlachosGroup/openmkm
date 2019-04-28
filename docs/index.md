@@ -22,6 +22,7 @@ python_cmd=<path to python command>      \
 python_prefix=<path to python site-packages folder such as ~/anaconda3/envs/my_env/lib/python3.7/site-packages> \
 extra_inc_dirs="/usr/include/eigen3:/usr/include" -j 4 
 ~~~
+{: .language-bash}
 Here *-j 4* is used to speed up the compilation process.
 
 2.
@@ -35,6 +36,7 @@ Hetero_ct requires two input files, which are specified as arguments in the comm
 ~~~
 ./hetero_ct <rctr.yaml> <input.xml>
 ~~~
+{: .language-bash}
 
 1. The first argument is the name of yaml file specifying the reactor model parameters, operating conditions, and the names of 
 thermodynamic phases (which are defined in the Cantera XML file supplied as second argument) and the 
