@@ -1,0 +1,80 @@
+# Input file defining the reactor parameters for hetero_ct
+# The thermodynamic information of phases and species is supplied in a different file
+# This file uses YAML format. YAML is a superset of JSON, so this input file can also 
+# be supplied JSON format.
+# For any format related questions, refer to YAML documentation.
+#
+# For quantities that have units, default units are SI. In that case
+# just specify the value. Otherwise give the value and units as tuple
+# Ex (temp in K) 
+# temperature: 950 
+# or (temp in C)
+# temperature: 950 C
+
+reactor:                # Mandatory YAML node
+    type: cstr          # Mandatory, options are cstr, batch, pfr, pfr_0d
+    # Each option may require additional keywords specific to that option
+    # Some of the subsequent (required) keywords are dependent on reactor type
+    # Not all keywords are applicable for all reactors models
+    # For consistency, one could specify null as value for keywords that are not required 
+
+    # cstr, pfr_0d, batch use volume and entry gas velocity is cubic units/sec
+    # pfr uses area and length and entry gas velocity is in units/sec
+    volume: "1 cm3"
+    length: NULL
+    area: NULL
+    nodes: NULL    # If pfr_0d, nodes define # of CSTRs used to model the PFR
+
+    temperature:  950   # Mandatory. Inlet gas temperature or starting reactor temp)
+    pressure:  "1 atm"  # Mandatory. Inlet gas pressure    or starting reactor pressure)
+
+    # Reactor operational mode. Options are isothermal, adiabatic, tpd, heat, tprofile
+    # For isothermal, T is fixed and energy equation is not solved.
+    # For adiabatic and heat, T is not fixed and energy equation is solved.
+    # For heat, external heat source is present.
+    # For tpd, temperature is changed as function of time.
+    # For tprofile, temperature is function of distance from inlet (For PFR).
+    mode: 'isothermal'  # Mandatory node
+
+    Tramp: NULL         # For tpd, heat ramp beta value
+    Tend: NULL          # For tpd, final temperature
+    Text: NULL          # For heat, external temperature
+    Tprofile: 
+        - NULL          # For tprofile, list of dist: T keyvalue pairs
+    ext_abyv: NULL      # For heat, reactor outer area / volume
+    htc: NULL           # For heat, heat transfer coefficient
+
+    cat_abyv: "1500 /cm"
+
+inlet_gas:              # All three quants related. Give one of them. First nonzero quantity used
+    velocity: "1 cm3/s" # Can be supplied for all reactor_types. Units depend on rctr_type
+    residence_time: NULL # Makes sense for CSTR
+    mass_flow_rate: NULL # Can be supplied for all reactor_types. 
+
+simulation:
+    end_time: 50
+
+    solver:
+        atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info)
+        rtol: 1e-8          # Relative tolerance
+
+# Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
+# A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
+# may not be required. The phases enumerated here are used to instantiate the required 
+# phases, instead of modifying CTI/XML file everytime. 
+# Initial state is set with a string containing comma seaprated key:value pairs
+# Initial state of the phases can also be set in the CTI/XML file. 
+# If the initial state is supplied here, it will override any initial state set 
+# definition in CTI file
+phases:                     # Mandatory, 
+    gas: 
+        name: "gas"             # Default is gas
+        initial_state: "NH3:1"     # For gas phase, molar fractions 
+    bulk: 
+        name: "bulk"            # Default is bulk
+    surfaces:                   # Default is one surface with name surface
+        - name: "terrace"
+          initial_state: "RU(S1):1"   # For surface phase, coverage values 
+        - name: "step"
+          initial_state: "RU(S2):1"
+

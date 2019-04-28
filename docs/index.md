@@ -46,7 +46,7 @@ starting composition and coverages of gas and surface phases respectively.
 gas, solid and  catalyst surface phases.
 
 Examples of both files can be found in *hetero_ct/test_files* folder. For syntax of the yaml file, refer to the
-[rctr_tmplt.yaml](../test_files/rctr_tmplt.yaml) file, which provides extensive comments on the keywords required in the yaml required by hetero_ct
+[rctr_tmplt.yaml](rctr_tmplt.yaml) file, which provides extensive comments on the keywords required in the yaml required by hetero_ct
 
 ## Credits
  Development of hetero_ct is funded by [RAPID Manufacturing Institute](www.aiche.org/rapid).
