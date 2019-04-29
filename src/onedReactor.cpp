@@ -125,12 +125,12 @@ void run_1d_reactor(YAML::Node& tube_node,
     //pfr_solver(rctr_len);
 
     
-    /*vector<double> zvals = get_log_intervals(rctr_len); //Use the same function to get z steps
+    vector<double> zvals = get_log_intervals(rctr_len); //Use the same function to get z steps
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
     }
-    */
-    pfr_solver.solve(rctr_len);
+    
+    //pfr_solver.solve(rctr_len);
     pfr_solver.writeResults("1d_pfr.out");
 
     //vector<double> gas_X(gas->nSpecies());
