@@ -37,13 +37,13 @@ Hetero_ct requires two input files, which are specified as arguments in the comm
 ./hetero_ct <rctr.yaml> <input.xml>
 ~~~
 
-1. The first argument *<rctr.yaml>* is the name of yaml file specifying the reactor model parameters, 
+1. The first argument *rctr.yaml* is the name of yaml file specifying the reactor model parameters, 
 operating conditions, and the names of thermodynamic phases (which are defined in the Cantera XML file 
 supplied as second argument) and the starting composition and coverages of gas and surface phases 
 respectively.  For syntax of the yaml file, refer to the [rctr_tmplt.yaml](rctr_tmplt.yaml) file, 
 which provides extensive comments on the keywords required by hetero_ct in the supplied yaml file .
 
-2. The second argument *<input.xml>* is Cantera input file in XML format which provides the 
+2. The second argument *input.xml* is Cantera input file in XML format which provides the 
 definitions of species, reactions, interactions, and gas, solid and  catalyst surface phases. For 
 more information on the Cantera XML file format, refer to 
 [Cantera documentation on input file format](https://cantera.org/tutorials/input-files.html).
