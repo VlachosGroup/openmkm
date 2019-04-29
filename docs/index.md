@@ -2,17 +2,18 @@ Welcome to Hetero_ct!
 
 Hetero_ct is a multiphysics and multiscale software aimed at Chemical Engineers interested in 
 modeling chemical kinetics for heterogeneous catalytic reactions. Hetero_ct is opensource software 
-and is developed at Delaware Energy Institute, University of Delaware. Hetero_ct uses 
-[Cantera](http://www.cantera.org) as backend library for kinetics and thermodynamics processing.
-
+and is developed at Delaware Energy Institute, University of Delaware. 
 Hetero_ct is written in C++ and is compiled and executed from command line. 
 
 ## Installation
 
-1. Download [a modified version of cantera source from Github](https://github.com/mbkumar/cantera/tree/hetero_ct).
-Please note that the official version and the modified version differ in their implementation of coverage effects.
-Then [Install cantera from source](https://cantera.org/install/compiling-install.html). 
-Cantera uses scons for package building. To compile the source, here is a sample scons command used.
+1. Hetero_ct uses [Cantera](http://www.cantera.org) as backend library for kinetics and 
+thermodynamics processing.Download a
+[modified version of cantera source from Github](https://github.com/mbkumar/cantera/tree/hetero_ct).
+Please note that the official version and the modified version differ in their implementation of 
+coverage effects. Then [install](https://cantera.org/install/compiling-install.html)  Cantera 
+from source. Cantera uses scons for package building. To compile the source, here is a sample scons 
+command used.
 ~~~ bash
 scons build python_package=full f90_interface=y doxygen_docs=yes \
 system_eigen=y system_sundials=y  \
@@ -22,7 +23,6 @@ python_cmd=<path to python command>      \
 python_prefix=<path to python site-packages folder such as ~/anaconda3/envs/my_env/lib/python3.7/site-packages> \
 extra_inc_dirs="/usr/include/eigen3:/usr/include" -j 4 
 ~~~
-
 Here *-j 4* is used to speed up the compilation process.
 
 2.
@@ -37,17 +37,18 @@ Hetero_ct requires two input files, which are specified as arguments in the comm
 ./hetero_ct <rctr.yaml> <input.xml>
 ~~~
 
+1. The first argument *<rctr.yaml>* is the name of yaml file specifying the reactor model parameters, 
+operating conditions, and the names of thermodynamic phases (which are defined in the Cantera XML file 
+supplied as second argument) and the starting composition and coverages of gas and surface phases 
+respectively.  For syntax of the yaml file, refer to the [rctr_tmplt.yaml](rctr_tmplt.yaml) file, 
+which provides extensive comments on the keywords required by hetero_ct in the supplied yaml file .
 
-1. The first argument is the name of yaml file specifying the reactor model parameters, operating conditions, and the names of 
-thermodynamic phases (which are defined in the Cantera XML file supplied as second argument) and the 
-starting composition and coverages of gas and surface phases respectively.
+2. The second argument *<input.xml>* is Cantera input file in XML format which provides the 
+definitions of species, reactions, interactions, and gas, solid and  catalyst surface phases. For 
+more information on the Cantera XML file format, refer to 
+[Cantera documentation on input file format](https://cantera.org/tutorials/input-files.html).
 
-2. Cantera input file in XML format which provides the definitions of species, reactions, interactions, and 
-gas, solid and  catalyst surface phases.
-
-Examples of both files can be found in *hetero_ct/test_files* folder. For syntax of the yaml file, refer to the
-[rctr_tmplt.yaml](rctr_tmplt.yaml) file, which provides extensive comments on the keywords required in the yaml required by hetero_ct
-
+Examples of both files can be found in *hetero_ct/test_files* folder. 
 ## Credits
  Development of hetero_ct is funded by [RAPID Manufacturing Institute](www.aiche.org/rapid).
 
