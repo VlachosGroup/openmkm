@@ -12,9 +12,7 @@ namespace HeteroCt
 void print_formation_enthalpy(vector<ThermoPhase*> phases, string output_file) 
 {
     vector<doublereal> hform; 
-    ofstream out;
-    out.open(output_file);
-    out << "#Dimensionless formation enthalpies of species (H/RT)\n" << endl;
+    ofstream out (output_file);
     for  (const auto phase: phases){
         hform.resize(phase->nSpecies());
         phase->getEnthalpy_RT(hform.data());
@@ -25,14 +23,12 @@ void print_formation_enthalpy(vector<ThermoPhase*> phases, string output_file)
             out << std::right << hform[k] << endl;
         }   
     }   
-    out.close();
 }
 
 void print_formation_entropy(vector<ThermoPhase*> phases, string output_file) 
 {
     vector<doublereal> sform; 
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Dimensionless formation entropies of species (S/R)\n" << endl;
     for  (const auto phase: phases){
         sform.resize(phase->nSpecies());
@@ -44,15 +40,13 @@ void print_formation_entropy(vector<ThermoPhase*> phases, string output_file)
             out << std::right << sform[k] << endl;
         }   
     }   
-    out.close();
 }
 
 
 void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string output_file)
 {
     vector<doublereal> hrxn;
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Dimensionless enthalpies of reactions (H/RT)\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -67,14 +61,12 @@ void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string out
             }
         }
     }
-    out.close();
 }
 
 void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> sRxn;
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Dimensionless entropies of reactions (S/R)\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -89,15 +81,13 @@ void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
             }
         }
     }
-    out.close();
 }
 
 
 void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> kc;
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Equilibrium constants of reactions\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -112,15 +102,13 @@ void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
             }
         }
     }
-    out.close();
 }
 
 void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,  
         string output_file)
 {
     vector<doublereal> muRxn; 
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Dimensionless Gibbs Energies of reactions (G/RT)\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -135,15 +123,13 @@ void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,
             }
         }
     }
-    out.close();
 }
 
 
 void print_rxn_kc(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> kc; 
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Equilibrium constants of reactions\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -158,14 +144,12 @@ void print_rxn_kc(vector<Kinetics*> kinetic_mgrs, string output_file)
             }
         }
     }
-    out.close();
 }
 
 void print_rxn_kf(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> kf; 
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Forward rate constants of reactions\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -180,14 +164,12 @@ void print_rxn_kf(vector<Kinetics*> kinetic_mgrs, string output_file)
             }
         }
     }
-    out.close();
 }
 
 void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> kr; 
-    ofstream out;
-    out.open(output_file);
+    ofstream out (output_file);
     out << "#Reverse rate constants of reactions\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
@@ -202,7 +184,6 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
             }
         }
     }
-    out.close();
 }
 
 void print_htrct_header(std::ofstream& out) {
@@ -212,8 +193,7 @@ void print_htrct_header(std::ofstream& out) {
         << "Hetero_ct is a multiphysics and multiscale software aimed at" << std::endl
         << "modelng chemical kinetics for heterogeneous catalysis." << std::endl
         << "Hetero_ct is open source and is developed at Delaware Energy" << std::endl
-        << "Institute, Unitversity of Delaware. Hetero_ct uses Cantera," << std::endl
-        << "an open source software available at www.cantera.org, as backend.\n\n\n"; 
+        << "Institute, Unitversity of Delaware.\n\n\n"; 
 }
 
 }
