@@ -61,7 +61,7 @@ simulation:
 # Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
 # A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
 # may not be required. The phases enumerated here are used to instantiate the required 
-# phases, instead of modifying CTI file everytime. 
+# phases, instead of modifying CTI/XML file everytime. 
 # Initial state is set with a string containing comma seaprated key:value pairs
 # Initial state of the phases can also be set in the CTI/XML file. 
 # If the initial state is supplied here, it will override any initial state set 
