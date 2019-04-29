@@ -3,6 +3,7 @@
 #include <memory>
 #include <map>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #include <yaml-cpp/yaml.h>
@@ -32,10 +33,51 @@ namespace HeteroCt
 using namespace std;
 using namespace Cantera;
 
+//TODO: Add nSurfaces() function to Reactor/ReactorBase to eliminate the need
+// to pass surfaces argument
+void print_ss_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces, 
+                         ofstream& gas_ss_mole_out, 
+                         ofstream& gas_ss_mass_out, ofstream& surf_ss_out,
+                         ofstream& gen_info_out)
+{
+
+    vector<double> work(rctr->contents().nSpecies());
+    vector<double> surf_cov;
+
+    double temp = rctr->contents().temperature();
+    gen_info_out << "Inlet temperature: "  << temp << endl;
+    double pressure = rctr->contents().pressure();
+    gen_info_out << "Inlet pressure: "  << pressure << endl;
+
+    rctr->contents().getMoleFractions(work.data());
+    gas_ss_mole_out << setw(16) << left << z;
+    for (auto k = 0; k < work.size(); k++)
+        gas_ss_mole_out << setw(16) << left << work[k];
+    gas_ss_mole_out << endl;
+
+    rctr->contents().getMassFractions(work.data());
+    gas_ss_mass_out << setw(16) << left << z;
+    for (auto k = 0; k < work.size(); k++)
+        gas_ss_mass_out << setw(16) << left << work[k];
+    gas_ss_mass_out << endl;
+
+    surf_ss_out << setw(16) << left << z;
+    for (auto j = 0;  j <  surfaces.size(); j++) {
+        surf_cov.resize(surfaces[j]->nSpecies());
+        rctr->surface(j)->getCoverages(surf_cov.data());    // Adapt this for multiple surfaces
+        for (auto k = 0; k < surf_cov.size(); k++) {
+            surf_ss_out << setw(16) << left << surf_cov[k];
+        }
+    }
+    surf_ss_out << endl;
+
+}
+
+
 void run_0d_reactor(YAML::Node& tube_node,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<InterfaceInteractions>> surfaces,
-                    ofstream& gen_info, 
+                    ofstream& gen_info_out, 
                     bool transient_log)
 {
     //Define the reactor based on the input file
@@ -70,10 +112,12 @@ void run_0d_reactor(YAML::Node& tube_node,
     double cat_area = strSItoDbl(rctr_node["cat_abyv"].as<string>());
     cat_area *= rctr_vol;
     size_t surf_spec_no = 0;
+    vector<SurfPhase*> surf_phases;
     for (const auto surf : surfaces) {
         surf_spec_no += surf->nSpecies();
         auto cat_surf = make_shared<ReactorSurface>(); 
         cat_surf->setKinetics(surf.get());
+        surf_phases.push_back(dynamic_cast<SurfPhase *> (surf.get()));
         vector<double> coverages(surf->nSpecies());
         surf->getCoverages(coverages.data());
         cat_surf->setCoverages(coverages.data());
@@ -115,7 +159,7 @@ void run_0d_reactor(YAML::Node& tube_node,
     inlet_mfc->install(*in_rsrv, *rctr);
     outlet->install(*rctr, *exhst);
 
-    cout << "reactor density " << rctr->density() << endl;
+    gen_info_out << "reactor density " << rctr->density() << endl;
 
     // Start the simulation
     auto simul_node = tube_node["simulation"];
@@ -130,30 +174,54 @@ void run_0d_reactor(YAML::Node& tube_node,
     rnet.setTolerances(rel_tol, abs_tol);
     vector<double> times;
 
-    if (transient_log)
+    if (transient_log && cstr_nos == 1)
         times = get_log_intervals(end_time);
     else
         times.push_back(end_time);
 
-    vector<double> gas_X(rctr->contents().nSpecies());
-    vector<double> surf_cov(surf_spec_no);
+    ofstream gas_ss_mole_out ("gas_mole_ss.out", ios::out);
+    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl 
+               << setw(16) << left << "z(m)";
+    for (const auto & sp_name : gas->speciesNames()) {
+        gas_ss_mole_out << setw(16) << left << sp_name;
+    }
+    gas_ss_mole_out << endl;
+
+    ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
+    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl 
+               << setw(16) << left << "z(m)";
+    for (const auto & sp_name : gas->speciesNames()) {
+        gas_ss_mass_out << setw(16) << left << sp_name;
+    }
+    gas_ss_mass_out << endl;
+
+    ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
+    surf_ss_out << "Surace Coverages at Steady State: "  << endl 
+                << setw(16) << left << "z(m)";
+    for (const auto surf : surfaces) {
+        for (const auto & sp_name : surf->speciesNames()) {
+            surf_ss_out << setw(16) << left << sp_name;
+        }
+    }
+    surf_ss_out << endl;
+    //ofstream 
+    //if (times.size() > 1)
+    
+    // Print the inlet state
+    //
+    print_ss_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
+                        gas_ss_mass_out, surf_ss_out, gen_info_out);
+    vector<double> gas_X(gas->nSpecies());
+
     for (size_t i = 0; i < cstr_nos; i++) {
         // The next three lines redefine the TPX of gas for each reactor
-        cout << "CSTR #: " << i << endl;
+        gen_info_out << "CSTR #: " << i << endl;
+        /*for (auto k = 0; k < surf_cov.size(); k++)
+            gen_info_out << surf_cov[k] << " ";
+        gen_info_out << endl;*/
         double temp = rctr->contents().temperature();
-        cout << "temp: "  << temp << endl;
         double pressure = rctr->contents().pressure();
-        cout << "pressure: "  << pressure << endl;
         rctr->contents().getMoleFractions(gas_X.data());
-        cout << "Mole fractions: "  << endl;
-        for (auto k = 0; k < gas_X.size(); k++)
-            cout << gas_X[k] << " ";
-        cout << endl;
-        rctr->surface(0)->getCoverages(surf_cov.data());    // Adapt this for multiple surfaces
-        cout << "Surface Coverages: "  << endl;
-        for (auto k = 0; k < surf_cov.size(); k++)
-            cout << surf_cov[k] << " ";
-        cout << endl;
         gas->setState_TPX(temp, pressure, gas_X.data());
         in_rsrv->syncState();
         rnet.setInitialTime(0);
@@ -164,11 +232,179 @@ void run_0d_reactor(YAML::Node& tube_node,
         }
         rctr->restoreState();
 
+        print_ss_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
+                            gas_ss_mole_out, gas_ss_mass_out, surf_ss_out, 
+                            gen_info_out);
+
     }
-   
-    //return rctr;
 }
 
+void run_0d_reactor(YAML::Node& tube_node,
+                    shared_ptr<IdealGasMix> gas, 
+                    vector<shared_ptr<Interface>> surfaces,
+                    ofstream& gen_info_out, 
+                    bool transient_log)
+{
+    //Define the reactor based on the input file
+    auto rctr_node = tube_node["reactor"];
+    //auto rctr_type_node = rctr_node["type"];
+    //auto rctr_type = rt[rctr_type_node.as<string>()];
+
+    auto rctr = make_shared<Reactor>();
+    auto in_rsrv = make_shared<Reservoir>();
+    auto exhst = make_shared<Reservoir>();
+    rctr->insert(*gas);
+    in_rsrv->insert(*gas);
+    exhst->insert(*gas);
+
+    // Read the reactor dimensions
+    size_t cstr_nos = 1;
+    auto nd_node = rctr_node["nodes"];
+    if (nd_node)
+        if (!nd_node.IsNull())
+            cstr_nos = nd_node.as<int>();
+
+    double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
+    if (!rctr_vol) {
+        // TODO: Raise Error
+        ;
+    }
+    rctr_vol /= cstr_nos;
+
+    rctr->setInitialVolume(rctr_vol);
+    vector<shared_ptr<ReactorSurface>> cat_surfs;
+
+    double cat_area = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    cat_area *= rctr_vol;
+    size_t surf_spec_no = 0;
+    vector<SurfPhase*> surf_phases;
+    for (const auto surf : surfaces) {
+        surf_spec_no += surf->nSpecies();
+        auto cat_surf = make_shared<ReactorSurface>(); 
+        cat_surf->setKinetics(surf.get());
+        surf_phases.push_back(dynamic_cast<SurfPhase *> (surf.get()));
+        vector<double> coverages(surf->nSpecies());
+        surf->getCoverages(coverages.data());
+        cat_surf->setCoverages(coverages.data());
+        cat_surf->setArea(cat_area);
+        cat_surfs.push_back(cat_surf);
+        rctr->addSurface(cat_surf.get());
+    }
+
+    rctr->setChemistry();
+    string mode = rctr_node["mode"].as<string>();
+    if (mode == "isothermal") 
+        rctr->setEnergy(0);
+    else
+        rctr->setEnergy(1);
+
+    auto inlet_mfc = make_shared<MassFlowController>();
+    auto outlet = make_shared<PressureController>();
+    
+    auto inlet_node = tube_node["inlet_gas"];
+    auto vel_node = inlet_node["velocity"];
+    auto restime_node = inlet_node["residence_time"];
+    auto mfr_node = inlet_node["mass_flow_rate"];
+    double velocity{0}, residence_time{0}, mfr{0};
+    if (vel_node && !vel_node.IsNull()) {
+        velocity = strSItoDbl(inlet_node["velocity"].as<string>());
+        //residence_time = rctr_vol/velocity;
+        mfr = rctr->mass() * velocity /rctr_vol;
+    }
+    else if (restime_node && !restime_node.IsNull()) {
+        residence_time = strSItoDbl(inlet_node["residence_time"].as<string>());
+        mfr = rctr->mass()/residence_time;
+    }
+    else {
+        mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
+    }
+    inlet_mfc->setMassFlowRate(mfr);
+    outlet->setMaster(inlet_mfc.get());
+    outlet->setPressureCoeff(0.00001);
+    inlet_mfc->install(*in_rsrv, *rctr);
+    outlet->install(*rctr, *exhst);
+
+    gen_info_out << "reactor density " << rctr->density() << endl;
+
+    // Start the simulation
+    auto simul_node = tube_node["simulation"];
+    auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
+    auto solver_node = simul_node["solver"];
+    auto abs_tol = solver_node["atol"].as<double>();
+    auto rel_tol = solver_node["rtol"].as<double>();
+
+    
+    ReactorNet rnet; 
+    rnet.addReactor(*rctr);
+    rnet.setTolerances(rel_tol, abs_tol);
+    vector<double> times;
+
+    if (transient_log && cstr_nos == 1)
+        times = get_log_intervals(end_time);
+    else
+        times.push_back(end_time);
+
+    ofstream gas_ss_mole_out ("gas_mole_ss.out", ios::out);
+    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl 
+               << setw(16) << left << "z(m)";
+    for (const auto & sp_name : gas->speciesNames()) {
+        gas_ss_mole_out << setw(16) << left << sp_name;
+    }
+    gas_ss_mole_out << endl;
+
+    ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
+    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl 
+               << setw(16) << left << "z(m)";
+    for (const auto & sp_name : gas->speciesNames()) {
+        gas_ss_mass_out << setw(16) << left << sp_name;
+    }
+    gas_ss_mass_out << endl;
+
+    ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
+    surf_ss_out << "Surace Coverages at Steady State: "  << endl 
+                << setw(16) << left << "z(m)";
+    for (const auto surf : surfaces) {
+        for (const auto & sp_name : surf->speciesNames()) {
+            surf_ss_out << setw(16) << left << sp_name;
+        }
+    }
+    surf_ss_out << endl;
+    //ofstream 
+    //if (times.size() > 1)
+    
+    // Print the inlet state
+    //
+    print_ss_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
+                        gas_ss_mass_out, surf_ss_out, gen_info_out);
+    vector<double> gas_X(gas->nSpecies());
+
+    for (size_t i = 0; i < cstr_nos; i++) {
+        // The next three lines redefine the TPX of gas for each reactor
+        gen_info_out << "CSTR #: " << i << endl;
+        /*for (auto k = 0; k < surf_cov.size(); k++)
+            gen_info_out << surf_cov[k] << " ";
+        gen_info_out << endl;*/
+        double temp = rctr->contents().temperature();
+        double pressure = rctr->contents().pressure();
+        rctr->contents().getMoleFractions(gas_X.data());
+        gas->setState_TPX(temp, pressure, gas_X.data());
+        in_rsrv->syncState();
+        rnet.setInitialTime(0);
+        rnet.reinitialize();
+
+        for (const auto & tm : times) {
+            rnet.advance(tm);
+        }
+        rctr->restoreState();
+
+        print_ss_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
+                            gas_ss_mole_out, gas_ss_mass_out, surf_ss_out, 
+                            gen_info_out);
+
+    }
+}
+
+/*
 void run_0d_reactor(YAML::Node& tube_node,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<Interface>> surfaces,
@@ -252,7 +488,7 @@ void run_0d_reactor(YAML::Node& tube_node,
     inlet_mfc->install(*in_rsrv, *rctr);
     outlet->install(*rctr, *exhst);
 
-    cout << "reactor density " << rctr->density() << endl;
+    gen_info << "reactor density " << rctr->density() << endl;
 
     // Start the simulation
     auto simul_node = tube_node["simulation"];
@@ -288,23 +524,24 @@ void run_0d_reactor(YAML::Node& tube_node,
             rnet.advance(tm);
         }
         rctr->restoreState();
-        cout << "CSTR #: " << i << endl;
-        cout << "temp: "  << temp << endl;
-        cout << "pressure: "  << pressure << endl;
-        cout << "Mole fractions: "  << endl;
+        gen_info << "CSTR #: " << i << endl;
+        gen_info << "temp: "  << temp << endl;
+        gen_info << "pressure: "  << pressure << endl;
+        gen_info << "Mole fractions: "  << endl;
         rctr->contents().getMoleFractions(gas_X.data());
         for (auto k = 0; k < gas_X.size(); k++)
-            cout << gas_X[k] << " ";
-        cout << endl;
+            gen_info << gas_X[k] << " ";
+        gen_info << endl;
         rctr->surface(0)->getCoverages(surf_cov.data());    // Adapt this for multiple surfaces
-        cout << "Surface Coverages: "  << endl;
+        gen_info << "Surface Coverages: "  << endl;
         for (auto k = 0; k < surf_cov.size(); k++)
-            cout << surf_cov[k] << " ";
-        cout << endl;
+            gen_info << surf_cov[k] << " ";
+        gen_info << endl;
 
     }
    
     //return rctr;
 }
+*/
 
 }
