@@ -5,8 +5,8 @@
 
 // This file is part of hetero_ct
 
-#ifndef PFR_1D_BASE_H
-#define PFR_1D_BASE_H
+#ifndef HTRCT_PFR_1D_H
+#define HTRCT_PFR_1D_H
 
 #include <chrono>
 #include <functional>
