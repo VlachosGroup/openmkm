@@ -186,7 +186,7 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
     }
 }
 
-void print_htrct_header(std::ofstream& out) {
+void print_htrct_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
         << "Hetero_ct: version 0.0.1\n" 
         << "-----------------------------------------------------------\n\n" 

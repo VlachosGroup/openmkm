@@ -42,7 +42,7 @@ void print_rxn_kf(std::vector<Cantera::Kinetics*> kinetic_mgrs,
 void print_rxn_kr(std::vector<Cantera::Kinetics*> kinetic_mgrs, 
                   std::string output_file);
 
-void print_htrct_header(std::ofstream& out); 
+void print_htrct_header(std::ostream& out); 
 
 
 }
