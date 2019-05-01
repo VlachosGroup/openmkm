@@ -44,6 +44,7 @@ int main(int argc, char* argv[])
 {
     ofstream gen_info ("general_info.out", ios::out);
     print_htrct_header(gen_info);
+    print_htrct_header(cout);
     if (argc < 3) {
         // TODO: Throw error
         ;
@@ -72,15 +73,19 @@ int main(int argc, char* argv[])
     auto gas = make_shared<IdealGasMix>(phase_file_name, gas_phase_name);
     auto bulk = make_shared<StoichSubstance>(phase_file_name, blk_phase_name);
     vector<ThermoPhase*> gb_phases {gas.get(), bulk.get()};
-    vector<shared_ptr<InterfaceInteractions>> surf_phases;
+    vector<ThermoPhase*> all_phases {gas.get(), bulk.get()};
+    //vector<shared_ptr<InterfaceInteractions>> surf_phases;
+    vector<shared_ptr<Interface>> surf_phases;
     vector<Kinetics*> all_km {gas.get()};
     for (size_t i=0; i < surface_phase_names.size(); i++) {
         auto surf_ph_name = surface_phase_names[i];
-        auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
+        //auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
+        auto surf = make_shared<Interface>(phase_file_name, 
                                                        surf_ph_name, 
                                                        gb_phases);
         surf_phases.push_back(surf);
         all_km.push_back(surf.get());
+        all_phases.push_back(surf.get());
     }
 
     /* Read the reactor definition */
@@ -99,6 +104,10 @@ int main(int argc, char* argv[])
         surf_phases[i]->setState_TP(temp, press);
         surf_phases[i]->setCoveragesByName(surface_states[i]);
     }
+
+    /* Print the species thermodynamic info */
+    print_formation_enthalpy(all_phases, "Hform.out");
+    print_formation_entropy(all_phases, "Sform.out");
 
     /* Print the reaction thermodynamic info */
     size_t n_rxns = 0;
@@ -123,6 +132,7 @@ int main(int argc, char* argv[])
 
     }
     else if (rctr_type == PFR) { // 1d reactor
+        run_1d_reactor(tube_node, gas, surf_phases, gen_info, true);
         ; //TODO: Add 1d PFR implementation
     }
     
