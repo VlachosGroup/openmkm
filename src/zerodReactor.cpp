@@ -179,21 +179,23 @@ void run_0d_reactor(YAML::Node& tube_node,
     else
         times.push_back(end_time);
 
+
+    auto gas_print_sp_header = [&gas](ostream& out) -> void
+    {
+        out << setw(16) << left << "z(m)";
+        for (const auto & sp_name : gas->speciesNames()) {
+            out << setw(16) << left << sp_name;
+        }
+        out << endl;
+    };
+
     ofstream gas_ss_mole_out ("gas_mole_ss.out", ios::out);
-    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl 
-               << setw(16) << left << "z(m)";
-    for (const auto & sp_name : gas->speciesNames()) {
-        gas_ss_mole_out << setw(16) << left << sp_name;
-    }
-    gas_ss_mole_out << endl;
+    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl;
+    gas_print_sp_header(gas_ss_mole_out);
 
     ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
-    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl 
-               << setw(16) << left << "z(m)";
-    for (const auto & sp_name : gas->speciesNames()) {
-        gas_ss_mass_out << setw(16) << left << sp_name;
-    }
-    gas_ss_mass_out << endl;
+    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl;
+    gas_print_sp_header(gas_ss_mass_out);
 
     ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
     surf_ss_out << "Surace Coverages at Steady State: "  << endl 
