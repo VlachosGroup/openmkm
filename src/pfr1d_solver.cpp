@@ -10,7 +10,8 @@
 using namespace Cantera;
 using namespace std;
 
-namespace HeteroCt {
+namespace HeteroCt 
+{
 
 PFR1dSolver::PFR1dSolver(PFR1d* pfr)
 {
@@ -110,7 +111,9 @@ vector<double> PFR1dSolver::solutionVector()
 {
     // TODO make this with STL algorithm.
     const double* sol = m_solver->solutionVector();
-    for (unsigned i = 0; i != m_vec.size(); ++i) { m_vec[i] = sol[i]; }
+    for (unsigned i = 0; i != m_vec.size(); ++i) { 
+        m_vec[i] = sol[i]; 
+    }
     return m_vec;
 }
 
