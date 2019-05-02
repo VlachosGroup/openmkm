@@ -21,12 +21,10 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
 
     try
     {
-        cout << "Before solver initialized" << endl;
         m_solver = new IDA_Solver {*pfr};
         m_solver->setJacobianType(0);
         m_solver->setDenseLinearSolver();
         m_solver->init(0.0);
-        cout << "Solver initialized" << endl;
     }
     catch (Cantera::CanteraError& err)
     {
