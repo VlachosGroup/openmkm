@@ -60,16 +60,8 @@ void run_1d_reactor(YAML::Node& tube_node,
     double rctr_len = strSItoDbl(rctr_node["length"].as<string>());
 
     double cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
-    cout << "reached here" << endl;
 
-    string mode = rctr_node["mode"].as<string>();
-    /*if (mode == "isothermal") 
-        rctr->setEnergy(0);
-    else
-        rctr->setEnergy(1);
-    */
 
-    cout << "reached here" << endl;
     auto inlet_node = tube_node["inlet_gas"];
     auto vel_node = inlet_node["velocity"];     //Units are len/s
     auto mfr_node = inlet_node["mass_flow_rate"];
@@ -82,7 +74,6 @@ void run_1d_reactor(YAML::Node& tube_node,
         mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
         velocity = mfr/ (gas->density() * rctr_area);
     }
-    cout << "reached here2" << endl;
 
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
@@ -92,16 +83,22 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
-    vector<double> cov(100);
+    //vector<double> cov(100);
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
-        surf->getCoverages(cov.data());
+        //surf->getCoverages(cov.data());
 
-        for (auto i = 0; i < surf->nSpecies(); i++)
-            cout << "i: " << i << " cov: " << cov[i] << endl;
+        //for (auto i = 0; i < surf->nSpecies(); i++)
+        //    cout << "i: " << i << " cov: " << cov[i] << endl;
     }
 
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_area, cat_abyv, velocity);
+    string mode = rctr_node["mode"].as<string>();
+    if (mode == "isothermal") 
+        pfr.setEnergy(0);
+    else
+        pfr.setEnergy(1);
+    
     /*
     vector<double> ydot(25);
     vector<double> y(25);
