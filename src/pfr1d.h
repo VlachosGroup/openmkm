@@ -1,6 +1,7 @@
 /**
  * @file pfr1d.h
  */
+
 // Provides a 1d plug-flow reactor model.
 
 // This file is part of hetero_ct
@@ -44,9 +45,10 @@ static inline double sccmTocmps(doublereal sccm)
     return sccm / 60000000;
 }
 
-//! A plug flow reactor (PFR) model implemented in 1d. The model calculates the 
-//! steady state conditions of the PFR as a function of z (axial direction).
-/*!
+//! A plug flow reactor (PFR) model implemented in 1d. 
+//!
+/*!The model calculates the 
+ * steady state conditions of the PFR as a function of z (axial direction).
  * To evaluate the steady state conditions, first a pseudo steady state is solved
  * for the surfaces at the inlet for given T and P conditions. The resulting 
  * state of PFR at the inlet is used to propagate the state as a function of z by
@@ -73,12 +75,14 @@ public:
           std::vector<Cantera::SurfPhase*> surf_phases,
           double pfr_crosssection_area,
           double cat_abyv, 
-          double inlet_gas_velocity);
+          double inlet_gas_flowrate);
 
     ~PFR1d()
     {
         Cantera::appdelete();
     }
+
+    //void reinit();
 
     virtual int getInitialConditions(const double t0,
                                      double *const y,
@@ -120,20 +124,39 @@ public:
         return m_gas->intEnergy_mass();
     }
 
-
     std::vector<std::string> variablesNames() const
     {
         return m_var;
     }
 
-    void setVelocity(double velocity) 
+    void setFlowRate(double flow_rate) 
     {
-        m_u0 = velocity;
+        m_u0 = flow_rate;
     }
 
     void getSurfaceInitialConditions(double* y);
 
     void getSurfaceProductionRates(double* y);
+
+    void setEnergy(int eflag) 
+    {
+        if (eflag > 0) {
+            m_energy = true;
+            m_neqs_extra = 4;
+        } else {
+            m_energy = false;
+            m_neqs_extra = 3;
+        }
+    }
+
+    bool energyEnabled() const 
+    {
+        return m_energy;
+    }
+
+    void setHeatTransfer(double htc, double Text, double wall_abyv);
+
+    double getHeat(double Tint) const;
 
 protected:
     //! Pointer to the gas phase object.
@@ -166,11 +189,11 @@ protected:
     //! Number of gas species.
     unsigned m_nsp;
 
-    //! Number of extra equations for IDAs solver
+    //! Number of extra equations to solve beyond gas and surface species number
     unsigned m_neqs_extra; 
 
     //! Catalyst area by volume
-    double m_surf_sp_area;
+    double m_cat_abyv;
 
     //! Reference state inlet density.
     double m_rho_ref;
@@ -178,14 +201,29 @@ protected:
     //! Reactor cross-sectional area
     const double m_Ac = 0.0;
 
-    //! Inlet velocity
+    //! Solve Energy Equation
+    bool m_energy;
+
+    //! Inlet flow rate
     double m_u0 = 0.0;
 
     //! Inlet temperature
     double m_T0 = 0.0;
 
+    //! External Heat supplied 
+    bool m_heat;
+
+    //! External temperature
+    double m_Text = 0;
+
+    //! Heat transfer coefficent
+    double m_htc = 0;
+
+    //! Reactor Wall area where heat is transferred
+    double m_surf_ext_abyv = 0;
+
     //! Inlet pressure
-    double m_P0 = 0.0;
+    double m_P0 = 0;
 
 }; 
 
