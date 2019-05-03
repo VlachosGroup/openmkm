@@ -117,7 +117,7 @@ void run_0d_reactor(YAML::Node& tube_node,
         surf_spec_no += surf->nSpecies();
         auto cat_surf = make_shared<ReactorSurface>(); 
         cat_surf->setKinetics(surf.get());
-        surf_phases.push_back(dynamic_cast<SurfPhase *> (surf.get()));
+        surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
         vector<double> coverages(surf->nSpecies());
         surf->getCoverages(coverages.data());
         cat_surf->setCoverages(coverages.data());
@@ -137,14 +137,14 @@ void run_0d_reactor(YAML::Node& tube_node,
     auto outlet = make_shared<PressureController>();
     
     auto inlet_node = tube_node["inlet_gas"];
-    auto vel_node = inlet_node["velocity"];
+    auto flowrate_node = inlet_node["flow_rate"];
     auto restime_node = inlet_node["residence_time"];
     auto mfr_node = inlet_node["mass_flow_rate"];
-    double velocity{0}, residence_time{0}, mfr{0};
-    if (vel_node && !vel_node.IsNull()) {
-        velocity = strSItoDbl(inlet_node["velocity"].as<string>());
-        //residence_time = rctr_vol/velocity;
-        mfr = rctr->mass() * velocity /rctr_vol;
+    double flowrate{0}, residence_time{0}, mfr{0};
+    if (flowrate_node && !flowrate_node.IsNull()) {
+        flowrate = strSItoDbl(inlet_node["flow_rate"].as<string>());
+        //residence_time = rctr_vol/flowrate;
+        mfr = rctr->mass() * flowrate / rctr_vol;
     }
     else if (restime_node && !restime_node.IsNull()) {
         residence_time = strSItoDbl(inlet_node["residence_time"].as<string>());
@@ -284,7 +284,7 @@ void run_0d_reactor(YAML::Node& tube_node,
         surf_spec_no += surf->nSpecies();
         auto cat_surf = make_shared<ReactorSurface>(); 
         cat_surf->setKinetics(surf.get());
-        surf_phases.push_back(dynamic_cast<SurfPhase *> (surf.get()));
+        surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
         vector<double> coverages(surf->nSpecies());
         surf->getCoverages(coverages.data());
         cat_surf->setCoverages(coverages.data());
@@ -304,14 +304,14 @@ void run_0d_reactor(YAML::Node& tube_node,
     auto outlet = make_shared<PressureController>();
     
     auto inlet_node = tube_node["inlet_gas"];
-    auto vel_node = inlet_node["velocity"];
+    auto flowrate_node = inlet_node["flow_rate"];
     auto restime_node = inlet_node["residence_time"];
     auto mfr_node = inlet_node["mass_flow_rate"];
-    double velocity{0}, residence_time{0}, mfr{0};
-    if (vel_node && !vel_node.IsNull()) {
-        velocity = strSItoDbl(inlet_node["velocity"].as<string>());
-        //residence_time = rctr_vol/velocity;
-        mfr = rctr->mass() * velocity /rctr_vol;
+    double flowrate{0}, residence_time{0}, mfr{0};
+    if (flowrate_node && !flowrate_node.IsNull()) {
+        flowrate = strSItoDbl(inlet_node["flow_rate"].as<string>());
+        //residence_time = rctr_vol/flowrate;
+        mfr = rctr->mass() * flowrate / rctr_vol;
     }
     else if (restime_node && !restime_node.IsNull()) {
         residence_time = strSItoDbl(inlet_node["residence_time"].as<string>());
@@ -346,21 +346,23 @@ void run_0d_reactor(YAML::Node& tube_node,
     else
         times.push_back(end_time);
 
+
+    auto gas_print_sp_header = [&gas](ostream& out) -> void
+    {
+        out << setw(16) << left << "z(m)";
+        for (const auto & sp_name : gas->speciesNames()) {
+            out << setw(16) << left << sp_name;
+        }
+        out << endl;
+    };
+
     ofstream gas_ss_mole_out ("gas_mole_ss.out", ios::out);
-    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl 
-               << setw(16) << left << "z(m)";
-    for (const auto & sp_name : gas->speciesNames()) {
-        gas_ss_mole_out << setw(16) << left << sp_name;
-    }
-    gas_ss_mole_out << endl;
+    gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl;
+    gas_print_sp_header(gas_ss_mole_out);
 
     ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
-    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl 
-               << setw(16) << left << "z(m)";
-    for (const auto & sp_name : gas->speciesNames()) {
-        gas_ss_mass_out << setw(16) << left << sp_name;
-    }
-    gas_ss_mass_out << endl;
+    gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl;
+    gas_print_sp_header(gas_ss_mass_out);
 
     ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
     surf_ss_out << "Surace Coverages at Steady State: "  << endl 
