@@ -56,23 +56,25 @@ void run_1d_reactor(YAML::Node& tube_node,
     if (!len_node || len_node.IsNull()){
         ;//TODO: Raise Error
     }
-    double rctr_area = strSItoDbl(rctr_node["area"].as<string>());
+    double rctr_xc_area = strSItoDbl(rctr_node["area"].as<string>());
     double rctr_len = strSItoDbl(rctr_node["length"].as<string>());
 
     double cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
 
 
     auto inlet_node = tube_node["inlet_gas"];
-    auto vel_node = inlet_node["velocity"];     //Units are len/s
+    auto flowrate_node = inlet_node["flow_rate"];     
     auto mfr_node = inlet_node["mass_flow_rate"];
-    double velocity{0},  mfr{0};
-    if (vel_node && !vel_node.IsNull()) {
-        velocity = strSItoDbl(inlet_node["velocity"].as<string>());
-        mfr = gas->density() * rctr_area * velocity;
+    double velocity{0}, flow_rate{0},  mfr{0};
+    if (flowrate_node && !flowrate_node.IsNull()) {
+        flow_rate = strSItoDbl(inlet_node["flow_rate"].as<string>());
+        velocity = flow_rate / rctr_xc_area;
+        mfr = gas->density() * flow_rate;
     }
     else if (mfr_node && !mfr_node.IsNull()) {
         mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
-        velocity = mfr/ (gas->density() * rctr_area);
+        flow_rate = mfr / gas->density();
+        velocity = flow_rate /rctr_xc_area;
     }
 
     vector<InterfaceKinetics*> ikin;
@@ -92,12 +94,23 @@ void run_1d_reactor(YAML::Node& tube_node,
         //    cout << "i: " << i << " cov: " << cov[i] << endl;
     }
 
-    auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_area, cat_abyv, velocity);
+    auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
     string mode = rctr_node["mode"].as<string>();
-    if (mode == "isothermal") 
+    cout << "mode " << mode << endl;
+    if (mode == "isothermal") {
         pfr.setEnergy(0);
-    else
+    } else {
         pfr.setEnergy(1);
+        if (mode == "heat") {
+            double htc = strSItoDbl(rctr_node["htc"].as<string>());
+            double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
+            double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
+            pfr.setHeatTransfer(htc, ext_temp, wall_abyv);
+        }
+        //pfr.reinit();
+    }
+    cout << "Reactor operating mode: "  << mode << endl;
+    cout << "Energy enabled? "  << pfr.energyEnabled() << endl;
     
     /*
     vector<double> ydot(25);
@@ -129,6 +142,7 @@ void run_1d_reactor(YAML::Node& tube_node,
     
     //pfr_solver.solve(rctr_len);
     pfr_solver.writeResults("1d_pfr.out");
+    cout << "reached after write results" << endl;
 
     //vector<double> gas_X(gas->nSpecies());
 
