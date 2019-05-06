@@ -54,41 +54,16 @@ int main(int argc, char* argv[])
     string phase_file_name {argv[2]};      // Thermodata in either CTI/XML formats
     auto tube_node = YAML::LoadFile(tube_file_name);
     
-    // Read the phase definitions
+    // Read the gas phase definition
     auto phase_node = tube_node["phases"];
     string gas_phase_name = phase_node["gas"]["name"].as<string>();
-    string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
-    string blk_phase_name = phase_node["bulk"]["name"].as<string>();
-    auto surface_nodes = phase_node["surfaces"];
-    vector<string> surface_phase_names; 
-    vector<string> surface_states;
-    for (size_t i=0;  i < surface_nodes.size(); i++) {
-        surface_phase_names.push_back(surface_nodes[i]["name"].as<string>());
-        surface_states.push_back(surface_nodes[i]["initial_state"].as<string>());
-    }
-    for (const auto& surf_name: surface_phase_names) 
-        cout << surf_name << endl;
-
-
     auto gas = make_shared<IdealGasMix>(phase_file_name, gas_phase_name);
-    auto bulk = make_shared<StoichSubstance>(phase_file_name, blk_phase_name);
-    vector<ThermoPhase*> gb_phases {gas.get(), bulk.get()};
-    vector<ThermoPhase*> all_phases {gas.get(), bulk.get()};
-    //vector<shared_ptr<InterfaceInteractions>> surf_phases;
-    vector<shared_ptr<Interface>> surf_phases;
+    vector<ThermoPhase*> all_phases {gas.get()};
     vector<Kinetics*> all_km {gas.get()};
-    for (size_t i=0; i < surface_phase_names.size(); i++) {
-        auto surf_ph_name = surface_phase_names[i];
-        //auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
-        auto surf = make_shared<Interface>(phase_file_name, 
-                                                       surf_ph_name, 
-                                                       gb_phases);
-        surf_phases.push_back(surf);
-        all_km.push_back(surf.get());
-        all_phases.push_back(surf.get());
-    }
+    string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
 
-    /* Read the reactor definition */
+
+    /* Read the state variables */
     auto rctr_node = tube_node["reactor"];
     if (!rctr_node) {
         // TODO: Throw error
@@ -99,10 +74,47 @@ int main(int argc, char* argv[])
     auto temp = strSItoDbl(rctr_node["temperature"].as<string>());
     auto press = strSItoDbl(rctr_node["pressure"].as<string>());
     gas->setState_TPX(temp, press, gas_phase_X);
-    bulk->setState_TP(temp, press);
-    for (size_t i=0; i < surface_phase_names.size(); i++) {
-        surf_phases[i]->setState_TP(temp, press);
-        surf_phases[i]->setCoveragesByName(surface_states[i]);
+
+    // Try to read the bulk node and if present read surface definitons as well
+    vector<shared_ptr<Interface>> surf_phases;
+    auto bulk_node = phase_node["bulk"];
+    string blk_phase_name;
+    if (bulk_node && !bulk_node.IsNull()) { 
+
+        blk_phase_name = phase_node["bulk"]["name"].as<string>();
+        auto bulk = make_shared<StoichSubstance>(phase_file_name, blk_phase_name);
+        bulk->setState_TP(temp, press);  // Set bulk state
+        vector<ThermoPhase*> gb_phases {gas.get(), bulk.get()};
+        all_phases.push_back(bulk.get());
+
+        vector<string> surface_phase_names; 
+        vector<string> surface_states;
+        auto surface_nodes = phase_node["surfaces"];
+        if (surface_nodes && !surface_nodes.IsNull()) {
+            for (size_t i=0;  i < surface_nodes.size(); i++) {
+                surface_phase_names.push_back(surface_nodes[i]["name"].as<string>());
+                surface_states.push_back(surface_nodes[i]["initial_state"].as<string>());
+            }
+            for (const auto& surf_name: surface_phase_names) 
+                cout << surf_name << endl;
+        }
+
+        //vector<shared_ptr<InterfaceInteractions>> surf_phases;
+        for (size_t i=0; i < surface_phase_names.size(); i++) {
+            auto surf_ph_name = surface_phase_names[i];
+            //auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
+            auto surf = make_shared<Interface>(phase_file_name, 
+                                               surf_ph_name, 
+                                               gb_phases);
+            surf_phases.push_back(surf);
+            all_km.push_back(surf.get());
+            all_phases.push_back(surf.get());
+        }
+
+        for (size_t i=0; i < surface_phase_names.size(); i++) {
+            surf_phases[i]->setState_TP(temp, press);
+            surf_phases[i]->setCoveragesByName(surface_states[i]);
+        }
     }
 
     /* Print the species thermodynamic info */
@@ -135,5 +147,8 @@ int main(int argc, char* argv[])
         run_1d_reactor(tube_node, gas, surf_phases, gen_info, true);
         ; //TODO: Add 1d PFR implementation
     }
-    
+ 
+
+
+   
 }
