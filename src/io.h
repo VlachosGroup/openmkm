@@ -11,6 +11,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "cantera/base/config.h"
 #include "cantera/kinetics.h"
@@ -22,13 +23,13 @@ namespace HeteroCt
 /**
  * Utility function to print formation enthalpies of species
  */
-void print_formation_enthalpy(std::vector<Cantera::ThermoPhase*> phases, 
+void print_formation_enthalpy(std::vector<std::shared_ptr<Cantera::ThermoPhase> > phases, 
                               std::string output_file);
 
 /**
  * Utility function to print formation entropies of species
  */
-void print_formation_entropy(std::vector<Cantera::ThermoPhase*> phases, 
+void print_formation_entropy(std::vector<std::shared_ptr<Cantera::ThermoPhase> > phases, 
                              std::string output_file);
 
 /**

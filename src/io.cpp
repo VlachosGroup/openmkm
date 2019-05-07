@@ -9,7 +9,7 @@ using namespace Cantera;
 namespace HeteroCt
 {
 
-void print_formation_enthalpy(vector<ThermoPhase*> phases, string output_file) 
+void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
 {
     vector<doublereal> hform; 
     ofstream out (output_file);
@@ -25,7 +25,7 @@ void print_formation_enthalpy(vector<ThermoPhase*> phases, string output_file)
     }   
 }
 
-void print_formation_entropy(vector<ThermoPhase*> phases, string output_file) 
+void print_formation_entropy(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
 {
     vector<doublereal> sform; 
     ofstream out (output_file);
