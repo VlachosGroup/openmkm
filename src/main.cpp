@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 /*
 #include <memory>
 #include <map>
@@ -29,6 +30,7 @@ include <yaml-cpp/yaml.h>
 #include "reactor.h"
 
 using namespace std;
+using namespace std::chrono;
 using namespace Cantera;
 using namespace HeteroCt;
 
@@ -50,6 +52,8 @@ int main(int argc, char* argv[])
         ;
     };
 
+    auto start_t = high_resolution_clock::now();
+
     string tube_file_name {argv[1]};       // Tube drive file in YAML format
     string phase_file_name {argv[2]};      // Thermodata in either CTI/XML formats
     auto tube_node = YAML::LoadFile(tube_file_name);
@@ -58,7 +62,7 @@ int main(int argc, char* argv[])
     auto phase_node = tube_node["phases"];
     string gas_phase_name = phase_node["gas"]["name"].as<string>();
     auto gas = make_shared<IdealGasMix>(phase_file_name, gas_phase_name);
-    vector<ThermoPhase*> all_phases {gas.get()};
+    vector<shared_ptr<ThermoPhase>> all_phases {gas};
     vector<Kinetics*> all_km {gas.get()};
     string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
 
@@ -85,7 +89,7 @@ int main(int argc, char* argv[])
         auto bulk = make_shared<StoichSubstance>(phase_file_name, blk_phase_name);
         bulk->setState_TP(temp, press);  // Set bulk state
         vector<ThermoPhase*> gb_phases {gas.get(), bulk.get()};
-        all_phases.push_back(bulk.get());
+        all_phases.push_back(bulk);
 
         vector<string> surface_phase_names; 
         vector<string> surface_states;
@@ -108,7 +112,7 @@ int main(int argc, char* argv[])
                                                gb_phases);
             surf_phases.push_back(surf);
             all_km.push_back(surf.get());
-            all_phases.push_back(surf.get());
+            all_phases.push_back(surf);
         }
 
         for (size_t i=0; i < surface_phase_names.size(); i++) {
@@ -148,7 +152,10 @@ int main(int argc, char* argv[])
         ; //TODO: Add 1d PFR implementation
     }
  
-
+    auto end_t = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(end_t - start_t);
+    cout << "Program ran for " << duration.count() <<  " milliseconds" << endl;
+    gen_info << "Program ran for " << duration.count() << " milliseconds" << endl;
 
    
 }
