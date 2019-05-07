@@ -42,14 +42,10 @@ void run_1d_reactor(YAML::Node& tube_node,
 {
     //Define the reactor based on the input file
     auto rctr_node = tube_node["reactor"];
-    //auto rctr_type_node = rctr_node["type"];
-    //auto rctr_type = rt[rctr_type_node.as<string>()];
 
     // Read the reactor dimensions
-
     auto area_node = rctr_node["area"];
     auto len_node = rctr_node["length"];
-    //double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
     if (!area_node || area_node.IsNull()){
         ;//TODO: Raise Error
     }
@@ -59,7 +55,6 @@ void run_1d_reactor(YAML::Node& tube_node,
     double rctr_xc_area = strSItoDbl(rctr_node["area"].as<string>());
     double rctr_len = strSItoDbl(rctr_node["length"].as<string>());
 
-    double cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
 
 
     auto inlet_node = tube_node["inlet_gas"];
@@ -77,6 +72,15 @@ void run_1d_reactor(YAML::Node& tube_node,
         velocity = flow_rate /rctr_xc_area;
     }
 
+
+    auto cat_node = rctr_node["cat_abyv"];
+    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
+         ; // Throw error
+    }
+    double cat_abyv = 0.0;
+    if (cat_node && !cat_node.IsNull()) {
+        double cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    }
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
     for (const auto surf: surfaces) {
@@ -86,12 +90,14 @@ void run_1d_reactor(YAML::Node& tube_node,
 
     // Start the simulation
     //vector<double> cov(100);
+    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
-        //surf->getCoverages(cov.data());
+        surf->getCoverages(cov.data());
 
-        //for (auto i = 0; i < surf->nSpecies(); i++)
-        //    cout << "i: " << i << " cov: " << cov[i] << endl;
+        gen_info << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        for (auto i = 0; i < surf->nSpecies(); i++)
+            gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
 
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
@@ -107,10 +113,10 @@ void run_1d_reactor(YAML::Node& tube_node,
             double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
             pfr.setHeatTransfer(htc, ext_temp, wall_abyv);
         }
-        //pfr.reinit();
+        pfr.reinit();
     }
-    cout << "Reactor operating mode: "  << mode << endl;
-    cout << "Energy enabled? "  << pfr.energyEnabled() << endl;
+    gen_info << "Reactor operating mode: "  << mode << endl;
+    gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
     
     /*
     vector<double> ydot(25);
@@ -135,9 +141,21 @@ void run_1d_reactor(YAML::Node& tube_node,
     //pfr_solver(rctr_len);
 
     
-    vector<double> zvals = get_log_intervals(rctr_len); //Use the same function to get z steps
+    vector<double> zvals = get_log_intervals(1e-7); //Use the same function to get z steps
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
+    }
+    vector<double> zvals1 = get_reg_intervals(1e-7, rctr_len, 1e-7); //Use the same function to get z steps
+    for (const auto& z : zvals1) {
+        pfr_solver.solve(z);
+        vector<double> sv = pfr_solver.solutionVector();
+        for (size_t i = 0; i < sv.size(); i++) {
+            cout << "Solution vector at i = " << i << "   " << sv[i] << endl;
+        }
+        vector<double> dv = pfr_solver.derivativeVector();
+        for (size_t i = 0; i < sv.size(); i++) {
+            cout << "Derivative vector at i = " << i << "   " << dv[i] << endl;
+        }
     }
     
     //pfr_solver.solve(rctr_len);

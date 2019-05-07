@@ -108,22 +108,27 @@ void run_0d_reactor(YAML::Node& tube_node,
 
     rctr->setInitialVolume(rctr_vol);
     vector<shared_ptr<ReactorSurface>> cat_surfs;
-
-    double cat_area = strSItoDbl(rctr_node["cat_abyv"].as<string>());
-    cat_area *= rctr_vol;
-    size_t surf_spec_no = 0;
     vector<SurfPhase*> surf_phases;
-    for (const auto surf : surfaces) {
-        surf_spec_no += surf->nSpecies();
-        auto cat_surf = make_shared<ReactorSurface>(); 
-        cat_surf->setKinetics(surf.get());
-        surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
-        vector<double> coverages(surf->nSpecies());
-        surf->getCoverages(coverages.data());
-        cat_surf->setCoverages(coverages.data());
-        cat_surf->setArea(cat_area);
-        cat_surfs.push_back(cat_surf);
-        rctr->addSurface(cat_surf.get());
+    auto cat_node = rctr_node["cat_abyv"];
+    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
+        ; // Throw error
+    }
+    if (cat_node && !cat_node.IsNull()) {
+        double cat_area = strSItoDbl(cat_node.as<string>());
+        cat_area *= rctr_vol;
+        size_t surf_spec_no = 0;
+        for (const auto surf : surfaces) {
+            surf_spec_no += surf->nSpecies();
+            auto cat_surf = make_shared<ReactorSurface>(); 
+            cat_surf->setKinetics(surf.get());
+            surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
+            vector<double> coverages(surf->nSpecies());
+            surf->getCoverages(coverages.data());
+            cat_surf->setCoverages(coverages.data());
+            cat_surf->setArea(cat_area);
+            cat_surfs.push_back(cat_surf);
+            rctr->addSurface(cat_surf.get());
+        }
     }
 
     rctr->setChemistry();
@@ -275,22 +280,27 @@ void run_0d_reactor(YAML::Node& tube_node,
 
     rctr->setInitialVolume(rctr_vol);
     vector<shared_ptr<ReactorSurface>> cat_surfs;
-
-    double cat_area = strSItoDbl(rctr_node["cat_abyv"].as<string>());
-    cat_area *= rctr_vol;
-    size_t surf_spec_no = 0;
     vector<SurfPhase*> surf_phases;
-    for (const auto surf : surfaces) {
-        surf_spec_no += surf->nSpecies();
-        auto cat_surf = make_shared<ReactorSurface>(); 
-        cat_surf->setKinetics(surf.get());
-        surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
-        vector<double> coverages(surf->nSpecies());
-        surf->getCoverages(coverages.data());
-        cat_surf->setCoverages(coverages.data());
-        cat_surf->setArea(cat_area);
-        cat_surfs.push_back(cat_surf);
-        rctr->addSurface(cat_surf.get());
+    auto cat_node = rctr_node["cat_abyv"];
+    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
+        ; // Throw error
+    }
+    if (cat_node && !cat_node.IsNull()) {
+        double cat_area = strSItoDbl(cat_node.as<string>());
+        cat_area *= rctr_vol;
+        size_t surf_spec_no = 0;
+        for (const auto surf : surfaces) {
+            surf_spec_no += surf->nSpecies();
+            auto cat_surf = make_shared<ReactorSurface>(); 
+            cat_surf->setKinetics(surf.get());
+            surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
+            vector<double> coverages(surf->nSpecies());
+            surf->getCoverages(coverages.data());
+            cat_surf->setCoverages(coverages.data());
+            cat_surf->setArea(cat_area);
+            cat_surfs.push_back(cat_surf);
+            rctr->addSurface(cat_surf.get());
+        }
     }
 
     rctr->setChemistry();
