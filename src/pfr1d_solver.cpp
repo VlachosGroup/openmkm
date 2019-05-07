@@ -115,6 +115,21 @@ vector<double> PFR1dSolver::solutionVector()
     return m_vec;
 }
 
+double PFR1dSolver::derivative(unsigned num) const
+{
+    return m_solver->derivative(num);
+}
+
+vector<double> PFR1dSolver::derivativeVector()
+{
+    // TODO make this with STL algorithm.
+    const double* der = m_solver->derivativeVector();
+    for (unsigned i = 0; i != m_vec.size(); ++i) { 
+        m_vec[i] = der[i]; 
+    }
+    return m_vec;
+}
+
 vector<string> PFR1dSolver::variablesNames() const
 {
     return m_var;

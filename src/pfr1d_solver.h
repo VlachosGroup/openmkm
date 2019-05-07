@@ -46,6 +46,10 @@ public:
 
     std::vector<double> solutionVector();
 
+    double derivative(unsigned num) const;
+
+    std::vector<double> derivativeVector();
+
     std::vector<std::string> variablesNames() const;
 
     void writeResults(const std::string & saveas);
