@@ -61,11 +61,57 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
         }
     }
 
-    m_T0 = gas->temperature();
-    m_P0 = gas->pressure();
+    m_T0 = m_gas->temperature();
+    m_P0 = m_gas->pressure();
     cout << "get heat: " << getHeat(m_T0) << endl;
 }   
 
+
+void PFR1d::reinit()
+{
+   
+    m_rho_ref = m_gas->density();
+
+    cout << "energy enabled? " << energyEnabled() << endl;
+    m_nsp = m_gas->nSpecies();
+    if (energyEnabled()) 
+        m_neqs_extra = 4;
+    else
+        m_neqs_extra = 3;
+    cout << "m_neqs_extra: " << m_neqs_extra << endl;
+
+    neq_ = m_nsp + m_neqs_extra;
+    cout << "neq " << neq_ << endl;
+    for (const auto s_ph : m_surf_phases) {
+        neq_ += s_ph->nSpecies();
+    }
+    cout << "neq " << neq_ << endl;
+
+    m_W.resize(m_nsp);
+    m_gas->getMolecularWeights(m_W.data());
+    m_wdot.resize(m_nsp);
+    fill(m_wdot.begin(), m_wdot.end(), 0.0);
+    m_sdot.resize(m_nsp);
+    fill(m_sdot.begin(), m_sdot.end(), 0.0);
+
+    m_var.resize(neq_);
+    m_var.push_back("Velocity(m/s)");
+    m_var.push_back("Density");
+    m_var.push_back("Pressure(Pa)");
+    if (energyEnabled())
+        m_var.push_back("Temperature(K)");
+    vector<string> sp_names = m_gas->speciesNames();
+    m_var.insert(m_var.end(), sp_names.begin(), sp_names.end());
+    for (const auto s_ph : m_surf_phases) {
+        auto sp_nm = s_ph->speciesNames();
+        for (auto i = 0; i < sp_nm.size(); i++){
+            m_var.push_back(sp_nm[i]);
+        }
+    }
+
+    m_T0 = m_gas->temperature();
+    m_P0 = m_gas->pressure();
+}
 
 int PFR1d::getInitialConditions(const double t0,
                                 double *const y, 
@@ -85,10 +131,13 @@ int PFR1d::getInitialConditions(const double t0,
     y[0] = m_u0;
     y[1] = rho0;
     y[2] = m_P0;
-    int gas_start_loc;
-    if (energyEnabled()) 
+    constrain(0, c_GT_ZERO);
+    constrain(1, c_GT_ZERO);
+    constrain(2, c_GT_ZERO);
+    if (energyEnabled()) {
         y[3] = m_T0;
-
+        constrain(3, c_GT_ZERO);
+    }
 
     m_gas->getMassFractions(y + m_neqs_extra);
 
@@ -99,34 +148,37 @@ int PFR1d::getInitialConditions(const double t0,
     }
 
     // Continuity equation elements.
-    A(0, 0) = rho0;           // u'
-    A(0, 1) = m_u0;           // rho'
-    A(0, 2) = 0;              // p'
+    A(0, 0) = rho0;             // u'
+    A(0, 1) = m_u0;             // rho'
+    A(0, 2) = 0;                // p'
     if (energyEnabled())
-        A(0, 3) = 0;          // T'
+        A(0, 3) = 0;            // T'
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
-        A(0, k) = 0.0;
+        A(0, k) = 0.0;          // Yk'
 
     // Momentum equation elements.
-    A(1, 0) = 2* rho0 * m_u0; // u'
-    A(1, 1) = m_u0 * m_u0;    // rho'
-    A(1, 2) = 1;              // p'
+    A(1, 0) = 2* rho0 * m_u0;   // u'
+    A(1, 1) = m_u0 * m_u0;      // rho'
+    A(1, 2) = 1;                // p'
     if (energyEnabled())
-        A(1, 3) = 0;          // T'
+        A(1, 3) = 0;            // T'
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
-        A(1, k) = 0.0;
+        A(1, k) = 0.0;          // Yk'
 
     // State equation elements.
-    A(2, 0) = 0;              // u'
-    A(2, 1) = RT;             // rho'
-    A(2, 2) = -Wavg;          // p'
+    A(2, 0) = 0;                // u'
+    A(2, 1) = RT;               // rho'
+    A(2, 2) = -Wavg;            // p'
     if (energyEnabled())
-        A(2, 3) = Rrho;       // T'
+        A(2, 3) = Rrho;         // T'
+    for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
+        A(2, k) = m_P0 * Wavg * Wavg / m_W[ k - m_neqs_extra]; // Yk' 
 
+    // Energy balance equation
     if (energyEnabled()) {
         vector<double> cpr_k(m_nsp);
         m_gas->getCp_R(cpr_k.data());
-        double cpr;
+        double cpr = 0.0;
         for (size_t i = 0; i < m_nsp; i++){
             cpr += cpr_k[i] * y[i + m_neqs_extra];
         }
@@ -134,26 +186,35 @@ int PFR1d::getInitialConditions(const double t0,
         A(3,0) = 0;            // u'
         A(3,1) = 0;            // rho'
         A(3,2) = 0;            // p'
-        A(3,3) = rho0 * m_u0 * cpr * GasConstant;            // T'
+        //A(3,3) = rho0 * m_u0 * cpr * GasConstant;            // T'
+        A(3,3) = rho0 * m_u0 * cpr;            // T'
+        cout << "A(3,3) "  << A(3,3) << endl;
     }
 
+    // Evaluate b for the 4 equations
     double mdot_surf = evalSurfaces();
     m_gas->getNetProductionRates(&m_wdot[0]);
 
-    b(0) = m_cat_abyv * mdot_surf;          // RHS continuity
-    b(1) = 0;                               // RHS momentum
-    b(2) = 0;                               // RHS state
+    b(0) = m_cat_abyv * mdot_surf;      // RHS continuity
+    b(1) = 0;                           // RHS momentum (surface friction ignored)
+    b(2) = 0;                           // RHS state
     if (energyEnabled()){
         vector<double> h_rt(m_nsp);
         m_gas->getEnthalpy_RT(h_rt.data());
-        b(3) = 0;                          // RHS energy
+        cout << "cat_abyv " << m_cat_abyv << endl;
+        cout << "RT " << RT << endl;
+        b(3) = 0.0;                     // RHS energy
         for (size_t i = 0; i < m_nsp; i++){
-            b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * h_rt[i];
+            auto term = (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * h_rt[i];
+            b(3) -= term;
+            cout << "i  " << i << "  wdot[i]  " << m_wdot[i] << "  sdot[i]  " 
+                 << m_sdot[i] << "  W[i]  " << m_W[i] << "  h_rt  " << h_rt[i] 
+                 << "  term  " << term << " Running b3 " << b(3) << endl;
         }
-        b(3) *= RT;
+        b(3) *= m_T0;
         b(3) += getHeat(m_T0);
+        cout << "b(3) "  << b(3) << endl;
     }
-    cout << "get heat: " << getHeat(m_T0) << endl;
 
     // Gas phase species
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
@@ -164,11 +225,8 @@ int PFR1d::getInitialConditions(const double t0,
         b(k) = (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] -
                y[k] * mdot_surf * m_cat_abyv;
 
-        // Yk' for other equations, exceptionally here!
-        A(2, k) = m_P0 * Wavg * Wavg / m_W[i];
     }
     
-
     Eigen::VectorXd x = A.fullPivLu().solve(b);
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
     for (size_t i = 0; i < neq_; i++)
@@ -186,14 +244,14 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double u = y[0];       // Flow rate
     const double r = y[1];       // Density
     const double p = y[2];       // Pressure
-    //double temp = energyEnabled() ? y[3] : m_T0;                    // Temperature
-    double temp = m_T0;                    // Temperature
+    const double temp = energyEnabled() ? y[3] : m_T0;                    // Temperature
+    //double temp = m_T0;                    // Temperature
     double RT = GasConstant * temp;
 
     const double dudz = ydot[0];
     const double drdz = ydot[1];
     const double dpdz = ydot[2];
-    double dtempdz = energyEnabled() ? ydot[3] : 0;
+    const double dtempdz = energyEnabled() ? ydot[3] : 0;
 
     m_gas->setMassFractions_NoNorm(y + m_neqs_extra);
     //cout << "temp, "  << temp <<  " p: " << p << endl;
@@ -201,8 +259,8 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
 
     auto loc = m_neqs_extra + m_nsp;
     for (auto s_ph : m_surf_phases) {
-        s_ph->setState_TP(temp, p);
         s_ph->setCoveragesNoNorm(y + loc);
+        s_ph->setState_TP(temp, p);
         loc += s_ph->nSpecies();
     }
 
@@ -243,18 +301,27 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     if (energyEnabled()){
         vector<double> cpr(m_nsp);
         m_gas->getCp_R(cpr.data());
+        for (size_t i = 0; i < m_nsp; i++){
+            cout << i << " cp_r  " << cpr[i] << endl;
+        }
+        for (size_t i = 0; i < m_nsp; i++){
+            cout << i << " y[i]  " << y[i + m_neqs_extra] << endl;
+        }
         double cp;
         for (size_t i = 0; i < m_nsp; i++){
             cp += cpr[i] * y[i + m_neqs_extra];
         }
-        resid[3] = cp * GasConstant * r * u * dtempdz;
+        cout << "cp "  << cp << " r " << r << " u   " << u << " dtempdz " << dtempdz << endl;
+        resid[3] = cp * r * u * dtempdz;
+        cout << "resid 3 first term  " << resid[3] << endl;
 
         double h_term  = 0;                          
         for (size_t i = 0; i < m_nsp; i++){
             h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr[i];
         }
-        resid[3] += h_term * RT;
-        resid[3] -= getHeat(temp);
+        cout << "hterm " << h_term * temp << endl;
+        resid[3] += h_term * temp;
+        resid[3] -= getHeat(temp)/GasConstant;
     }
 
     for (unsigned k = 0; k < m_nsp; ++k)

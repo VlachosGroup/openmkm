@@ -82,7 +82,7 @@ public:
         Cantera::appdelete();
     }
 
-    //void reinit();
+    void reinit();
 
     virtual int getInitialConditions(const double t0,
                                      double *const y,
