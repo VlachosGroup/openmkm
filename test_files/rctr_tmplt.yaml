@@ -1,7 +1,7 @@
 # Input file defining the reactor parameters for hetero_ct
 # The thermodynamic information of phases and species is supplied in a different file
 # This file uses YAML format. YAML is a superset of JSON, so this input file can also 
-# be supplied JSON format.
+# be supplied with JSON format.
 # For any format related questions, refer to YAML documentation.
 #
 # For quantities that have units, default units are SI. In that case
@@ -32,7 +32,7 @@ reactor:                # Mandatory YAML node
     # For isothermal, T is fixed and energy equation is not solved.
     # For adiabatic and heat, T is not fixed and energy equation is solved.
     # For heat, external heat source is present.
-    # For tpd, temperature is changed as function of time.
+    # For tpd, temperature is changed as function of time, but energy equation is not solved.
     # For tprofile, temperature is function of distance from inlet (For PFR).
     mode: 'isothermal'  # Mandatory node
 
@@ -41,22 +41,31 @@ reactor:                # Mandatory YAML node
     Text: NULL          # For heat, external temperature
     Tprofile: 
         - NULL          # For tprofile, list of dist: T keyvalue pairs
-    ext_abyv: NULL      # For heat, reactor outer area / volume
+    wall_abyv: NULL # For heat, reactor outer wall area / rctr volume 
     htc: NULL           # For heat, heat transfer coefficient
 
     cat_abyv: "1500 /cm"
 
-inlet_gas:              # All three quants related. Give one of them. First nonzero quantity used
-    velocity: "1 cm3/s" # Can be supplied for all reactor_types. Units depend on rctr_type
+inlet_gas:               # All three quants related. Give one of them. First nonzero quantity used
+    flow_rate: "1 cm3/s"  # Can be supplied for all reactor_types. Units depend on rctr_type
     residence_time: NULL # Makes sense for CSTR
     mass_flow_rate: NULL # Can be supplied for all reactor_types. 
 
 simulation:
-    end_time: 50
-
-    solver:
-        atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info)
+    end_time: 50        # For 'tpd' mode, end_time is evaluated from Tramp and Tend. Any value give 
+                        # here is ignored
+    transient: false    # Mandatory node
+    stepping: "regular" # If transient is true or for 'tpd' mode, user controlled step enabled.  
+                        # Options are regular, logarithmic. 
+    step_size: 1e-6     # Time advancement for each step. In case of logarithmic stepping, step size 
+                        # is increased by 10 after 10 iterations starting with the given step
+    solver:             # Options to numerical solver. This is not mandatory, but suggested
+        atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info), 
+                            # At present, atol is only scalar
         rtol: 1e-8          # Relative tolerance
+        initial_step_size: 1e-13  # Initial step size internal to solver
+        maxsteps: 3000      # Max # of steps for any given time advancement 
+        maxstepsize: 0.5    # Should not be larger than residence time
 
 # Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
 # A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
@@ -69,10 +78,10 @@ simulation:
 phases:                     # Mandatory, 
     gas: 
         name: "gas"             # Default is gas
-        initial_state: "NH3:1"     # For gas phase, molar fractions 
-    bulk: 
-        name: "bulk"            # Default is bulk
-    surfaces:                   # Default is one surface with name surface
+        initial_state: "NH3:1"  # For gas phase, molar fractions. initial state can be omitted if it defined in the CTI/XML format
+    bulk:                       # Optional node, Omit for gas-phase-only mechanisms
+        name: "bulk"            
+    surfaces:                   # Optional node. Omit for gas-phase-only mechanisms 
         - name: "terrace"
           initial_state: "RU(S1):1"   # For surface phase, coverage values 
         - name: "step"
