@@ -1,0 +1,30 @@
+reactor:                
+    type: batch          
+    mode: "tpd"
+    volume: "1 cm3"
+    temperature:  "50 K"
+    Tramp: "3 K/s"
+    Tend: "500 K"
+    pressure:  "2e-8 Pa"  
+    cat_abyv: "1500 /cm"
+
+simulation:
+    solver:
+        atol: 1e-10         
+        rtol: 1e-8          
+    transient: true    # Mandatory node
+    stepping: "regular" # If transient is true or for 'tpd' mode, user controlled step enabled.  
+    step_size: 1     # Time advancement for each step. In case of logarithmic stepping, step size 
+
+phases:                     
+    gas: 
+        name: gas            
+        initial_state: "NH3:1.0" 
+    bulk: 
+        name: bulk            
+    surfaces:                   
+        - name: terrace
+          initial_state: "NH3(S1):0.8,RU(S1):0.2"   
+        - name: step
+          initial_state: "RU(S2):1"
+
