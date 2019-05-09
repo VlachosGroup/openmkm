@@ -1,14 +1,14 @@
 reactor:                
     type: "pfr_0d"
     volume: "0.1 cm3"
-    nodes: 10
+    nodes: 2000
     mode: isothermal  
     temperature:  873   
     pressure:  "1 atm"  
     cat_abyv: "200 /cm"
 
 inlet_gas:              
-    velocity: "10 cm3/s" 
+    flow_rate: "10 cm3/s" 
 
 simulation:
     end_time: 50

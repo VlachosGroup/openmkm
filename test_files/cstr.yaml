@@ -1,6 +1,6 @@
 reactor:                
     type: cstr          
-    mode: isothermal  
+    mode: "isothermal"
     volume: "1 cm3"
     temperature:  950   
     pressure:  "1 atm"  
@@ -18,7 +18,7 @@ simulation:
 phases:                     
     gas: 
         name: gas            
-        initial_state: "NH3:1" 
+        initial_state: "NH3:1.0" 
     bulk: 
         name: bulk            
     surfaces:                   
