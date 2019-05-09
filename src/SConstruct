@@ -8,7 +8,7 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
                   LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
 
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
-           "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp"]
+           "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", "hctexceptions.cpp"]
 
 env.Program(target="hetero_ct", source=sources, 
             LIBS=["sundials_cvodes", "sundials_ida", "sundials_nvecserial", "sundials_kinsol", "cantera", "yaml-cpp"],
