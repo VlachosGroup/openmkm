@@ -28,6 +28,7 @@ include <yaml-cpp/yaml.h>
 
 #include "io.h"
 #include "reactor.h"
+#include "hctexceptions.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -70,8 +71,7 @@ int main(int argc, char* argv[])
     /* Read the state variables */
     auto rctr_node = tube_node["reactor"];
     if (!rctr_node) {
-        // TODO: Throw error
-        ;
+        throw YAMLParserError("main.cpp::main", "reactor", "Node not found");
     };
 
     // Set the temp and press for all phases
@@ -80,7 +80,8 @@ int main(int argc, char* argv[])
     gas->setState_TPX(temp, press, gas_phase_X);
 
     // Try to read the bulk node and if present read surface definitons as well
-    vector<shared_ptr<Interface>> surf_phases;
+    //vector<shared_ptr<Interface>> surf_phases;
+    vector<shared_ptr<InterfaceInteractions>> surf_phases;
     auto bulk_node = phase_node["bulk"];
     string blk_phase_name;
     if (bulk_node && !bulk_node.IsNull()) { 
@@ -103,11 +104,10 @@ int main(int argc, char* argv[])
                 cout << surf_name << endl;
         }
 
-        //vector<shared_ptr<InterfaceInteractions>> surf_phases;
         for (size_t i=0; i < surface_phase_names.size(); i++) {
             auto surf_ph_name = surface_phase_names[i];
-            //auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
-            auto surf = make_shared<Interface>(phase_file_name, 
+            auto surf = make_shared<InterfaceInteractions>(phase_file_name, 
+            //auto surf = make_shared<Interface>(phase_file_name, 
                                                surf_ph_name, 
                                                gb_phases);
             surf_phases.push_back(surf);
@@ -144,12 +144,11 @@ int main(int argc, char* argv[])
     auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
 
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
-        run_0d_reactor(tube_node, gas, surf_phases, gen_info, true);
+        run_0d_reactor(rctr_type, tube_node, gas, surf_phases, gen_info);
 
     }
     else if (rctr_type == PFR) { // 1d reactor
-        run_1d_reactor(tube_node, gas, surf_phases, gen_info, true);
-        ; //TODO: Add 1d PFR implementation
+        run_1d_reactor(tube_node, gas, surf_phases, gen_info);
     }
  
     auto end_t = high_resolution_clock::now();
