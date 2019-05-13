@@ -1,30 +1,33 @@
 reactor:                
-    type: batch          
+    type: cstr          
     mode: "tpd"
     volume: "1 cm3"
-    temperature:  "50 K"
-    Tramp: "3 K/s"
-    Tend: "500 K"
-    pressure:  "2e-8 Pa"  
+    temperature:  "100 K"
+    Tramp: "1.0 K/s"
+    Tend: "400 K"
+    pressure:  "1e-6 atm"  
     cat_abyv: "1500 /cm"
+
+inlet_gas:              
+    flow_rate: "1 cm3/s" 
 
 simulation:
     solver:
-        atol: 1e-10         
-        rtol: 1e-8          
+        atol: 1e-20
+        rtol: 1e-12          
     transient: true    # Mandatory node
     stepping: "regular" # If transient is true or for 'tpd' mode, user controlled step enabled.  
-    step_size: 1     # Time advancement for each step. In case of logarithmic stepping, step size 
+    step_size: 5e-2     # Time advancement for each step. In case of logarithmic stepping, step size 
 
 phases:                     
     gas: 
         name: gas            
-        initial_state: "NH3:1.0" 
+        initial_state: "HE:1.0" 
     bulk: 
         name: bulk            
     surfaces:                   
         - name: terrace
-          initial_state: "NH3(S1):0.8,RU(S1):0.2"   
+          initial_state: "NH3(S1):0.6,RU(S1):0.4"   
         - name: step
           initial_state: "RU(S2):1"
 

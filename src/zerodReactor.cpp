@@ -18,6 +18,7 @@
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/zeroD/Reactor.h"
+#include "IdealGasTRampReactor.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/ReactorSurface.h"
@@ -39,16 +40,17 @@ using namespace Cantera;
 void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces, 
                          ofstream& gas_mole_out, ofstream& gas_mass_out, 
                          ofstream& gas_msdot_out, ofstream& surf_cov_out,
-                         ofstream& gen_info_out)
+                         ofstream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
-    vector<double> surf_cov;
 
-    double temp = rctr->contents().temperature();
-    gen_info_out << "Inlet temperature: "  << temp << endl;
-    double pressure = rctr->contents().pressure();
-    gen_info_out << "Inlet pressure: "  << pressure << endl;
+    state_var_out << setw(16) << left  << z
+                  << setw(16) << left  << rctr->temperature()
+                  << setw(16) << left  << rctr->pressure() 
+                  << setw(16) << left  << rctr->density() 
+                  << setw(16) << left  << rctr->intEnergy_mass() 
+                  << endl;
 
     auto gas_var_print = [&work, &z](ostream& out) -> void
     {
@@ -70,10 +72,10 @@ void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
 
     surf_cov_out << setw(16) << left << z;
     for (auto j = 0;  j <  surfaces.size(); j++) {
-        surf_cov.resize(surfaces[j]->nSpecies());
-        rctr->surface(j)->getCoverages(surf_cov.data());    // Adapt this for multiple surfaces
-        for (auto k = 0; k < surf_cov.size(); k++) {
-            surf_cov_out << setw(16) << left << surf_cov[k];
+        work.resize(surfaces[j]->nSpecies());
+        rctr->surface(j)->getCoverages(work.data());    
+        for (auto k = 0; k < work.size(); k++) {
+            surf_cov_out << setw(16) << left << work[k];
         }
     }
     surf_cov_out << endl;
@@ -89,7 +91,7 @@ void run_0d_reactor(RctrType rctr_type,
     //Define the reactor based on the input file
     auto rctr_node = tube_node["reactor"];
 
-    auto rctr = make_shared<Reactor>();
+    auto rctr = make_shared<IdealGasTRampReactor>();
     rctr->insert(*gas);
 
     // Read the reactor dimensions
@@ -143,9 +145,9 @@ void run_0d_reactor(RctrType rctr_type,
 
     rctr->setChemistry();
     string mode = rctr_node["mode"].as<string>();
-    if (mode == "isothermal" || mode == "tpd") 
+    if (mode == "isothermal" || mode == "tpd")  
         rctr->setEnergy(0);
-    else
+    else 
         rctr->setEnergy(1);
 
     // Only CSTR and PFR_0D require valves, controllers and 
@@ -197,6 +199,7 @@ void run_0d_reactor(RctrType rctr_type,
         auto beg_temp = strSItoDbl(rctr_node["temperature"].as<string>());
         auto end_temp = strSItoDbl(rctr_node["Tend"].as<string>());
         auto temp_ramp = strSItoDbl(rctr_node["Tramp"].as<string>());
+        rctr->setBeta(temp_ramp);
         end_time = (end_temp - beg_temp)/temp_ramp;
         cout << "Tramp " << temp_ramp << endl;
         cout << "end time  " << end_time << endl;
@@ -263,30 +266,46 @@ void run_0d_reactor(RctrType rctr_type,
     ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
     ofstream gas_ss_msdot_out ("gas_msdot_ss.out", ios::out);
     ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
+    ofstream state_var_out ("rctr_state.out", ios::out);
 
     if (rctr_type != BATCH) {
-        gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl;
+        gas_ss_mole_out 
+            << "Gas Mole fractions at Steady State "  << endl;
         gas_print_specie_header("z(m)", gas_ss_mole_out);
 
-        gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl;
+        gas_ss_mass_out 
+            << "Gas Mass fractions at Steady State "  << endl;
         gas_print_specie_header("z(m)", gas_ss_mass_out);
 
-        gas_ss_msdot_out << "Surface Production Rates of  Gas Species at Steady State "  << endl;
+        gas_ss_msdot_out 
+            << "Surface Production Rates of  Gas Species at Steady State "  
+            << endl;
         gas_print_specie_header("z(m)", gas_ss_msdot_out);
 
-        surf_ss_out << "Surace Coverages at Steady State: "  << endl 
-                    << setw(16) << left << "z(m)";
+        surf_ss_out 
+            << "Surace Coverages at Steady State: "  << endl 
+            << setw(16) << left << "z(m)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
                 surf_ss_out << setw(16) << left << sp_name;
             }
         }
         surf_ss_out << endl;
+
+        state_var_out 
+            << "Reactor State Variables at Steady State" << endl
+            << setw(16) << left << "z(m)"
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "U(J/kg)" 
+            << endl;
         
         // Print the inlet state
         rnet.reinitialize();
         print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
-                            gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, gen_info_out);
+                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
+                         state_var_out);
     }
 
     // Transient state makes sense For BATCH and CSTR 
@@ -294,24 +313,38 @@ void run_0d_reactor(RctrType rctr_type,
     ofstream gas_tr_mass_out ("gas_mass_tr.out", ios::out);
     ofstream gas_tr_msdot_out ("gas_msdot_tr.out", ios::out);
     ofstream surf_tr_out ("surf_cov_tr.out", ios::out);
+    ofstream state_var_tr_out ("rctr_state_tr.out", ios::out);
     if (rctr_type != PFR_0D && times.size() > 1) {
-        gas_tr_mole_out << "Transient Gas Mole fractions"  << endl;
+        gas_tr_mole_out 
+            << "Transient Gas Mole fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mole_out);
 
-        gas_tr_mass_out << "Transient Gas Mass fractions"  << endl;
+        gas_tr_mass_out 
+            << "Transient Gas Mass fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mass_out);
 
-        gas_tr_msdot_out << "Transient Surface Production Rates of  Gas Species"  << endl;
+        gas_tr_msdot_out 
+            << "Transient Surface Production Rates of  Gas Species"  << endl;
         gas_print_specie_header("t(s)", gas_tr_msdot_out);
 
-        surf_tr_out << "Transient Surace Coverages"  << endl 
-                    << setw(16) << left << "t(s)";
+        surf_tr_out 
+            << "Transient Surace Coverages"  << endl 
+            << setw(16) << left << "t(s)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
                 surf_tr_out << setw(16) << left << sp_name;
             }
         }
         surf_tr_out << endl;
+
+        state_var_tr_out 
+            << "Transient Reactor State"  << endl
+            << setw(16) << left << "t(s)" 
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "U(J/kg)" 
+            << endl;
      
     }
 
@@ -331,6 +364,7 @@ void run_0d_reactor(RctrType rctr_type,
         }
         rnet.setInitialTime(0);
         rnet.reinitialize();
+        rnet.setMaxTimeStep(1e-1);
 
         double T_init = temp;
         double beta = 0;
@@ -340,16 +374,12 @@ void run_0d_reactor(RctrType rctr_type,
         }
 
         for (const auto & tm : times) {
-            if (mode == "tpd") {
-                double T_running = T_init + beta * tm;
-                cout << "Time " << tm << " T_run " << T_running << endl;
-                gas->setState_TP(T_running, pressure);
-            }
             rnet.advance(tm);
             if (transient_log) {
                 print_rctr_state(tm, rctr.get(), surf_phases, 
                                  gas_tr_mole_out, gas_tr_mass_out, 
-                                 gas_tr_msdot_out, surf_tr_out, gen_info_out);
+                                 gas_tr_msdot_out, surf_tr_out, 
+                                 state_var_tr_out);
 
             }
         }
@@ -357,7 +387,7 @@ void run_0d_reactor(RctrType rctr_type,
 
         print_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
                             gas_ss_mole_out, gas_ss_mass_out, 
-                            gas_ss_msdot_out, surf_ss_out, gen_info_out);
+                            gas_ss_msdot_out, surf_ss_out, state_var_out);
     }
 }
 
@@ -370,7 +400,7 @@ void run_0d_reactor(RctrType rctr_type,
     //Define the reactor based on the input file
     auto rctr_node = tube_node["reactor"];
 
-    auto rctr = make_shared<Reactor>();
+    auto rctr = make_shared<IdealGasTRampReactor>();
     rctr->insert(*gas);
 
     // Read the reactor dimensions
@@ -424,9 +454,9 @@ void run_0d_reactor(RctrType rctr_type,
 
     rctr->setChemistry();
     string mode = rctr_node["mode"].as<string>();
-    if (mode == "isothermal" || mode == "tpd") 
+    if (mode == "isothermal" || mode == "tpd")  
         rctr->setEnergy(0);
-    else
+    else 
         rctr->setEnergy(1);
 
     // Only CSTR and PFR_0D require valves, controllers and 
@@ -471,14 +501,17 @@ void run_0d_reactor(RctrType rctr_type,
     // Read simulation parameters
     auto simul_node = tube_node["simulation"];
     bool transient_log = simul_node["transient"].as<bool>();
-    double end_time;
+    double end_time = 0;
     string stepping;
-    double step_size;
+    double step_size = 0;
     if (mode == "tpd"){
         auto beg_temp = strSItoDbl(rctr_node["temperature"].as<string>());
         auto end_temp = strSItoDbl(rctr_node["Tend"].as<string>());
         auto temp_ramp = strSItoDbl(rctr_node["Tramp"].as<string>());
+        rctr->setBeta(temp_ramp);
         end_time = (end_temp - beg_temp)/temp_ramp;
+        cout << "Tramp " << temp_ramp << endl;
+        cout << "end time  " << end_time << endl;
 
         stepping = "regular";
         transient_log = true;
@@ -486,24 +519,26 @@ void run_0d_reactor(RctrType rctr_type,
         end_time = strSItoDbl(simul_node["end_time"].as<string>());
     }
 
-    if (transient_log){
+    vector<double> times;
+    if (transient_log && rctr_nos == 1){ // Only for singler CSTR or a batch reactor
         if (! (mode == "tpd")) { // for tpd, stepping set already
             stepping = simul_node["stepping"].as<string>(); // regular or logarithmic
         }
         auto step_size = strSItoDbl(simul_node["step_size"].as<string>());
-    }
+        cout << "Step size " << step_size << endl;
 
-    // Setup simulation 
-    vector<double> times;
-    if (transient_log && rctr_nos == 1){ // Only for singler CSTR or a batch reactor
-        if (stepping == "logarithmic")
+        if (stepping == "logarithmic"){
             times = get_log10_intervals(end_time, step_size);
-        else if (stepping == "regular")
+        }
+        else if (stepping == "regular"){
             times = get_reg_intervals(0, end_time, step_size);
+        } 
     } else{
         times.push_back(end_time);
     }
+    cout << "Size of time vector " << times.size() << endl;
     
+    // Setup simulation 
     ReactorNet rnet; 
     rnet.addReactor(*rctr);
 
@@ -540,30 +575,46 @@ void run_0d_reactor(RctrType rctr_type,
     ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
     ofstream gas_ss_msdot_out ("gas_msdot_ss.out", ios::out);
     ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
+    ofstream state_var_out ("rctr_state.out", ios::out);
 
     if (rctr_type != BATCH) {
-        gas_ss_mole_out << "Gas Mole fractions at Steady State "  << endl;
+        gas_ss_mole_out 
+            << "Gas Mole fractions at Steady State "  << endl;
         gas_print_specie_header("z(m)", gas_ss_mole_out);
 
-        gas_ss_mass_out << "Gas Mass fractions at Steady State "  << endl;
+        gas_ss_mass_out 
+            << "Gas Mass fractions at Steady State "  << endl;
         gas_print_specie_header("z(m)", gas_ss_mass_out);
 
-        gas_ss_msdot_out << "Surface Production Rates of  Gas Species at Steady State "  << endl;
+        gas_ss_msdot_out 
+            << "Surface Production Rates of  Gas Species at Steady State "  
+            << endl;
         gas_print_specie_header("z(m)", gas_ss_msdot_out);
 
-        surf_ss_out << "Surace Coverages at Steady State: "  << endl 
-                    << setw(16) << left << "z(m)";
+        surf_ss_out 
+            << "Surace Coverages at Steady State: "  << endl 
+            << setw(16) << left << "z(m)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
                 surf_ss_out << setw(16) << left << sp_name;
             }
         }
         surf_ss_out << endl;
+
+        state_var_out 
+            << "Reactor State Variables at Steady State" << endl
+            << setw(16) << left << "z(m)"
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "U(J/kg)" 
+            << endl;
         
         // Print the inlet state
         rnet.reinitialize();
         print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
-                            gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, gen_info_out);
+                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
+                         state_var_out);
     }
 
     // Transient state makes sense For BATCH and CSTR 
@@ -571,24 +622,38 @@ void run_0d_reactor(RctrType rctr_type,
     ofstream gas_tr_mass_out ("gas_mass_tr.out", ios::out);
     ofstream gas_tr_msdot_out ("gas_msdot_tr.out", ios::out);
     ofstream surf_tr_out ("surf_cov_tr.out", ios::out);
+    ofstream state_var_tr_out ("rctr_state_tr.out", ios::out);
     if (rctr_type != PFR_0D && times.size() > 1) {
-        gas_tr_mole_out << "Transient Gas Mole fractions"  << endl;
+        gas_tr_mole_out 
+            << "Transient Gas Mole fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mole_out);
 
-        gas_tr_mass_out << "Transient Gas Mass fractions"  << endl;
+        gas_tr_mass_out 
+            << "Transient Gas Mass fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mass_out);
 
-        gas_tr_msdot_out << "Transient Surface Production Rates of  Gas Species"  << endl;
+        gas_tr_msdot_out 
+            << "Transient Surface Production Rates of  Gas Species"  << endl;
         gas_print_specie_header("t(s)", gas_tr_msdot_out);
 
-        surf_tr_out << "Transient Surace Coverages"  << endl 
-                    << setw(16) << left << "t(s)";
+        surf_tr_out 
+            << "Transient Surace Coverages"  << endl 
+            << setw(16) << left << "t(s)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
                 surf_tr_out << setw(16) << left << sp_name;
             }
         }
         surf_tr_out << endl;
+
+        state_var_tr_out 
+            << "Transient Reactor State"  << endl
+            << setw(16) << left << "t(s)" 
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "U(J/kg)" 
+            << endl;
      
     }
 
@@ -608,6 +673,7 @@ void run_0d_reactor(RctrType rctr_type,
         }
         rnet.setInitialTime(0);
         rnet.reinitialize();
+        rnet.setMaxTimeStep(1e-1);
 
         double T_init = temp;
         double beta = 0;
@@ -617,16 +683,12 @@ void run_0d_reactor(RctrType rctr_type,
         }
 
         for (const auto & tm : times) {
-            if (mode == "tpd") {
-                double T_running = T_init + beta * tm;
-                cout << "Time " << tm << " T_run " << T_running;
-                gas->setState_TP(T_running, pressure);
-            }
             rnet.advance(tm);
             if (transient_log) {
                 print_rctr_state(tm, rctr.get(), surf_phases, 
                                  gas_tr_mole_out, gas_tr_mass_out, 
-                                 gas_tr_msdot_out, surf_tr_out, gen_info_out);
+                                 gas_tr_msdot_out, surf_tr_out, 
+                                 state_var_tr_out);
 
             }
         }
@@ -634,7 +696,7 @@ void run_0d_reactor(RctrType rctr_type,
 
         print_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
                             gas_ss_mole_out, gas_ss_mass_out, 
-                            gas_ss_msdot_out, surf_ss_out, gen_info_out);
+                            gas_ss_msdot_out, surf_ss_out, state_var_out);
     }
 }
 
