@@ -7,25 +7,27 @@ using namespace std;
 namespace HeteroCt
 {
 
-std::vector<double> get_log10_intervals(double end_val, double initial_step)
+std::vector<double> get_log10_intervals(double end_val, double initial_step, int interval_no)
 {
-    std::vector<double> intervals;
-    auto scale = initial_step;
+    std::vector<double> steps;
+    double step_sz = initial_step * 9/interval_no;
     double r_val = 0;
+    //steps.push_back(initial_step);
     while (r_val < end_val) {
-        for (size_t i=1; i < 10; i++){
-            r_val = i*scale;
+        for (size_t i=0; i < interval_no; i++){
+            r_val = initial_step + i*step_sz;
             if (r_val > end_val)
                 break;
-            intervals.push_back(r_val);
+            steps.push_back(r_val);
         }
         if (r_val > end_val){
-            intervals.push_back(end_val);
+            steps.push_back(end_val);
             break;
         }
-        scale *= 10;
+        initial_step *= 10;
+        step_sz = initial_step * 9/interval_no;
     }
-    return intervals;
+    return steps;
 }
 
 std::vector<double> get_reg_intervals(double start_val, double end_val, double step)
