@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
     // Try to read the bulk node and if present read surface definitons as well
     //vector<shared_ptr<Interface>> surf_phases;
     vector<shared_ptr<InterfaceInteractions>> surf_phases;
+    vector<SurfPhase*> surf_phases1;
     auto bulk_node = phase_node["bulk"];
     string blk_phase_name;
     if (bulk_node && !bulk_node.IsNull()) { 
@@ -111,9 +112,11 @@ int main(int argc, char* argv[])
                                                surf_ph_name, 
                                                gb_phases);
             surf_phases.push_back(surf);
+            surf_phases1.push_back(surf.get());
             all_km.push_back(surf.get());
             all_phases.push_back(surf);
         }
+        setTotalSiteDensity(surf_phases1);
 
         for (size_t i=0; i < surface_phase_names.size(); i++) {
             surf_phases[i]->setState_TP(temp, press);
