@@ -6,6 +6,8 @@
 #ifndef HTRCT_SOLVER_1D_H
 #define HTRCT_SOLVER_1D_H
 
+#include <vector>
+
 #include "pfr1d.h"
 #include "cantera/numerics/IDA_Solver.h"
 
@@ -27,6 +29,8 @@ public:
     void setInitialStepSize(double h0);
 
     void setStopPosition(double tstop);
+
+    void setConstraints(const std::vector<int> constraints);
 
     int solve(double xout);
 

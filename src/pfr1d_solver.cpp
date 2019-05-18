@@ -3,6 +3,8 @@
 ***************************************************************************
 */
 
+#include <vector>
+
 #include "pfr1d_solver.h"
 #include "pfr1d.h"
 #include "cantera/numerics/IDA_Solver.h"
@@ -22,9 +24,9 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     try
     {
         m_solver = new IDA_Solver {*pfr};
+        m_solver->init(0.0);
         m_solver->setJacobianType(0);
         m_solver->setDenseLinearSolver();
-        m_solver->init(0.0);
     }
     catch (Cantera::CanteraError& err)
     {
@@ -55,6 +57,10 @@ void PFR1dSolver::setInitialStepSize(double h0)
 void PFR1dSolver::setStopPosition(double tstop)
 {
     m_solver->setStopTime(tstop);
+}
+
+void PFR1dSolver::setConstraints(const vector<int> constraints){
+    m_solver->setConstraints(constraints.data());
 }
 
 int PFR1dSolver::solve(double xout)
