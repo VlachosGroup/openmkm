@@ -7,10 +7,13 @@ reactor:
     cat_abyv: "1500 /cm"
 
 inlet_gas:              
-    velocity: "1 cm3/s" 
+    flow_rate: "1 cm3/s" 
 
 simulation:
     end_time: 50
+    transient: true
+    stepping: "logarithmic"
+    step_size: 1e-6
     solver:
         atol: 1e-10         
         rtol: 1e-8          
