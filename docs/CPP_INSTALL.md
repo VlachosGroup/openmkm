@@ -1,10 +1,10 @@
-# Hetero_Ct C++ Installation Guide
+# OpenMKM C++ Installation Guide
 
-Hetero_ct uses "scons", a python based build tool that is functionally similar to cmake.
+OpenMKM uses "scons", a python based build tool that is functionally similar to cmake.
 
 ## Cantera installation
 
-To install hetero_ct, first install Cantera from source.
+To install OpenMKM, first install Cantera from source.
 
 The following command is used to compile Cantera on linux machine.
 
@@ -17,7 +17,7 @@ scons build python_package=full f90_interface=y doxygen_docs=yes system_eigen=y 
 2. Use python_cmd and python_prefix to specify the python command and the python library paths. In the above command, instead of system python, anaconda python is used. <env_name> represents the virtual environment name and python3.7 is the version of python used. 
 
 
-## Hetero_ct installation
+## OpenMKM installation
 1. Go to src folder and edit SConstruct file to specify the dependencies.
     * Edit CPPPATH variable to specify the location of eigen3 headers as well as cantera headers.
     * Edit LIBPATH variable to specify the location of sundials and cantera libraries.
