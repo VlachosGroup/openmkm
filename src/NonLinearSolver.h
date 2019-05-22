@@ -11,39 +11,16 @@
 
 #ifndef CT_NONLINEAR_SOLVER_H
 #define CT_NONLINEAR_SOLVER_H
-#include "cantera/numerics/FuncEval.h"
 
+#include "cantera/numerics/FuncEval.h"
 #include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 /**
- * Specifies the method used to integrate the system of equations.
- * Not all methods are supported by all integrators.
- */
-/*
-enum MethodType {
-    BDF_Method, //!< Backward Differentiation
-    Adams_Method //! Adams
-};
-*/
-
-//! Specifies the method used for iteration.
-/*!
- * Not all methods are supported by all integrators.
- */
-/*
- * enum IterType {
-    //!  Newton Iteration
-    Newton_Iter,
-    //! Functional Iteration
-    Functional_Iter
-};
-*/
-//!  Abstract base class for ODE system integrators.
-/*!
- *  @ingroup odeGroup
+ * Wrapper for Nonlinear solvers
+ *
  */
 class NonLinearSolver
 {
@@ -209,6 +186,7 @@ public:
 
 private:
     doublereal m_dummy;
+
     void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"NonLinearSolver called. Nothing done.\n");
@@ -219,5 +197,4 @@ private:
 NonLinearSolver* newNonLinearSolver(const std::string& itype);
 
 } // namespace
-
 #endif
