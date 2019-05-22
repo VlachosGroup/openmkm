@@ -1,14 +1,14 @@
-Welcome to Hetero_ct!  
+Welcome to OpenMKM!  
 
-Hetero_ct is a multiphysics and multiscale software aimed at Chemical Engineers interested in 
-modeling chemical kinetics for heterogeneous catalytic reactions. Hetero_ct is opensource software 
+OpenMKM is a multiphysics and multiscale software aimed at Chemical Engineers interested in 
+modeling chemical kinetics for heterogeneous catalytic reactions. OpenMKM is opensource software 
 and is developed at Delaware Energy Institute, University of Delaware. 
-Hetero_ct is written in C++ and is compiled and executed from command line. 
+OpenMKM is written in C++ and is compiled and executed from command line. 
 
 ## Installation
 
-1. Hetero_ct uses [Cantera](http://www.cantera.org) as backend library for kinetics and 
-thermodynamics processing.Download a
+1. OpenMKM uses [Cantera](http://www.cantera.org) as backend library for kinetics and 
+thermodynamics processing. Download a
 [modified version of cantera source from Github](https://github.com/mbkumar/cantera/tree/hetero_ct).
 Please note that the official version and the modified version differ in their implementation of 
 coverage effects. Then [install](https://cantera.org/install/compiling-install.html)  Cantera 
@@ -26,15 +26,15 @@ extra_inc_dirs="/usr/include/eigen3:/usr/include" -j 4
 Here *-j 4* is used to speed up the compilation process.
 
 2.
-Hetero_ct also uses scons as package builder. Go to *hetero_ct/src*. Edit the *SConstruct* file to specify the
+OpenMKM also uses scons as package builder. Go to *openmkm/src*. Edit the *SConstruct* file to specify the
 location of cantera and the sundials libraries.
-Run *scons -j 4* command to compile. This builds *hetero_ct* executable in the same folder.
+Run *scons -j 4* command to compile. This builds *omkm* executable in the same folder.
 
 ## Usage
 
-Hetero_ct requires two input files, which are specified as arguments in the command line. 
+OpenMKM requires two input files, which are specified as arguments in the command line. 
 ~~~ bash
-./hetero_ct <rctr.yaml> <input.xml>
+./omkm <rctr.yaml> <input.xml>
 ~~~
 
 1. The first argument *rctr.yaml* is the name of yaml file specifying the reactor model parameters, 
@@ -48,9 +48,15 @@ definitions of species, reactions, interactions, and gas, solid and  catalyst su
 more information on the Cantera XML file format, refer to 
 [Cantera documentation on input file format](https://cantera.org/tutorials/input-files.html).
 
+3. Scripts are available to convert Chemkin input files to Cantera files. Use 
+*<CANTERA_ROOT>/interfaces/cython/cantera/ck2cti.py*, which parses gas.inp, surf.inp and thermdat files
+to generate the Cantera input file in CTI format. The CTI file needs to converted again into XML file
+using *<CANTERA_ROOT>/interfaces/cython/cantera/ctml_writer.py*.
+
 Examples of both files can be found in *hetero_ct/test_files* folder. 
+
 ## Credits
- Development of hetero_ct is funded by [RAPID Manufacturing Institute](www.aiche.org/rapid).
+ Development of OpenMKM is funded by [RAPID Manufacturing Institute](www.aiche.org/rapid).
 
 
 ## Reading Material
