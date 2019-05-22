@@ -158,6 +158,16 @@ public:
 
     double getHeat(double Tint) const;
 
+    //! User supplied T profile in the PFR.
+    //! The profile is supplied as map of distance and temperature values.
+    //! If the first z is 0.0, then T has to be equal to m_T0 at inlet.
+    //! The code doesn't do the check and if the condition is not hold,
+    //! the behavior is undefined.
+    void setTProfile(std::map<double, double> T_profile);
+
+    //! Applicable only for cases where energy equation is not solved.
+    double getT(double z);
+
 protected:
     //! Pointer to the gas phase object.
     Cantera::IdealGasMix *m_gas = nullptr;
@@ -209,6 +219,21 @@ protected:
 
     //! Inlet temperature
     double m_T0 = 0.0;
+
+    //! Tprofile
+    // The idea is to use m_T_profile_iind to keep track of current index of 
+    // T_profile. For distance between m_T_profile_ind[m_T_profile_iind] and 
+    // m_T_profile_ind[m_T_profile_iind+1], T is given as linear interpolation 
+    // of m_T_profile[m_T_profile_iind] and m_T_profile[m_T_profile_iind+1].
+    // If m_T_profile_ind[0] > 0.0, then m_T_profile_iind=-1 and T is given as
+    // linear interpolation of m_T0 and m_T_profile[0]
+    std::vector<double> m_T_profile;
+
+    //! Index of Tprofile in terms of distance
+    std::vector<double> m_T_profile_ind;
+    
+    //! Current index of Tprofile_ind
+    int m_T_profile_iind;
 
     //! External Heat supplied 
     bool m_heat;

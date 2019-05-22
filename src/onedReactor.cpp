@@ -105,7 +105,21 @@ void run_1d_reactor(YAML::Node& tube_node,
     cout << "mode " << mode << endl;
     if (mode == "isothermal") {
         pfr.setEnergy(0);
-    } else {
+    } 
+    else if (mode == "tprofile") {
+        pfr.setEnergy(0);
+        map<double, double> T_profile;
+        auto tprofile_nd = rctr_node["TProfile"];
+        if (!tprofile_nd || tprofile_nd.IsNull() || !tprofile_nd.IsSequence()){
+            ;//TODO: Raise Error
+        }
+        for(YAML::const_iterator it = tprofile_nd.begin(); it != tprofile_nd.end(); ++it) {
+            T_profile.insert(pair<double, double>(it->first.as<double>(), 
+                                                 it->second.as<double>()));
+        }
+        pfr.setTProfile(T_profile);
+    } 
+    else {
         pfr.setEnergy(1);
         if (mode == "heat") {
             double htc = strSItoDbl(rctr_node["htc"].as<string>());

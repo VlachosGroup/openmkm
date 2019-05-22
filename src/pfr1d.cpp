@@ -244,7 +244,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double u = y[0];       // Flow rate
     const double r = y[1];       // Density
     const double p = y[2];       // Pressure
-    const double temp = energyEnabled() ? y[3] : m_T0;                    // Temperature
+    const double temp = energyEnabled() ? y[3] : getT(t);                    // Temperature
     //double temp = m_T0;                    // Temperature
     double RT = GasConstant * temp;
 
@@ -333,6 +333,52 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
 
     return 0;
 }
+
+void PFR1d::setTProfile(map<double, double> T_profile)
+{
+    if (T_profile.begin()->first > 0)
+        m_T_profile_iind = -1;
+    else
+        m_T_profile_iind = 0;
+
+    m_T_profile.resize(T_profile.size());
+    m_T_profile_ind.resize(T_profile.size());
+    for (const auto& dist_Tprof : T_profile) {
+        m_T_profile_ind.push_back(dist_Tprof.first);
+        m_T_profile.push_back(dist_Tprof.second);
+    }
+}
+
+double PFR1d::getT(double z)
+{
+    if (!m_T_profile.size()){
+        return m_T0;
+    }
+
+    if (m_T_profile_iind >= 0 && z == m_T_profile_ind[m_T_profile_iind])
+        return  m_T_profile[m_T_profile_iind];
+    if (m_T_profile_iind < m_T_profile_ind.size() && 
+        z == m_T_profile_ind[m_T_profile_iind + 1])
+        return  m_T_profile[m_T_profile_iind];
+
+    if (z > m_T_profile_ind[m_T_profile_iind + 1]){
+        m_T_profile_iind += 1;
+    }
+    double lz, lT, hz, hT;
+    if (m_T_profile_iind < 0) {
+        lz = 0;
+        lT = m_T0;
+    } else {
+        lz = m_T_profile_ind[m_T_profile_iind];
+        lT = m_T_profile[m_T_profile_iind];
+    }
+    hz = m_T_profile_ind[m_T_profile_iind + 1];
+    hT = m_T_profile[m_T_profile_iind + 1];
+
+    return lT + (hT - lT) / (hz - lz) * (z - lz);
+}
+
+
 
 double PFR1d::evalSurfaces() 
 {
