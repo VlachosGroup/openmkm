@@ -213,6 +213,7 @@ void KIN_Solver::setMaxErrTestFails(int n)
     if (m_kin_mem) {
         KINSetMaxErrTestFails(m_kin_mem, n);
     }
+    flag = CVodeSensSStolerances(m_kin_mem, m_reltolsens, atol.data());
 }
 */
 
