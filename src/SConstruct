@@ -8,9 +8,13 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
                   LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
 
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
-           "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", "hctexceptions.cpp", "IdealGasTRampReactor.cpp"]
+           "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", "hctexceptions.cpp", 
+           "IdealGasTRampReactor.cpp",
+           "NonLinearSolver.cpp", "KIN_Solver.cpp"
+           ]
 
 env.Program(target="hetero_ct", source=sources, 
-            LIBS=["sundials_cvodes", "sundials_ida", "sundials_nvecserial", "sundials_kinsol", "cantera", "yaml-cpp"],
+            LIBS=["sundials_cvodes", "sundials_ida", "sundials_kinsol", "sundials_nvecserial", 
+                  "cantera", "yaml-cpp"],
             #LIBS=[ "cantera"],
             LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", "/usr/local/lib"])
