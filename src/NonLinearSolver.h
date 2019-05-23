@@ -1,168 +1,235 @@
 /**
  *  @file NonLinearSolver.h
- *  Header file for class NonLinearSolver
  */
 
-// This file is part of OpenMKM. See License.txt in the top-level directory.
+/**
+ * @defgroup odeGroup ODE NonLinearSolvers
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NONLINEAR_SOLVER_H
 #define CT_NONLINEAR_SOLVER_H
+#include "cantera/numerics/FuncEval.h"
 
-#include "ResidJacEval.h"
 #include "cantera/base/global.h"
 
 namespace Cantera
 {
 
-
+const int DIAG = 1;
+const int DENSE = 2;
+const int NOJAC = 4;
+const int JAC = 8;
+const int GMRES = 16;
+const int BAND = 32;
 
 /**
- * Wrapper for Nonlinear solvers
- *
+ * Specifies the method used to integrate the system of equations.
+ * Not all methods are supported by all integrators.
+ */
+/*
+enum MethodType {
+    BDF_Method, //!< Backward Differentiation
+    Adams_Method //! Adams
+};
+*/
+
+//! Specifies the method used for iteration.
+/*!
+ * Not all methods are supported by all integrators.
+ */
+enum IterType {
+    //!  Newton Iteration
+    Newton_Iter,
+    //! Functional Iteration
+    Functional_Iter
+};
+
+//!  Abstract base class for ODE system integrators.
+/*!
+ *  @ingroup odeGroup
  */
 class NonLinearSolver
 {
 public:
-    NonLinearSolver(FuncEval& f) :
-        m_func(f),
-        m_neq(f.nEquations()) {
+    //! Default Constructor
+    NonLinearSolver() {
     }
 
-    virtual ~NonLinearSolver() {}
+    //!  Destructor
+    virtual ~NonLinearSolver() {
+    }
 
-    /**
-     * Set error tolerances. This version specifies a scalar
-     * relative tolerance, and a vector absolute tolerance.
+    //! Set error tolerances.
+    /*!
+     * @param reltol scalar relative tolerance
+     * @param n      Number of equations
+     * @param abstol array of N absolute tolerance values
      */
-    virtual void setTolerances(doublereal reltol,
+    virtual void setTolerances(doublereal reltol, size_t n,
                                doublereal* abstol) {
         warn("setTolerances");
     }
 
-    /**
-     * Set error tolerances. This version specifies a scalar
-     * relative tolerance, and a scalar absolute tolerance.
+    //! Set error tolerances.
+    /*!
+     * @param reltol scalar relative tolerance
+     * @param abstol scalar absolute tolerance
      */
     virtual void setTolerances(doublereal reltol, doublereal abstol) {
         warn("setTolerances");
     }
 
-    /**
-     * Specify a Jacobian evaluator. If this method is not called,
-     * the Jacobian will be computed by finite difference.
+    //! Set the sensitivity error tolerances
+    /*!
+     * @param reltol scalar relative tolerance
+     * @param abstol scalar absolute tolerance
      */
-    void setJacobian(Jacobian& jac) {
-        warn("setJacobian");
-    }
+    /*
+    virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
+    { }
+    */
 
-    virtual void setLinearSolverType(int solverType) {
-        warn("setLinearSolverType");
-    }
-
-    virtual void setDenseLinearSolver() {
-        warn("setDenseLinearSolver");
-    }
-
-    virtual void setBandedLinearSolver(int m_upper, int m_lower) {
-        warn("setBandedLinearSolver");
-    }
-    virtual void setMaxStepSize(doublereal dtmax) {
-        warn("setMaxStepSize");
-    }
-    virtual void setMaxOrder(int n) {
-        warn("setMaxOrder");
-    }
-    virtual void setMaxNumSteps(int n) {
-        warn("setMaxNumSteps");
-    }
-    virtual void setInitialStepSize(doublereal h0) {
-        warn("setInitialStepSize");
-    }
-    virtual void setStopTime(doublereal tstop) {
-        warn("setStopTime");
-    }
-    virtual void setMaxErrTestFailures(int n) {
-        warn("setMaxErrTestFailures");
-    }
-    virtual void setMaxNonlinIterations(int n) {
-        warn("setMaxNonlinIterations");
-    }
-    virtual void setMaxNonlinConvFailures(int n) {
-        warn("setMaxNonlinConvFailures");
-    }
-    virtual void inclAlgebraicInErrorTest(bool yesno) {
-        warn("inclAlgebraicInErrorTest");
+    //! Set the problem type.
+    /*!
+     * @param probtype    Type of the problem
+     */
+    virtual void setProblemType(int probtype) {
+        warn("setProblemType");
     }
 
     /**
-     * Solve the system of equations.
+     * Initialize the integrator for a new problem. Call after all options have
+     * been set.
+     * @param func RHS evaluator object for system of equations.
      */
-    virtual int solve() {
+    virtual void initialize(FuncEval& func) {
+        warn("initialize");
+    }
+
+    virtual void reinitialize(FuncEval& func) {
+        warn("reinitialize");
+    }
+
+    //! Integrate the system of equations.
+    /*!
+     * @param tout Integrate to this time. Note that this is the
+     *             absolute time value, not a time interval.
+     */
+    virtual void solve() {
         warn("solve");
+    }
+
+    /**
+     * Integrate the system of equations.
+     * @param tout integrate to this time. Note that this is the
+     * absolute time value, not a time interval.
+     */
+    virtual doublereal step() {
+        warn("step");
+        return 0.0;
+    }
+
+    //! The current value of the solution of equation k.
+    virtual doublereal& solution(size_t k) {
+        warn("solution");
+        return m_dummy;
+    }
+
+    //! The current value of the solution of the system of equations.
+    virtual doublereal* solution() {
+        warn("solution");
         return 0;
     }
 
-
-    /// Number of equations.
-    int nEquations() const {
-        return m_func.nEquations();
+    //! The number of equations.
+    virtual int nEquations() const {
+        warn("nEquations");
+        return 0;
     }
 
-    /**
-     * initialize. Base class method does nothing.
-     */
-    virtual void init(doublereal t0) {}
-
-    /**
-     * Set a solver-specific input parameter.
-     */
-    virtual void setInputParameter(int flag, doublereal value) {
-        warn("setInputParameter");
+    //! The number of function evaluations.
+    virtual int nEvals() const {
+        warn("nEvals");
+        return 0;
     }
 
-    /**
-     * Get the value of a solver-specific output parameter.
-     */
-    virtual doublereal getOutputParameter(int flag) const {
-        warn("getOutputParameter");
+    //! Set the maximum integration order that will be used.
+    virtual void setMaxOrder(int n) {
+        warn("setMaxorder");
+    }
+
+    //! Set the solution method
+    /*
+    virtual void setMethod(MethodType t) {
+        warn("setMethodType");
+    }
+    */
+
+    //! Set the linear iterator.
+    virtual void setIterator(IterType t) {
+        warn("setInterator");
+    }
+
+    //! Set the maximum step size
+    virtual void setMaxStepSize(double hmax) {
+        warn("setMaxStepSize");
+    }
+
+    //! Set the minimum step size
+    virtual void setMinStepSize(double hmin) {
+        warn("setMinStepSize");
+    }
+
+    //! Set the maximum permissible number of error test failures
+    virtual void setMaxErrTestFails(int n) {
+        warn("setMaxErrTestFails");
+    }
+
+    //! Set the maximum number of time-steps the integrator can take
+    //!  before reaching the next output time
+    //!  @param nmax The maximum number of steps, setting this value
+    //!              to zero disables this option.
+    virtual void setMaxSteps(int nmax) {
+        warn("setMaxStep");
+    }
+
+    //! Returns the maximum number of time-steps the integrator can take
+    //!  before reaching the next output time
+    virtual int maxSteps() {
+        warn("maxSteps");
+        return 0;
+    }
+
+    virtual void setBandwidth(int N_Upper, int N_Lower) {
+        warn("setBandwidth");
+    }
+
+    /*
+    virtual int nSensParams() {
+        warn("nSensParams()");
+        return 0;
+    }
+
+    virtual double sensitivity(size_t k, size_t p) {
+        warn("sensitivity");
         return 0.0;
     }
-
-    /// the current value of solution component k.
-    virtual doublereal solution(int k) const {
-        warn("solution");
-        return 0.0;
-    }
-
-    virtual const doublereal* solutionVector() const {
-        warn("solutionVector");
-        return &m_dummy;
-    }
-
-
-protected:
-    doublereal m_dummy;
-    FuncEval& m_func;
-
-    //! Number of total equations in the system
-    integer m_neq;
+    */
 
 private:
+    doublereal m_dummy;
     void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"NonLinearSolver called. Nothing done.\n");
     }
 };
 
+// defined in ODE_integrators.cpp
+NonLinearSolver* newNonLinearSolver(const std::string& itype);
 
-//! Factor method for choosing a DAE solver
-/*!
- * @param itype  String identifying the type (KIN is the only option)
- * @param f      Residual function to be solved by the Nonlinear solver
- * @returns a point to the instantiated NonLinearSolver object
- */
-NonLinearSolver* newNonLinearSolver(const std::string& itype, ResidJacEval& f);
-
-}
+} // namespace
 
 #endif

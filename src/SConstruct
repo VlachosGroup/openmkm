@@ -10,9 +10,10 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
            "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", #"hctexceptions.cpp", 
            "IdealGasTRampReactor.cpp", "reactor_parser.cpp"
+           "NonLinearSolver.cpp", "KIN_Solver.cpp"
            ]
 
 env.Program(target="omkm", source=sources, 
-            LIBS=["sundials_cvodes", "sundials_idas", "sundials_nvecserial", "sundials_kinsol", "cantera", "yaml-cpp"],
-            #LIBS=[ "cantera"],
+            LIBS=["sundials_cvodes", "sundials_ida", "sundials_kinsol", 
+                  "sundials_nvecserial", "cantera", "yaml-cpp"],
             LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", "/usr/local/lib"])
