@@ -5,8 +5,8 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_CVODESWRAPPER_H
-#define CT_CVODESWRAPPER_H
+#ifndef CT_KINSOLVER_H
+#define CT_KINSOLVER_H
 
 #include "NonLinearSolver.h"
 #include "cantera/base/ctexceptions.h"
@@ -37,7 +37,7 @@ public:
     virtual void setProblemType(int probtype);
     virtual void initialize(FuncEval& func);
     //virtual void reinitialize(FuncEval& func);
-    virtual void solve();
+    virtual int solve();
     virtual double& solution(size_t k);
     virtual double* solution();
     virtual int nEquations() const {
