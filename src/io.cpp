@@ -186,7 +186,7 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
     }
 }
 
-void print_htrct_header(std::ostream& out) {
+void print_omkm_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
         << "OpenMKM: version 0.1.0\n" 
         << "-----------------------------------------------------------\n\n" 
