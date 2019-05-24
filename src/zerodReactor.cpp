@@ -342,7 +342,6 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                                     gas_tr_mole_out, gas_tr_mass_out, 
                                     gas_tr_msdot_out, surf_tr_out, 
                                     state_var_tr_out);
-
             }
         }
         rctr->restoreState();
@@ -370,7 +369,6 @@ void run_0d_reactor(ReactorParser& rctr_parser,
             }
         }
     }
-
     // Print final rpa data
     rates_out.precision(6);
     auto rxn_index = 1;
