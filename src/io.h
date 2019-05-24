@@ -94,7 +94,7 @@ void print_rxn_kr(std::vector<Cantera::Kinetics*> kinetic_mgrs,
 /**
  * Utility function to print OpenMKM header 
  */
-void print_omkm_header(std::ostream& out); 
+void print_omkm_header(std::ostream& out);
 
 /**
  * Utility function to print reaction rates
@@ -122,7 +122,6 @@ void print_0d_rctr_state(double z, Cantera::Reactor* rctr,
                           std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
                           std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
                           std::ofstream& state_var_out);
-
 
 
 }
