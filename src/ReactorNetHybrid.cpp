@@ -53,32 +53,32 @@ void ReactorNetHybrid::nonlinSolverInitialize()
 
 void ReactorNetHybrid::solve()
 {
+    double new_time;
     if (!m_steady_state) {
         // Advance the reactor with ode integrator first.
-        auto new_time = m_time ? m_time * 2 : 1e-6;
-        advance(new_time);
+        new_time = step();
+        if (new_time >= m_final_time) { // Integrator advanced past desired end time
+            m_steady_state = true;
+            return;
+        }
     }
 
-    // Try nonlinear solver
-    // If nonlinear solver fails, advance the time with integrator
-    // till the nonlinear solver works
-    auto nls_conv_flag = false;
-    if (!m_nonlin_sol_init)
+    // Initialize steady state nonlinear solver
+    if (!m_nonlin_sol_init){
         nonlinSolverInitialize();
-    //else
-    //    nonlinsol_reinitialize();
-    //vector<double> tmp_y(neq());
-    while (!nls_conv_flag) {
-        //getState(tmp_y.data());
-        int nonconv_status = m_nonlin_sol->solve();
-        if (nonconv_status) {
-            auto new_time = m_time ? m_time * 2 : 1e-6;
-            if (new_time > m_final_time) {
-                break;
+    }
+    
+    // If steady state nonlinear solver fails, advance the time with integrator
+    // till the nonlinear solver works
+    int nls_nonconv_status = true;
+    while (nls_nonconv_status) {
+        nls_nonconv_status = m_nonlin_sol->solve();
+        if (nls_nonconv_status) {
+            new_time = step();
+            if (new_time >= m_final_time) {
+                m_steady_state = true;
+                return;
             }
-            advance(new_time);
-        } else {
-            nls_conv_flag = true;
         }
     }
     m_steady_state = true;
