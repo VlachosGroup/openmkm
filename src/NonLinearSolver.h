@@ -33,13 +33,14 @@ enum MethodType {
 /*!
  * Not all methods are supported by all integrators.
  */
-enum IterType {
+/*
+ * enum IterType {
     //!  Newton Iteration
     Newton_Iter,
     //! Functional Iteration
     Functional_Iter
 };
-
+*/
 //!  Abstract base class for ODE system integrators.
 /*!
  *  @ingroup odeGroup
