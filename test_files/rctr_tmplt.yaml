@@ -25,7 +25,7 @@ reactor:                # Mandatory YAML node
     area: NULL
     nodes: NULL    # If pfr_0d, nodes define # of CSTRs used to model the PFR
 
-    temperature:  950   # Mandatory. Inlet gas temperature or starting reactor temp)
+    temperature: 950   # Mandatory. Inlet gas temperature or starting reactor temp)
     pressure:  "1 atm"  # Mandatory. Inlet gas pressure    or starting reactor pressure)
 
     # Reactor operational mode. Options are isothermal, adiabatic, tpd, heat, tprofile
@@ -39,8 +39,7 @@ reactor:                # Mandatory YAML node
     Tramp: NULL         # For tpd, heat ramp beta value
     Tend: NULL          # For tpd, final temperature
     Text: NULL          # For heat, external temperature
-    Tprofile: 
-        - NULL          # For tprofile, list of dist: T keyvalue pairs
+    Tprofile: NULL      # For tprofile, list of dist: T keyvalue pairs
     wall_abyv: NULL # For heat, reactor outer wall area / rctr volume 
     htc: NULL           # For heat, heat transfer coefficient
 
