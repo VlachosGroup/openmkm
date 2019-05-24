@@ -391,6 +391,7 @@ void run_0d_reactor(RctrType rctr_type,
     }
 }
 
+/*
 void run_0d_reactor(RctrType rctr_type, 
                     YAML::Node& tube_node,
                     shared_ptr<IdealGasMix> gas, 
@@ -699,5 +700,6 @@ void run_0d_reactor(RctrType rctr_type,
                             gas_ss_msdot_out, surf_ss_out, state_var_out);
     }
 }
+*/
 
 }
