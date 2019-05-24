@@ -2,7 +2,7 @@ reactor:
     type: "pfr"
     area: "1.0 cm2"
     length: "0.1 cm"
-    mode: "heat"
+    mode: "isothermal"
     temperature:  873
     pressure:  "1 atm"
     cat_abyv: "200 /cm"
