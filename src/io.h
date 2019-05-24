@@ -79,7 +79,7 @@ void print_rxn_kr(std::vector<Cantera::Kinetics*> kinetic_mgrs,
 /**
  * Utility function to print hetero_ct header 
  */
-void print_htrct_header(std::ostream& out); 
+void print_omkm_header(std::ostream& out); 
 
 
 }

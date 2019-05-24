@@ -46,8 +46,8 @@ std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH},
 int main(int argc, char* argv[]) 
 {
     ofstream gen_info ("general_info.out", ios::out);
-    print_htrct_header(gen_info);
-    print_htrct_header(cout);
+    print_omkm_header(gen_info);
+    print_omkm_header(cout);
     if (argc < 3) {
         // TODO: Throw error
         ;
