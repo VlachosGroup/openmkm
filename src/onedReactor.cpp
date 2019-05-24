@@ -32,7 +32,6 @@
 using namespace std;
 using namespace Cantera;
 
-<<<<<<< HEAD
 namespace OpenMKM 
 {
 
