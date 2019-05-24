@@ -120,6 +120,7 @@ void ReactorNetHybrid::eval(doublereal t, doublereal* y,
     }
     checkFinite("ydot", ydot, m_nv);
 }
+*/
 
 
 /*
