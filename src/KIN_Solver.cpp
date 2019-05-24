@@ -5,6 +5,7 @@
 
 #include "cantera/numerics/NumUtil.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/numerics/Integrator.h"
 #include "KIN_Solver.h"
 
 #include <iostream>
@@ -444,12 +445,11 @@ void KIN_Solver::initialize(FuncEval& func)
     applyOptions();
 }
 
+
 /*
 void KIN_Solver::reinitialize(FuncEval& func)
 {
     
-    //m_t0 = t0;
-    //m_time = t0;
     func.getState(NV_DATA_S(m_y));
     m_func = &func;
     func.clearErrors();
@@ -555,9 +555,13 @@ void KIN_Solver::applyOptions()
     */
 }
 
-void KIN_Solver::solve()
+int KIN_Solver::solve()
 {
+    m_func->getState(NV_DATA_S(m_y));
+
     int flag = KINSol(m_kin_mem, m_y, KIN_LINESEARCH, m_scale, m_scale);
+    return flag;    // There is a high chance for this solver to fail. Just return status
+    /*
     if (flag != KIN_SUCCESS) {
         string f_errs = m_func->getErrors();
         if (!f_errs.empty()) {
@@ -566,14 +570,8 @@ void KIN_Solver::solve()
         throw CanteraError("KIN_Solver::solve",
             "KINSol error encountered. Error code: {}\n{}\n{}\n",
             flag, m_error_message, f_errs);
-        /*
-        throw CanteraError("KIN_Solver::solve",
-            "KINSol error encountered. Error code: {}\n{}\n"
-            "{}"
-            "Components with largest weighted error estimates:\n{}",
-            flag, m_error_message, f_errs, getErrorInfo(10));
-        */
-    }
+       }
+    */
 }
 
 /*

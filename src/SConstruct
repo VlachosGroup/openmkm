@@ -10,7 +10,7 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
            "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", "hctexceptions.cpp", 
            "IdealGasTRampReactor.cpp",
-           "NonLinearSolver.cpp", "KIN_Solver.cpp"
+           "NonLinearSolver.cpp", "KIN_Solver.cpp", "ReactorNetHybrid.h"
            ]
 
 env.Program(target="omkm", source=sources, 
