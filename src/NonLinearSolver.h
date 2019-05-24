@@ -18,13 +18,6 @@
 namespace Cantera
 {
 
-const int DIAG = 1;
-const int DENSE = 2;
-const int NOJAC = 4;
-const int JAC = 8;
-const int GMRES = 16;
-const int BAND = 32;
-
 /**
  * Specifies the method used to integrate the system of equations.
  * Not all methods are supported by all integrators.
@@ -40,13 +33,14 @@ enum MethodType {
 /*!
  * Not all methods are supported by all integrators.
  */
-enum IterType {
+/*
+ * enum IterType {
     //!  Newton Iteration
     Newton_Iter,
     //! Functional Iteration
     Functional_Iter
 };
-
+*/
 //!  Abstract base class for ODE system integrators.
 /*!
  *  @ingroup odeGroup
@@ -118,18 +112,9 @@ public:
      * @param tout Integrate to this time. Note that this is the
      *             absolute time value, not a time interval.
      */
-    virtual void solve() {
+    virtual int solve() {
         warn("solve");
-    }
-
-    /**
-     * Integrate the system of equations.
-     * @param tout integrate to this time. Note that this is the
-     * absolute time value, not a time interval.
-     */
-    virtual doublereal step() {
-        warn("step");
-        return 0.0;
+        return -1;
     }
 
     //! The current value of the solution of equation k.
@@ -169,9 +154,11 @@ public:
     */
 
     //! Set the linear iterator.
+    /*
     virtual void setIterator(IterType t) {
         warn("setInterator");
     }
+    */
 
     //! Set the maximum step size
     virtual void setMaxStepSize(double hmax) {
