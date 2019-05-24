@@ -22,54 +22,10 @@ ReactorNetHybrid::ReactorNetHybrid() :
 
 
 
-void ReactorNetHybrid::setMaxErrTestFails(int nmax)
-{
-    m_maxErrTestFails = nmax;
-    m_init = false;
-}
-
-
-
 void ReactorNetHybrid::initialize()
 {
-    m_nv = 0;
-    debuglog("Initializing reactor network.\n", m_verbose);
-    if (m_reactors.empty()) {
-        throw CanteraError("ReactorNetHybrid::initialize",
-                           "no reactors in network!");
-    }
-    m_start.assign(1, 0);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        Reactor& r = *m_reactors[n];
-        r.initialize(m_time);
-        size_t nv = r.neq();
-        m_nv += nv;
-        m_start.push_back(m_nv);
-
-        if (m_verbose) {
-            writelog("Reactor {:d}: {:d} variables.\n", n, nv);
-            writelog("              {:d} sensitivity params.\n", r.nSensParams());
-        }
-        if (r.type() == FlowReactorType && m_reactors.size() > 1) {
-            throw CanteraError("ReactorNetHybrid::initialize",
-                               "FlowReactors must be used alone.");
-        }
-    }
-
-    m_ydot.resize(m_nv,0.0);
-    m_atol.resize(neq());
-    fill(m_atol.begin(), m_atol.end(), m_atols);
-    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
-    m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
-    m_integ->setMaxStepSize(m_maxstep);
-    m_integ->setMaxErrTestFails(m_maxErrTestFails);
-    if (m_verbose) {
-        writelog("Number of equations: {:d}\n", neq());
-        writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
-    }
-    m_integ->initialize(m_time, *this);
-    m_integrator_init = true;
-    m_init = true;
+    ReactorNet::initialize();
+    m_nonlin_sol_init = false;
 }
 
 void ReactorNetHybrid::reinitialize()
@@ -78,20 +34,21 @@ void ReactorNetHybrid::reinitialize()
         debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
         m_integrator_init = true;
+        m_nonlin_sol_init = false;
     } else {
         initialize();
     }
 }
 
-void ReactorHybrid::nonlinSolverInitialize()
+void ReactorNetHybrid::nonlinSolverInitialize()
 {
     debuglog("Initializing nonlinear solver.\n", m_verbose);
     
-    m_nonlinsol->setMaxStepSize(0.5); //TODO: Find a good value
-    m_nonlinsol->setMaxSteps(300);    //TODO: Find a good value
+    m_nonlin_sol->setMaxStepSize(0.5); //TODO: Find a good value
+    m_nonlin_sol->setMaxSteps(300);    //TODO: Find a good value
     m_nonlin_sol->initialize(*this);
     m_nonlin_sol_init = true;
-    m_steady_sate = false;
+    m_steady_state = false;
 }
 
 void ReactorNetHybrid::solve()
@@ -105,27 +62,30 @@ void ReactorNetHybrid::solve()
     // Try nonlinear solver
     // If nonlinear solver fails, advance the time with integrator
     // till the nonlinear solver works
-    nls_conv_flag = false;
+    auto nls_conv_flag = false;
     if (!m_nonlin_sol_init)
-        nonlinsol_initialize();
-    else
-        nonlinsol_reinitialize();
-    vector<double> tmp_y(neq());
+        nonlinSolverInitialize();
+    //else
+    //    nonlinsol_reinitialize();
+    //vector<double> tmp_y(neq());
     while (!nls_conv_flag) {
-        getState(tmp_y.data());
-        int nonconv_status = m_nonlin_sol->solve(tmp_y);
+        //getState(tmp_y.data());
+        int nonconv_status = m_nonlin_sol->solve();
         if (nonconv_status) {
             auto new_time = m_time ? m_time * 2 : 1e-6;
             if (new_time > m_final_time) {
                 break;
             }
             advance(new_time);
+        } else {
+            nls_conv_flag = true;
         }
     }
     m_steady_state = true;
 
 }
 
+/*
 void ReactorNetHybrid::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
@@ -135,6 +95,7 @@ void ReactorNetHybrid::eval(doublereal t, doublereal* y,
     }
     checkFinite("ydot", ydot, m_nv);
 }
+*/
 
 
 /*
