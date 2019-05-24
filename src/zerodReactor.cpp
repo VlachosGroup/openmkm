@@ -25,8 +25,9 @@
 #include "cantera/zeroD/flowControllers.h"
 
 #include "util.h"
-#include "reactor.h"
 #include "hctexceptions.h"
+#include "reactor.h"
+#include "ReactorNetHybrid.h"
 
 
 namespace HeteroCt 
@@ -230,7 +231,8 @@ void run_0d_reactor(RctrType rctr_type,
     cout << "Size of time vector " << times.size() << endl;
     
     // Setup simulation 
-    ReactorNet rnet; 
+    //ReactorNet rnet; 
+    ReactorNetHybrid rnet; 
     rnet.addReactor(*rctr);
 
     // Pass any user defined numerical options to the solver

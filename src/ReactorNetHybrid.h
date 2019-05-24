@@ -34,13 +34,13 @@ public:
         m_final_time = tend;
     }
 
+    void reinitialize();
 
 protected:
     
     //! Initialize the reactor network. Called automatically the first time
-    //! advance or step is called.
+    //! advance or step or solve is called.
     void initialize();
-    void reinitialize();
 
     std::unique_ptr<NonLinearSolver> m_nonlin_sol;
     bool m_nonlin_sol_init; //!< True if integrator initialization is current
