@@ -34,11 +34,13 @@ void run_0d_reactor(RctrType rctr_type,
                     std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces,
                     std::ofstream& gen_info);
 
+/*
 void run_0d_reactor(RctrType rctr_type, 
                     YAML::Node& tube_node,
                     std::shared_ptr<Cantera::IdealGasMix> gas, 
                     std::vector<std::shared_ptr<Cantera::Interface>> surfaces,
                     std::ofstream& gen_info);
+                    */
 
 
 void run_1d_reactor(YAML::Node& tube_node,
