@@ -56,14 +56,11 @@ public:
     virtual ~NonLinearSolver() {
     }
 
-    //! Set error tolerances.
+    //! Set error tolerance.
     /*!
-     * @param reltol scalar relative tolerance
-     * @param n      Number of equations
-     * @param abstol array of N absolute tolerance values
+     * @param functol  tolerance for the residual function
      */
-    virtual void setTolerances(doublereal reltol, size_t n,
-                               doublereal* abstol) {
+    virtual void setTolerance(doublereal functol) {
         warn("setTolerances");
     }
 
@@ -192,6 +189,10 @@ public:
 
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         warn("setBandwidth");
+    }
+
+    virtual void stats() {
+        warn("stats");
     }
 
     /*

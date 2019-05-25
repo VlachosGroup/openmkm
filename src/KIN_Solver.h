@@ -31,7 +31,7 @@ public:
      */
     KIN_Solver();
     virtual ~KIN_Solver();
-    //virtual void setTolerances(double reltol, size_t n, double* abstol);
+    virtual void setTolerance(double functol);
     //virtual void setTolerances(double reltol, double abstol);
     //virtual void setSensitivityTolerances(double reltol, double abstol);
     virtual void setProblemType(int probtype);
@@ -82,6 +82,9 @@ public:
     virtual void setConstraints(const int * const flags);
     */
 
+    //! Get the stats from KINSOL after solve
+    virtual void stats();
+
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called
     //! during integrator initialization or reinitialization.
@@ -97,7 +100,7 @@ private:
     FuncEval* m_func;
     N_Vector m_y;
     N_Vector m_scale;
-    //N_Vector m_abstol;
+    double m_functol;
     N_Vector m_constraints;
     int m_type;
     //int m_itol;
