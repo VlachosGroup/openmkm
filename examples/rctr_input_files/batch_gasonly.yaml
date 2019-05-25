@@ -1,0 +1,21 @@
+reactor:                
+    type: batch          
+    mode: "isothermal"
+    volume: "1 cm3"
+    temperature:  1001   
+    pressure:  "1 atm"  
+
+simulation:
+    end_time: 0.1
+    transient: true
+    stepping: regular
+    step_size: 2e-6
+    solver:
+        atol: 1e-17         
+        rtol: 1e-12          
+
+phases:                     
+    gas: 
+        name: gas            
+        initial_state: "H2:2,O2:1,N2:4" 
+

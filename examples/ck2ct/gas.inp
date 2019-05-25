@@ -1,0 +1,20 @@
+ELEMENTS
+H
+N
+RU
+HE
+END
+
+SPECIES
+H2
+N2
+NH3
+END
+
+!THERMO
+! Insert GRI-Mech thermodynamics here or use in default file
+!END
+REACTIONS
+
+
+END
