@@ -335,7 +335,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         rnet.reinitialize();
         rnet.setMaxTimeStep(1e-1);
 
-        if (times.size() == 1) {
+        if (times.size() == 1) { 
+            cout << "Solving with steady state solver" << endl;
             rnet.setIntegratorEndTime(times[0]);
             rnet.solve();
         }

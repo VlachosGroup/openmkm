@@ -6,6 +6,7 @@
 #include "ReactorNetHybrid.h"
 
 #include <cstdio>
+#include <iostream>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ void ReactorNetHybrid::initialize()
 {
     ReactorNet::initialize();
     m_nonlin_sol_init = false;
+    m_steady_state = false;
 }
 
 void ReactorNetHybrid::reinitialize()
@@ -35,6 +37,7 @@ void ReactorNetHybrid::reinitialize()
         m_integ->reinitialize(m_time, *this);
         m_integrator_init = true;
         m_nonlin_sol_init = false;
+        m_steady_state = false;
     } else {
         initialize();
     }
@@ -46,18 +49,33 @@ void ReactorNetHybrid::nonlinSolverInitialize()
     
     m_nonlin_sol->setMaxStepSize(0.5); //TODO: Find a good value
     m_nonlin_sol->setMaxSteps(300);    //TODO: Find a good value
+    m_nonlin_sol->setTolerance(m_ftol);
     m_nonlin_sol->initialize(*this);
     m_nonlin_sol_init = true;
     m_steady_state = false;
 }
 
+void ReactorNetHybrid::setTolerances(double rtol, double atol)
+{
+    ReactorNet::setTolerances(rtol, atol);
+    if (atol >= 0.0) {
+        m_ftol = atol;
+    }
+}
+
+
 void ReactorNetHybrid::solve()
 {
     double new_time;
+    cout << "Inside the hybrid solver" << endl;
     if (!m_steady_state) {
         // Advance the reactor with ode integrator first.
         new_time = step();
+        cout << "Integrator advanced to time " << new_time << endl;
         if (new_time >= m_final_time) { // Integrator advanced past desired end time
+            cout << "Integrator time " << new_time 
+                 << " advanced past desired end time "  << m_final_time 
+                 << endl;
             m_steady_state = true;
             return;
         }
@@ -70,18 +88,27 @@ void ReactorNetHybrid::solve()
     
     // If steady state nonlinear solver fails, advance the time with integrator
     // till the nonlinear solver works
-    int nls_nonconv_status = true;
-    while (nls_nonconv_status) {
-        nls_nonconv_status = m_nonlin_sol->solve();
-        if (nls_nonconv_status) {
+    int nls_conv_status = false;
+    int ss_fail_count = 0;
+    while (!nls_conv_status) {
+        nls_conv_status = m_nonlin_sol->solve();
+        cerr << "Nonlinear solver convergence status " <<  nls_conv_status << endl;
+        m_nonlin_sol->stats();
+        if (!nls_conv_status) {
+            ss_fail_count += 1;
             new_time = step();
+            //cout << "Integrator advanced to time " << new_time << endl;
             if (new_time >= m_final_time) {
                 m_steady_state = true;
+                cout << "steady state solver failed " << ss_fail_count 
+                     << " times" << endl;
                 return;
             }
         }
     }
+    cout << "steady state solver failed " << ss_fail_count << " times" << endl;
     m_steady_state = true;
+    updateState(m_nonlin_sol->solution());
 
 }
 

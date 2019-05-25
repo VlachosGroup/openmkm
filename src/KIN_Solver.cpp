@@ -87,7 +87,7 @@ KIN_Solver::KIN_Solver() :
     m_y(0),
     m_scale(0),
     m_constraints(0),
-    //m_abstol(0),
+    m_functol(0),
     m_type(DENSE+NOJAC),
     //m_itol(KIN_SS),
     //m_method(CV_BDF),
@@ -156,23 +156,13 @@ double* KIN_Solver::solution()
     return NV_DATA_S(m_y);
 }
 
-/*
-void KIN_Solver::setTolerances(double reltol, size_t n, double* abstol)
+
+void KIN_Solver::setTolerance(double functol)
 {
-    m_itol = KIN_SV;
-    m_nabs = n;
-    if (n != m_neq) {
-        if (m_abstol) {
-            N_VDestroy_Serial(m_abstol);
-        }
-        m_abstol = N_VNew_Serial(static_cast<sd_size_t>(n));
-    }
-    for (size_t i=0; i<n; i++) {
-        NV_Ith_S(m_abstol, i) = abstol[i];
-    }
-    m_reltol = reltol;
+    m_functol = functol;
 }
 
+/*
 void KIN_Solver::setTolerances(double reltol, double abstol)
 {
     m_itol = KIN_SS;
@@ -181,31 +171,10 @@ void KIN_Solver::setTolerances(double reltol, double abstol)
 }
 */
 
-/*
-void KIN_Solver::setSensitivityTolerances(double reltol, double abstol)
-{
-    m_reltolsens = reltol;
-    m_abstolsens = abstol;
-}
-*/
-
 void KIN_Solver::setProblemType(int probtype)
 {
     m_type = probtype;
 }
-
-/*
-void KIN_Solver::setMethod(MethodType t)
-{
-    if (t == BDF_Method) {
-        m_method = CV_BDF;
-    } else if (t == Adams_Method) {
-        m_method = CV_ADAMS;
-    } else {
-        throw CanteraError("KIN_Solver::setMethod", "unknown method");
-    }
-}
-*/
 
 void KIN_Solver::setMaxStepSize(doublereal hmax)
 {
@@ -248,19 +217,6 @@ void KIN_Solver::setMaxErrTestFails(int n)
 */
 
 /*
-void KIN_Solver::setIterator(IterType t)
-{
-    if (t == Newton_Iter) {
-        m_iter = KIN_NEWTON;
-    } else if (t == Functional_Iter) {
-        m_iter = KIN_FUNCTIONAL;
-    } else {
-        throw CanteraError("KIN_Solver::setIterator", "unknown iterator");
-    }
-}
-*/
-
-/*
 bool checkFlag(const int constraintFlag)
  {
      auto cflag = constraintFlag;
@@ -273,7 +229,7 @@ bool checkFlag(const int constraintFlag)
  */
  
 
-/* The function KINSetConstraints is available only in latest SUNDIALS package
+/* 
  void KIN_Solver::setConstraint(const int k, const int constraintFlag)
  {
      if (checkFlag(constraintFlag)){
@@ -316,35 +272,6 @@ void KIN_Solver::setConstraints(const int * const constraintFlags)
      }
  }
  */
-
-/*
-void KIN_Solver::sensInit(double t0, FuncEval& func)
-{
-    m_np = func.nparams();
-    m_sens_ok = false;
-
-    N_Vector y = N_VNew_Serial(static_cast<sd_size_t>(func.neq()));
-    m_yS = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), y);
-    for (size_t n = 0; n < m_np; n++) {
-        N_VConst(0.0, m_yS[n]);
-    }
-    N_VDestroy_Serial(y);
-
-    int flag = CVodeSensInit(m_kin_mem, static_cast<sd_size_t>(m_np),
-                             CV_STAGGERED, CVSensRhsFn(0), m_yS);
-
-    if (flag != KIN_SUCCESS) {
-        throw CanteraError("KIN_Solver::sensInit", "Error in CVodeSensInit");
-    }
-    vector_fp atol(m_np);
-    for (size_t n = 0; n < m_np; n++) {
-        // This scaling factor is tuned so that reaction and species enthalpy
-        // sensitivities can be computed simultaneously with the same abstol.
-        atol[n] = m_abstolsens / func.m_paramScales[n];
-    }
-    flag = CVodeSensSStolerances(m_kin_mem, m_reltolsens, atol.data());
-}
-*/
 
 void KIN_Solver::initialize(FuncEval& func)
 {
@@ -445,24 +372,6 @@ void KIN_Solver::initialize(FuncEval& func)
     applyOptions();
 }
 
-
-/*
-void KIN_Solver::reinitialize(FuncEval& func)
-{
-    
-    func.getState(NV_DATA_S(m_y));
-    m_func = &func;
-    func.clearErrors();
-
-    int result = KINReInit(m_kin_mem, m_y);
-    if (result != KIN_SUCCESS) {
-        throw CanteraError("KIN_Solver::reinitialize",
-                           "CVodeReInit failed. result = {}", result);
-    }
-    applyOptions();
-}
-*/
-
 void KIN_Solver::applyOptions()
 {
     if (m_type == DENSE + NOJAC) {
@@ -537,6 +446,7 @@ void KIN_Solver::applyOptions()
         KINSetMaxOrd(m_kin_mem, m_maxord);
     }
     */
+    KINSetFuncNormTol(m_kin_mem, m_functol);
     if (m_maxsteps > 0) {
         KINSetNumMaxIters(m_kin_mem, m_maxsteps);
     }
@@ -560,7 +470,11 @@ int KIN_Solver::solve()
     m_func->getState(NV_DATA_S(m_y));
 
     int flag = KINSol(m_kin_mem, m_y, KIN_LINESEARCH, m_scale, m_scale);
-    return flag;    // There is a high chance for this solver to fail. Just return status
+    // There is a high chance for this solver to fail. Just return success status
+    if (flag == KIN_SUCCESS || KIN_INITIAL_GUESS_OK) 
+        return 1;    
+    else
+        return 0;
     /*
     if (flag != KIN_SUCCESS) {
         string f_errs = m_func->getErrors();
@@ -574,62 +488,12 @@ int KIN_Solver::solve()
     */
 }
 
-/*
-double KIN_Solver::step(double tout)
-{
-    int flag = CVode(m_kin_mem, tout, m_y, &m_time, CV_ONE_STEP);
-    if (flag != KIN_SUCCESS) {
-        string f_errs = m_func->getErrors();
-        if (!f_errs.empty()) {
-            f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
-        }
-        throw CanteraError("KIN_Solver::step",
-            "CVodes error encountered. Error code: {}\n{}\n"
-            "{}"
-            "Components with largest weighted error estimates:\n{}",
-            flag, f_errs, m_error_message, getErrorInfo(10));
-
-    }
-    m_sens_ok = false;
-    return m_time;
-}
-*/
-
 int KIN_Solver::nEvals() const
 {
     long int ne;
     KINGetNumFuncEvals(m_kin_mem, &ne);
     return ne;
 }
-
-/*
-double KIN_Solver::sensitivity(size_t k, size_t p)
-{
-    if (m_time == m_t0) {
-        // calls to CVodeGetSens are only allowed after a successful time step.
-        return 0.0;
-    }
-    if (!m_sens_ok && m_np) {
-        int flag = CVodeGetSens(m_kin_mem, &m_time, m_yS);
-        if (flag != KIN_SUCCESS) {
-            throw CanteraError("KIN_Solver::sensitivity",
-                               "CVodeGetSens failed. Error code: {}", flag);
-        }
-        m_sens_ok = true;
-    }
-
-    if (k >= m_neq) {
-        throw CanteraError("KIN_Solver::sensitivity",
-                           "sensitivity: k out of range ({})", k);
-    }
-    if (p >= m_np) {
-        throw CanteraError("KIN_Solver::sensitivity",
-                           "sensitivity: p out of range ({})", p);
-    }
-    return NV_Ith_S(m_yS[p],k);
-}
-*/
-
 /*
 string KIN_Solver::getErrorInfo(int N)
 {
@@ -656,5 +520,18 @@ string KIN_Solver::getErrorInfo(int N)
     return to_string(s);
 }
 */
+
+// Get stats from KINSOL
+void KIN_Solver::stats() 
+{
+    long int nwork;
+    KINGetNumFuncEvals(m_kin_mem, &nwork);
+    cout << "# of func evals " << nwork << endl;
+    KINGetNumNonlinSolvIters(m_kin_mem, &nwork);
+    cout << "# of Nonlinear solver iterations  " << nwork << endl;
+    realtype work;
+    KINGetFuncNorm(m_kin_mem, &work);
+    cout << "Func norm " << work << endl;
+}
 
 }

@@ -34,7 +34,6 @@ public:
         m_final_time = tend;
     }
 
-
 protected:
     
     //! Initialize the reactor network. Called automatically the first time
@@ -46,6 +45,7 @@ protected:
     bool m_nonlin_sol_init; //!< True if integrator initialization is current
     bool m_steady_state;    //!< True if steady state solver has to be used.
     double m_final_time;    //!< Time to stop the integrator when trying steady state
+    double m_ftol;
 
 };
 }
