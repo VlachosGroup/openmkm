@@ -293,6 +293,15 @@ void run_1d_reactor(YAML::Node& tube_node,
     vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
+        vector<double> sv = pfr_solver.solutionVector();
+        for (size_t i = 0; i < sv.size(); i++) {
+            cout << "Solution vector at i = " << i << "   " << sv[i] << endl;
+        }
+        vector<double> dv = pfr_solver.derivativeVector();
+        for (size_t i = 0; i < sv.size(); i++) {
+            cout << "Derivative vector at i = " << i << "   " << dv[i] << endl;
+        }
+
     }
     /*
     vector<double> zvals1 = get_reg_intervals(1e-7, rctr_len, 1e-7); //Use the same function to get z steps

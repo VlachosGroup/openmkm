@@ -52,8 +52,17 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     m_sdot.resize(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
 
-    m_var.resize(neq_ - m_neqs_extra);
-    m_var = m_gas->speciesNames();
+    m_var.resize(neq_);
+    m_var.clear();
+    m_var.push_back("Velocity(m/s)");
+    m_var.push_back("Density");
+    m_var.push_back("Pressure(Pa)");
+    if (energyEnabled())
+        m_var.push_back("Temperature(K)");
+    auto sp_names = m_gas->speciesNames();
+    for (auto i = 0; i < sp_names.size(); i++){
+        m_var.push_back(sp_names[i]);
+    }
     for (const auto s_ph : m_surf_phases) {
         auto sp_nm = s_ph->speciesNames();
         for (auto i = 0; i < sp_nm.size(); i++){
@@ -95,13 +104,17 @@ void PFR1d::reinit()
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
 
     m_var.resize(neq_);
+    m_var.clear();
     m_var.push_back("Velocity(m/s)");
     m_var.push_back("Density");
     m_var.push_back("Pressure(Pa)");
     if (energyEnabled())
         m_var.push_back("Temperature(K)");
-    vector<string> sp_names = m_gas->speciesNames();
-    m_var.insert(m_var.end(), sp_names.begin(), sp_names.end());
+    auto sp_names = m_gas->speciesNames();
+    //m_var.insert(m_var.end(), sp_names.begin(), sp_names.end());
+    for (auto i = 0; i < sp_names.size(); i++){
+        m_var.push_back(sp_names[i]);
+    }
     for (const auto s_ph : m_surf_phases) {
         auto sp_nm = s_ph->speciesNames();
         for (auto i = 0; i < sp_nm.size(); i++){
@@ -246,12 +259,14 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double p = y[2];       // Pressure
     const double temp = energyEnabled() ? y[3] : getT(t);                    // Temperature
     //double temp = m_T0;                    // Temperature
+    cout << "z" << t <<   " temp " << temp <<  " vel " << u << " den " << r << " press " << p << endl;
     double RT = GasConstant * temp;
 
     const double dudz = ydot[0];
     const double drdz = ydot[1];
     const double dpdz = ydot[2];
     const double dtempdz = energyEnabled() ? ydot[3] : 0;
+
 
     m_gas->setMassFractions_NoNorm(y + m_neqs_extra);
     //cout << "temp, "  << temp <<  " p: " << p << endl;

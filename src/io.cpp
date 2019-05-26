@@ -188,11 +188,11 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
 
 void print_htrct_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
-        << "Hetero_ct: version 0.0.1\n" 
+        << "OpenMKM: version 0.1.0\n" 
         << "-----------------------------------------------------------\n\n" 
-        << "Hetero_ct is a multiphysics and multiscale software aimed at" << std::endl
+        << "OpenMKM is a multiphysics and multiscale software aimed at" << std::endl
         << "modelng chemical kinetics for heterogeneous catalysis." << std::endl
-        << "Hetero_ct is open source and is developed at Delaware Energy" << std::endl
+        << "OpenMKM is open source and is developed at Delaware Energy" << std::endl
         << "Institute, Unitversity of Delaware.\n\n\n"; 
 }
 

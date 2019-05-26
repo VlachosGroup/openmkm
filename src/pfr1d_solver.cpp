@@ -20,6 +20,11 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
     m_var = pfr->variablesNames();
+    cout << "PFR variable names" << endl;
+    for (size_t i = 0; i < m_var.size(); i++){
+        cout << m_var[i] << ", ";
+    }
+    cout << endl;
 
     try
     {
@@ -69,7 +74,7 @@ int PFR1dSolver::solve(double xout)
 
     if (!m_ss_started)
     {
-        m_ss << "z (m),";
+        m_ss << "z(m),";
         for (auto var : m_var) { 
             m_ss << var << ","; 
         }
