@@ -3,8 +3,6 @@
 ***************************************************************************
 */
 
-#include <vector>
-
 #include "pfr1d_solver.h"
 #include "pfr1d.h"
 #include "cantera/numerics/IDA_Solver.h"
@@ -20,18 +18,13 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
     m_var = pfr->variablesNames();
-    cout << "PFR variable names" << endl;
-    for (size_t i = 0; i < m_var.size(); i++){
-        cout << m_var[i] << ", ";
-    }
-    cout << endl;
 
     try
     {
         m_solver = new IDA_Solver {*pfr};
-        m_solver->init(0.0);
         m_solver->setJacobianType(0);
         m_solver->setDenseLinearSolver();
+        m_solver->init(0.0);
     }
     catch (Cantera::CanteraError& err)
     {
@@ -135,8 +128,8 @@ vector<double> PFR1dSolver::derivativeVector()
 {
     // TODO make this with STL algorithm.
     const double* der = m_solver->derivativeVector();
-    for (unsigned i = 0; i != m_vec.size(); ++i) { 
-        m_vec[i] = der[i]; 
+    for (unsigned i = 0; i != m_vec.size(); ++i) {
+        m_vec[i] = der[i];
     }
     return m_vec;
 }
