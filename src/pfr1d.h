@@ -119,6 +119,8 @@ public:
         return m_gas->kineticsSpeciesIndex(name);
     }
 
+
+
     double getIntEnergyMass() const
     {
         return m_gas->intEnergy_mass();
@@ -127,6 +129,35 @@ public:
     std::vector<std::string> variablesNames() const
     {
         return m_var;
+    }
+
+    std::vector<std::string> stateVariableNames()
+    {
+	std::vector<std::string> state_var(m_neqs_extra);
+	for (size_t i = 0; i < m_neqs_extra; i++)
+	    state_var[i] = m_var[i];
+	return state_var;
+    }
+
+    std::vector<std::string> gasVariableNames()
+    {
+	std::vector<std::string> gas_var(m_nsp);
+	for (size_t i = 0; i < m_nsp; i++){
+	    auto k = i + m_neqs_extra;
+	    gas_var[i] = m_var[k];
+	}
+	return gas_var;
+    }
+
+    std::vector<std::string> surfaceVariableNames()
+    {
+	size_t nsurf = m_neq - m_neqs_extra - m_nsp;
+	std::vector<std::string> surf_var(nsurf);
+	for (size_t i = 0; i < nsurf; i++){
+	    auto k = i + m_neqs_extra + m_nsp;
+	    surf_var[i] = m_var[k];
+	}
+	return surf_var;
     }
 
     void setFlowRate(double flow_rate) 

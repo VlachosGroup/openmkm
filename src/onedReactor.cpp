@@ -159,8 +159,9 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
     
     //pfr_solver.solve(rctr_len);
-    pfr_solver.writeResults("1d_pfr.out");
-    cout << "reached after write results" << endl;
+    pfr_solver.writeStateData("1d_pfr_state.out");
+    pfr_solver.writeGasData("1d_pfr_gas.out");
+    pfr_solver.writeSurfaceData("1d_pfr_surface.out");
 
     //vector<double> gas_X(gas->nSpecies());
 
@@ -293,8 +294,9 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
     
     //pfr_solver.solve(rctr_len);
-    pfr_solver.writeResults("1d_pfr.out");
-    cout << "reached after write results" << endl;
+    pfr_solver.writeStateData("1d_pfr_state.out");
+    pfr_solver.writeGasData("1d_pfr_gas.out");
+    pfr_solver.writeSurfaceData("1d_pfr_surface.out");
 
     //vector<double> gas_X(gas->nSpecies());
 

@@ -18,6 +18,9 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
     m_var = pfr->variablesNames();
+    m_var_gas = pfr->gasVariableNames();
+    m_var_state = pfr->stateVariableNames();
+    m_var_surf = pfr->surfaceVariableNames();
 
     try
     {
@@ -65,19 +68,42 @@ int PFR1dSolver::solve(double xout)
 { 
     int retcode = 0;
 
+    size_t nstate = m_var_state.size();
+    size_t ngas = m_var_gas.size();
+    size_t nsurf = m_var_surf.size();
     if (!m_ss_started)
     {
-        m_ss << "z(m),";
-        for (auto var : m_var) { 
-            m_ss << var << ","; 
+        m_ss_gas  << "z(m),";
+        m_ss_surf << "z(m),";
+        m_ss_state  << "z(m),";
+        for (auto var : m_var_gas) { 
+            m_ss_gas << var << ","; 
         }
-        m_ss << endl;
+        for (auto var : m_var_surf) { 
+            m_ss_surf << var << ","; 
+        }
+        for (auto var : m_var_state) { 
+            m_ss_state << var << ","; 
+        }
+        m_ss_gas << endl;
+        m_ss_surf << endl;
+        m_ss_state << endl;
 
-        m_ss << 0.0 << ","; 
-        for (unsigned i = 0; i != m_neq; ++i) {
-            m_ss << m_solver->solution(i) << ",";
+        m_ss_gas << 0.0 << ","; 
+        m_ss_surf << 0.0 << ","; 
+        m_ss_state << 0.0 << ","; 
+        for (unsigned i = 0; i != nstate; ++i) {
+            m_ss_state << m_solver->solution(i) << ",";
         }
-        m_ss << endl;
+        m_ss_state << endl;
+        for (unsigned i = 0; i != ngas; ++i) {
+            m_ss_gas << m_solver->solution(i + nstate) << ",";
+        }
+        m_ss_gas << endl;
+        for (unsigned i = 0; i != nsurf; ++i) {
+            m_ss_surf << m_solver->solution(i + nstate + ngas) << ",";
+        }
+        m_ss_surf << endl;
 
         m_ss_started = true;
     }
@@ -94,12 +120,22 @@ int PFR1dSolver::solve(double xout)
     }
 
     // TODO get pointer to sol instead.
-    m_ss << xout << ",";
+    m_ss_state << xout << ",";
+    m_ss_gas << xout << ",";
+    m_ss_surf << xout << ",";
     cout << xout << endl;
-    for (unsigned i = 0; i != m_neq; ++i) {
-        m_ss << m_solver->solution(i) << ",";
+    for (unsigned i = 0; i != nstate; ++i) {
+        m_ss_state << m_solver->solution(i) << ",";
     }
-    m_ss << std::endl;
+    m_ss_state << std::endl;
+    for (unsigned i = 0; i != ngas; ++i) {
+        m_ss_gas << m_solver->solution(i + nstate) << ",";
+    }
+    m_ss_gas << std::endl;
+    for (unsigned i = 0; i != nsurf; ++i) {
+        m_ss_surf << m_solver->solution(i + nstate + ngas) << ",";
+    }
+    m_ss_surf << std::endl;
 
     return retcode;
 }
@@ -139,14 +175,36 @@ vector<string> PFR1dSolver::variablesNames() const
     return m_var;
 }
 
-void PFR1dSolver::writeResults(const string & saveas)
+void PFR1dSolver::writeStateData(const string & saveas)
 {
     std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
     if (!ofs)
     {
         throw std::runtime_error("Cannot output to file");
     }
-    ofs << m_ss.str();
+    ofs << m_ss_state.str();
+    ofs.close();
+}
+
+void PFR1dSolver::writeGasData(const string & saveas)
+{
+    std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
+    if (!ofs)
+    {
+        throw std::runtime_error("Cannot output to file");
+    }
+    ofs << m_ss_gas.str();
+    ofs.close();
+}
+
+void PFR1dSolver::writeSurfaceData(const string & saveas)
+{
+    std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
+    if (!ofs)
+    {
+        throw std::runtime_error("Cannot output to file");
+    }
+    ofs << m_ss_surf.str();
     ofs.close();
 }
 

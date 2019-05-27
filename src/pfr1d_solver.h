@@ -56,7 +56,9 @@ public:
 
     std::vector<std::string> variablesNames() const;
 
-    void writeResults(const std::string & saveas);
+    void writeStateData(const std::string & saveas);
+    void writeGasData(const std::string & saveas);
+    void writeSurfaceData(const std::string & saveas);
 
     Cantera::DAE_Solver& solver() {
         return *m_solver;
@@ -72,12 +74,17 @@ protected:
 
     //! Provides access to variables names.
     std::vector<std::string> m_var;
+    std::vector<std::string> m_var_gas;
+    std::vector<std::string> m_var_surf;
+    std::vector<std::string> m_var_state;
 
     //! Pointer to IDA solver.
     Cantera::IDA_Solver* m_solver;
 
-    //! Buffer for results file.
-    std::stringstream m_ss;
+    //! Buffers for results.
+    std::stringstream m_ss_gas;
+    std::stringstream m_ss_surf;
+    std::stringstream m_ss_state;
 
     //! Check if writer was started.
     bool m_ss_started = false;
