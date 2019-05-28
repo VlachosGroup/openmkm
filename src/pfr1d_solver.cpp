@@ -22,6 +22,9 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     m_var_state = pfr->stateVariableNames();
     m_var_surf = pfr->surfaceVariableNames();
 
+    m_ss_state.precision(6);
+    m_ss_gas.precision(6);
+    m_ss_surf.precision(6);
     try
     {
         m_solver = new IDA_Solver {*pfr};
@@ -71,40 +74,49 @@ int PFR1dSolver::solve(double xout)
     size_t nstate = m_var_state.size();
     size_t ngas = m_var_gas.size();
     size_t nsurf = m_var_surf.size();
+
+    auto print_state = [&](double x, string sep){
+
+        m_ss_state << scientific << x;;
+        m_ss_gas << scientific << x;
+        m_ss_surf << scientific << x;
+        cout << x << endl;
+        for (unsigned i = 0; i != nstate; ++i) {
+            m_ss_state << sep << m_solver->solution(i);
+        }
+        m_ss_state << std::endl;
+        for (unsigned i = 0; i != ngas; ++i) {
+            m_ss_gas << sep << m_solver->solution(i + nstate);
+        }
+        m_ss_gas << std::endl;
+        for (unsigned i = 0; i != nsurf; ++i) {
+            m_ss_surf << sep << m_solver->solution(i + nstate + ngas);
+        }
+        m_ss_surf << std::endl;
+
+    };
+
     if (!m_ss_started)
     {
-        m_ss_gas  << "z(m),";
-        m_ss_surf << "z(m),";
-        m_ss_state  << "z(m),";
-        for (auto var : m_var_gas) { 
-            m_ss_gas << var << ","; 
-        }
-        for (auto var : m_var_surf) { 
-            m_ss_surf << var << ","; 
-        }
-        for (auto var : m_var_state) { 
-            m_ss_state << var << ","; 
-        }
-        m_ss_gas << endl;
-        m_ss_surf << endl;
-        m_ss_state << endl;
-
-        m_ss_gas << 0.0 << ","; 
-        m_ss_surf << 0.0 << ","; 
-        m_ss_state << 0.0 << ","; 
-        for (unsigned i = 0; i != nstate; ++i) {
-            m_ss_state << m_solver->solution(i) << ",";
-        }
-        m_ss_state << endl;
-        for (unsigned i = 0; i != ngas; ++i) {
-            m_ss_gas << m_solver->solution(i + nstate) << ",";
-        }
-        m_ss_gas << endl;
-        for (unsigned i = 0; i != nsurf; ++i) {
-            m_ss_surf << m_solver->solution(i + nstate + ngas) << ",";
-        }
-        m_ss_surf << endl;
-
+        auto print_header = [&](string sep) -> void {
+            m_ss_gas  << "z(m)";
+            m_ss_surf << "z(m)";
+            m_ss_state  << "z(m)";
+            for (auto var : m_var_gas) { 
+                m_ss_gas << sep << var; 
+            }
+            for (auto var : m_var_surf) { 
+                m_ss_surf << sep << var; 
+            }
+            for (auto var : m_var_state) { 
+                m_ss_state << sep << var; 
+            }
+            m_ss_gas << endl;
+            m_ss_surf << endl;
+            m_ss_state << endl;
+        };
+        print_header(",");
+        print_state(0.0, ",");
         m_ss_started = true;
     }
 
@@ -120,23 +132,8 @@ int PFR1dSolver::solve(double xout)
     }
 
     // TODO get pointer to sol instead.
-    m_ss_state << xout << ",";
-    m_ss_gas << xout << ",";
-    m_ss_surf << xout << ",";
-    cout << xout << endl;
-    for (unsigned i = 0; i != nstate; ++i) {
-        m_ss_state << m_solver->solution(i) << ",";
-    }
-    m_ss_state << std::endl;
-    for (unsigned i = 0; i != ngas; ++i) {
-        m_ss_gas << m_solver->solution(i + nstate) << ",";
-    }
-    m_ss_gas << std::endl;
-    for (unsigned i = 0; i != nsurf; ++i) {
-        m_ss_surf << m_solver->solution(i + nstate + ngas) << ",";
-    }
-    m_ss_surf << std::endl;
-
+    print_state(xout, ",");
+    
     return retcode;
 }
 

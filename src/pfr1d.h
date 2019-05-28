@@ -131,33 +131,33 @@ public:
         return m_var;
     }
 
-    std::vector<std::string> stateVariableNames()
+    std::vector<std::string> stateVariableNames() const
     {
-	std::vector<std::string> state_var(m_neqs_extra);
-	for (size_t i = 0; i < m_neqs_extra; i++)
-	    state_var[i] = m_var[i];
-	return state_var;
+        std::vector<std::string> state_var;
+        for (size_t i = 0; i < m_neqs_extra; i++)
+            state_var.push_back(m_var[i]);
+        return state_var;
     }
 
-    std::vector<std::string> gasVariableNames()
+    std::vector<std::string> gasVariableNames() const
     {
-	std::vector<std::string> gas_var(m_nsp);
-	for (size_t i = 0; i < m_nsp; i++){
-	    auto k = i + m_neqs_extra;
-	    gas_var[i] = m_var[k];
-	}
-	return gas_var;
+        std::vector<std::string> gas_var;
+        for (size_t i = 0; i < m_nsp; i++){
+            auto k = i + m_neqs_extra;
+            gas_var.push_back(m_var[k]);
+        }
+        return gas_var;
     }
 
     std::vector<std::string> surfaceVariableNames()
     {
-	size_t nsurf = m_neq - m_neqs_extra - m_nsp;
-	std::vector<std::string> surf_var(nsurf);
-	for (size_t i = 0; i < nsurf; i++){
-	    auto k = i + m_neqs_extra + m_nsp;
-	    surf_var[i] = m_var[k];
-	}
-	return surf_var;
+        size_t nsurf = neq_ - m_neqs_extra - m_nsp;
+        std::vector<std::string> surf_var;
+        for (size_t i = 0; i < nsurf; i++){
+            auto k = i + m_neqs_extra + m_nsp;
+            surf_var.push_back(m_var[k]);
+        }
+        return surf_var;
     }
 
     void setFlowRate(double flow_rate) 
@@ -198,6 +198,30 @@ public:
 
     //! Applicable only for cases where energy equation is not solved.
     double getT(double z);
+
+    Cantera::thermo_t& contents() 
+    {
+        if (!m_gas) {
+            throw Cantera::CanteraError("PFR1d::contents",
+                               "Reactor contents not defined.");
+        }
+        return *m_gas;
+    }
+
+    const Cantera::thermo_t& contents() const 
+    {
+        if (!m_gas) {
+            throw Cantera::CanteraError("PFR1d::contents",
+                               "Reactor contents not defined.");
+        }
+        return *m_gas;
+    }
+
+    //! Return a reference to the *n*-th SurfPhase connected to the PFR
+    Cantera::SurfPhase* surface(size_t n) 
+    {
+        return m_surf_phases[n];
+    }
 
 protected:
     //! Pointer to the gas phase object.

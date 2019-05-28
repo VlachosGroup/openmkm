@@ -57,7 +57,9 @@ public:
     std::vector<std::string> variablesNames() const;
 
     void writeStateData(const std::string & saveas);
+
     void writeGasData(const std::string & saveas);
+
     void writeSurfaceData(const std::string & saveas);
 
     Cantera::DAE_Solver& solver() {

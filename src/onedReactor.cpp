@@ -28,11 +28,60 @@
 #include "pfr1d_solver.h"
 
 
+using namespace std;
+using namespace Cantera;
+
 namespace HeteroCt 
 {
 
-using namespace std;
-using namespace Cantera;
+   
+void print_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
+                      ofstream& gas_mole_out, ofstream& gas_mass_out,
+                      ofstream& gas_msdot_out, ofstream& surf_cov_out,
+                      ofstream& state_var_out)
+{
+ 
+    vector<double> work(rctr->contents().nSpecies());
+ 
+    
+    state_var_out << setw(16) << left  << z
+                  << setw(16) << left  << rctr->contents().temperature()
+                  << setw(16) << left  << rctr->contents().pressure()
+                  << setw(16) << left  << rctr->contents().density()
+                  //<< setw(16) << left  << rctr->intEnergy_mass()
+                  << endl;
+ 
+    auto gas_var_print = [&work, &z](ostream& out) -> void
+    {
+        out << setw(16) << left << z;
+        for (auto k = 0; k < work.size(); k++) {
+            out << setw(16) << left << work[k];
+        }
+        out << endl;
+    };
+ 
+    rctr->contents().getMoleFractions(work.data());
+    gas_var_print(gas_mole_out);
+ 
+    rctr->contents().getMassFractions(work.data());
+    gas_var_print(gas_mass_out);
+ 
+    rctr->getSurfaceProductionRates(work.data());
+    gas_var_print(gas_msdot_out);
+    
+    
+    surf_cov_out << setw(16) << left << z;
+    for (auto j = 0;  j <  surfaces.size(); j++) {
+        work.resize(surfaces[j]->nSpecies());
+        rctr->surface(j)->getCoverages(work.data());
+        for (auto k = 0; k < work.size(); k++) {
+            surf_cov_out << setw(16) << left << work[k];
+        }
+    }
+    surf_cov_out << endl;
+    
+}
+
 
 void run_1d_reactor(YAML::Node& tube_node,
                     shared_ptr<IdealGasMix> gas, 
@@ -71,13 +120,13 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     auto cat_node = rctr_node["cat_abyv"];
-     if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
-          ; // Throw error
-     }
-     double cat_abyv = 0.0;
-     if (cat_node && !cat_node.IsNull()) {
-         cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
-     }
+    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
+         ; // Throw error
+    }
+    double cat_abyv = 0.0;
+    if (cat_node && !cat_node.IsNull()) {
+        cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    }
 
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
@@ -87,18 +136,22 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
-    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
 
-        gen_info << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
         for (auto i = 0; i < surf->nSpecies(); i++)
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
 
+    cout << "Reached here" << endl;
+    cout << flush;
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
+    cout << "Reached after PFR initialization" << endl;
+    cout << flush;
     string mode = rctr_node["mode"].as<string>();
     cout << "mode " << mode << endl;
     if (mode == "isothermal") {
@@ -150,23 +203,32 @@ void run_1d_reactor(YAML::Node& tube_node,
     pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
     pfr_solver.setInitialStepSize(1e-18);
 
-    //pfr_solver(rctr_len);
-
-    
     vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+
+    ofstream gas_mole_out("gas_mole_ss.out");
+    ofstream gas_mass_out("gas_mass_ss.out");
+    ofstream gas_msdot_out("gas_msdot_ss.out");
+    ofstream surf_cov_out("surf_cov_ss.out");
+    ofstream state_var_out("rctr_state_ss.out");
+
+    gas_mole_out.precision(6);
+    gas_mass_out.precision(6);
+    gas_msdot_out.precision(6);
+    surf_cov_out.precision(6);
+    state_var_out.precision(6);
+
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
+        print_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
+                         gas_msdot_out, surf_cov_out, state_var_out);
     }
     
-    //pfr_solver.solve(rctr_len);
     pfr_solver.writeStateData("1d_pfr_state.out");
     pfr_solver.writeGasData("1d_pfr_gas.out");
     pfr_solver.writeSurfaceData("1d_pfr_surface.out");
 
     //vector<double> gas_X(gas->nSpecies());
 
-
-   
 }
 
 void run_1d_reactor(YAML::Node& tube_node,
@@ -206,13 +268,13 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     auto cat_node = rctr_node["cat_abyv"];
-     if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
-          ; // Throw error
-     }
-     double cat_abyv = 0.0;
-     if (cat_node && !cat_node.IsNull()) {
-         cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
-     }
+    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
+         ; // Throw error
+    }
+    double cat_abyv = 0.0;
+    if (cat_node && !cat_node.IsNull()) {
+        cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    }
 
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
@@ -222,18 +284,22 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
-    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
 
-        gen_info << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
         for (auto i = 0; i < surf->nSpecies(); i++)
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
 
+    cout << "Reached here" << endl;
+    cout << flush;
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
+    cout << "Reached after PFR initialization" << endl;
+    cout << flush;
     string mode = rctr_node["mode"].as<string>();
     cout << "mode " << mode << endl;
     if (mode == "isothermal") {
@@ -285,23 +351,32 @@ void run_1d_reactor(YAML::Node& tube_node,
     pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
     pfr_solver.setInitialStepSize(1e-18);
 
-    //pfr_solver(rctr_len);
-
-    
     vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+
+    ofstream gas_mole_out("gas_mole_ss.out");
+    ofstream gas_mass_out("gas_mass_ss.out");
+    ofstream gas_msdot_out("gas_msdot_ss.out");
+    ofstream surf_cov_out("surf_cov_ss.out");
+    ofstream state_var_out("rctr_state_ss.out");
+
+    gas_mole_out.precision(6);
+    gas_mass_out.precision(6);
+    gas_msdot_out.precision(6);
+    surf_cov_out.precision(6);
+    state_var_out.precision(6);
+
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
+        print_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
+                         gas_msdot_out, surf_cov_out, state_var_out);
     }
     
-    //pfr_solver.solve(rctr_len);
     pfr_solver.writeStateData("1d_pfr_state.out");
     pfr_solver.writeGasData("1d_pfr_gas.out");
     pfr_solver.writeSurfaceData("1d_pfr_surface.out");
 
     //vector<double> gas_X(gas->nSpecies());
 
-
-   
 }
 
 }
