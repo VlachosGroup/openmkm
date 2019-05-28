@@ -38,9 +38,9 @@ using namespace Cantera;
 //TODO: Add nSurfaces() function to Reactor/ReactorBase to eliminate the need
 // to pass surfaces argument
 void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces, 
-                         ofstream& gas_mole_out, ofstream& gas_mass_out, 
-                         ofstream& gas_msdot_out, ofstream& surf_cov_out,
-                         ofstream& state_var_out)
+                      ofstream& gas_mole_out, ofstream& gas_mass_out, 
+                      ofstream& gas_msdot_out, ofstream& surf_cov_out,
+                      ofstream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
