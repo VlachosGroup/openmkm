@@ -192,18 +192,35 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
     */
 
+    PFR1dSolver pfr_solver {&pfr};
+
     auto simul_node = tube_node["simulation"];
     //auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
     auto solver_node = simul_node["solver"];
     auto abs_tol = solver_node["atol"].as<double>();
     auto rel_tol = solver_node["rtol"].as<double>();
-
-    PFR1dSolver pfr_solver {&pfr};
     pfr_solver.setTolerances(rel_tol, abs_tol);
-    pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
-    pfr_solver.setInitialStepSize(1e-18);
 
-    vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+    auto solver_init_step_size_nd = solver_node["init_step_size"];
+    if (solver_init_step_size_nd && !solver_init_step_size_nd.IsNull()) {
+        double solver_init_step_size = solver_init_step_size_nd.as<double>();
+        pfr_solver.setInitialStepSize(solver_init_step_size);
+    }
+
+    auto solver_max_steps_nd = solver_node["max_steps"];
+    if (solver_max_steps_nd && !solver_max_steps_nd.IsNull()) {
+        int solver_max_steps = solver_max_steps_nd.as<int>();
+        pfr_solver.setMaxNumSteps(solver_max_steps);
+    }
+    //pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
+    //
+    double simul_init_step_size = 1e-6;
+    auto simul_init_step_size_nd = simul_node["init_step"];
+    if (simul_init_step_size_nd && !simul_init_step_size_nd.IsNull()) {
+        simul_init_step_size = simul_init_step_size_nd.as<double>();
+    }
+    //vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step_size); //Use the same function to get z steps
 
     ofstream gas_mole_out("gas_mole_ss.out");
     ofstream gas_mass_out("gas_mass_ss.out");
@@ -340,18 +357,35 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
     */
 
+    PFR1dSolver pfr_solver {&pfr};
+
     auto simul_node = tube_node["simulation"];
     //auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
     auto solver_node = simul_node["solver"];
     auto abs_tol = solver_node["atol"].as<double>();
     auto rel_tol = solver_node["rtol"].as<double>();
-
-    PFR1dSolver pfr_solver {&pfr};
     pfr_solver.setTolerances(rel_tol, abs_tol);
-    pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
-    pfr_solver.setInitialStepSize(1e-18);
 
-    vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+    auto solver_init_step_size_nd = solver_node["init_step_size"];
+    if (solver_init_step_size_nd && !solver_init_step_size_nd.IsNull()) {
+        double solver_init_step_size = solver_init_step_size_nd.as<double>();
+        pfr_solver.setInitialStepSize(solver_init_step_size);
+    }
+
+    auto solver_max_steps_nd = solver_node["max_steps"];
+    if (solver_max_steps_nd && !solver_max_steps_nd.IsNull()) {
+        int solver_max_steps = solver_max_steps_nd.as<int>();
+        pfr_solver.setMaxNumSteps(solver_max_steps);
+    }
+    //pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
+    //
+    double simul_init_step_size = 1e-6;
+    auto simul_init_step_size_nd = simul_node["init_step"];
+    if (simul_init_step_size_nd && !simul_init_step_size_nd.IsNull()) {
+        simul_init_step_size = simul_init_step_size_nd.as<double>();
+    }
+    //vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
+    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step_size); //Use the same function to get z steps
 
     ofstream gas_mole_out("gas_mole_ss.out");
     ofstream gas_mass_out("gas_mass_ss.out");
