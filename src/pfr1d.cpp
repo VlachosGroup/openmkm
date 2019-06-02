@@ -127,6 +127,29 @@ void PFR1d::reinit()
     m_P0 = m_gas->pressure();
 }
 
+void PFR1d::setConstraints()
+{
+    constrain(0, c_GT_ZERO);
+    constrain(1, c_GT_ZERO);
+    constrain(2, c_GT_ZERO);
+    if (energyEnabled()) {
+        constrain(3, c_GT_ZERO);
+    }
+    for (size_t i = 0; i < m_nsp; i++){
+        auto k = i + m_neqs_extra;
+        constrain(k, c_GE_ZERO);
+    }
+    auto loc = m_nsp + m_neqs_extra;
+    for (const auto s_ph : m_surf_phases) {
+        auto nSpecies = s_ph->nSpecies();
+        for (size_t i = 0; i < nSpecies; i++){
+            auto k = i + loc;
+            constrain(k, c_GE_ZERO);
+        }
+        loc += nSpecies;
+    }
+}
+
 int PFR1d::getInitialConditions(const double t0,
                                 double *const y, 
                                 double *const ydot)
@@ -145,16 +168,19 @@ int PFR1d::getInitialConditions(const double t0,
     y[0] = m_u0;
     y[1] = rho0;
     y[2] = m_P0;
-    constrain(0, c_GT_ZERO);
-    constrain(1, c_GT_ZERO);
-    constrain(2, c_GT_ZERO);
+    cout << 0 << " y " << y[0] << endl
+         << 1 << " y " << y[1] << endl
+         << 2 << " y " << y[2] << endl;
     int gas_start_loc;
     if (energyEnabled()) {
         y[3] = m_T0;
-        constrain(3, c_GT_ZERO);
+        cout << 3 << " y " << y[3] << endl;
     }
 
     m_gas->getMassFractions(y + m_neqs_extra);
+    for (size_t i = 0; i < m_nsp; i++){
+        cout << i << " y " << y[i + m_neqs_extra] << endl;
+    }
 
     auto loc = m_nsp + m_neqs_extra;
     for (const auto s_ph : m_surf_phases) {
@@ -185,51 +211,71 @@ int PFR1d::getInitialConditions(const double t0,
     A(2, 1) = RT;             // rho'
     A(2, 2) = -Wavg;          // p'
     if (energyEnabled())
-        A(2, 3) = Rrho;       // T'
+        //A(2, 3) = Rrho;       // T'   // This is the source of the difference
+        A(2, 3) = 0;       // T'   // This is the source of the difference
     // Yk' for other equations, exceptionally here!
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
         A(2, k) = m_P0 * Wavg * Wavg / m_W[k - m_neqs_extra];
 
+    double mdot_surf = evalSurfaces();
+    m_gas->getNetProductionRates(&m_wdot[0]);
+
     if (energyEnabled()) {
-        vector<double> cpr_k(m_nsp);
-        m_gas->getCp_R(cpr_k.data());
-        double cpr = 0.0;
-        for (size_t i = 0; i < m_nsp; i++){
-            cpr += cpr_k[i] * y[i + m_neqs_extra];
-        }
+        //vector<double> cpr_k(m_nsp);
+        //m_gas->getCp_R(cpr_k.data());
+        //double cpr = 0.0;
+        //for (size_t i = 0; i < m_nsp; i++){
+            //cpr += cpr_k[i] * y[i + m_neqs_extra];
+        //}
+        //cout << "cp" << cpr*GasConstant << endl;
+        auto cp = m_gas->cp_mass();
 
         A(3,0) = 0;            // u'
         A(3,1) = 0;            // rho'
         A(3,2) = 0;            // p'
-        A(3,3) = rho0 * m_u0 * cpr;// * GasConstant;            // T'
-    }
+        A(3,3) = rho0 * m_u0 * cp;// * GasConstant;            // T'
+        cout << "A(3,3) " << A(3, 3) << endl;
 
-    double mdot_surf = evalSurfaces();
-    m_gas->getNetProductionRates(&m_wdot[0]);
-
-    b(0) = m_cat_abyv * mdot_surf;          // RHS continuity
-    b(1) = 0;                               // RHS momentum
-    b(2) = 0;                               // RHS state
-    if (energyEnabled()){
-        vector<double> h_rt(m_nsp);
-        m_gas->getEnthalpy_RT(h_rt.data());
+        vector<double> H_rt(m_nsp);
+        m_gas->getEnthalpy_RT(H_rt.data());
         b(3) = 0;                          // RHS energy
         for (size_t i = 0; i < m_nsp; i++){
-            b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * h_rt[i];
+            //b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr_k[i];
+            b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) *  H_rt[i];
+            cout << i << " msdot " << m_sdot[i] << endl
+                 //<< i << " m_W " << m_W[i] << endl
+                 << i << " H_rt " <<  H_rt[i] << endl;
+            cout << "Running b(3) " << b(3) << endl;
+            cout << m_cat_abyv << endl;
         }
-        b(3) *= m_T0;
-        b(3) += getHeat(m_T0)/GasConstant;
+
+        cout << "b(3) before multiplication : " << b(3) << endl;
+        //b(3) *= m_T0;
+        b(3) *= RT;
+        cout << "b(3) after multiplication : " << b(3) << endl;
+        b(3) += getHeat(m_T0);///GasConstant;
         cout << "get heat: " << getHeat(m_T0) << endl;
+        cout << "b(3): " << b(3) << endl;
     }
+
+
+    b(0) = m_cat_abyv * mdot_surf;          // RHS continuity
+    cout << "b(0): " << b(0) << endl;
+    b(1) = 0;                               // RHS momentum
+    b(2) = 0;                               // RHS state
+    //if (energyEnabled()){
+    //}
 
     // Gas phase species
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
     {
+        cout << " y[k] " << y[k] << endl;
         auto i = k - m_neqs_extra;
         // For species equations.
         A(k, k) = rho0 * m_u0;
         b(k) = (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] -
                y[k] * mdot_surf * m_cat_abyv;
+        cout << k << " b(k) " << b(k) << endl; 
 
     }
     
@@ -307,20 +353,27 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     resid[2] = m_gas->density() - r;  // Density is set as pW/RT
 
     if (energyEnabled()){
+        /*
         vector<double> cpr(m_nsp);
         m_gas->getCp_R(cpr.data());
         double cp;
         for (size_t i = 0; i < m_nsp; i++){
             cp += cpr[i] * y[i + m_neqs_extra];
         }
+        */
+        auto cp = m_gas->cp_mass();
         resid[3] = cp *  r * u * dtempdz;
 
         double h_term  = 0;                          
+        vector<double> H_rt(m_nsp);
+        m_gas->getEnthalpy_RT(H_rt.data());
         for (size_t i = 0; i < m_nsp; i++){
-            h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr[i];
+            //h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr[i];
+            h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv)  * H_rt[i];
         }
-        resid[3] += h_term * temp;
-        resid[3] -= getHeat(temp)/GasConstant;
+        //resid[3] += h_term * temp;
+        resid[3] += h_term * RT;
+        resid[3] -= getHeat(temp);///GasConstant;
     }
 
     for (unsigned k = 0; k < m_nsp; ++k)

@@ -18,6 +18,7 @@
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/zeroD/Reactor.h"
+#include "cantera/zeroD/Wall.h"
 #include "IdealGasTRampReactor.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/Reservoir.h"
@@ -143,12 +144,7 @@ void run_0d_reactor(RctrType rctr_type,
         }
     }
 
-    rctr->setChemistry();
-    string mode = rctr_node["mode"].as<string>();
-    if (mode == "isothermal" || mode == "tpd")  
-        rctr->setEnergy(0);
-    else 
-        rctr->setEnergy(1);
+    
 
     // Only CSTR and PFR_0D require valves, controllers and 
     // reservoirs to facilitate mass transfer. Attach them to reactor
@@ -188,6 +184,31 @@ void run_0d_reactor(RctrType rctr_type,
     }
 
     gen_info_out << "reactor density " << rctr->density() << endl;
+
+    rctr->setChemistry();
+
+    // Read the reactor mode and set corresponding parameters
+    string mode = rctr_node["mode"].as<string>();
+    // heat_rsrv and wall are nominally defined.
+    // They are used if heat transfer is required.
+    auto heat_rsrv = make_shared<Reservoir>(); 
+    auto wall = make_shared<Wall>();
+    if (mode == "isothermal" || mode == "tpd")  
+        rctr->setEnergy(0);
+    else {
+        rctr->setEnergy(1);
+        if (mode == "heat"){
+            double htc = strSItoDbl(rctr_node["htc"].as<string>());
+            double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
+            double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
+            auto press = gas->pressure();
+            gas->setState_TP(ext_temp, press);
+            heat_rsrv->insert(*gas);
+            wall->setHeatTransferCoeff(htc);
+            wall->setArea(wall_abyv * rctr->volume());
+            wall->install(*heat_rsrv, *rctr);
+        }
+    }
 
     // Read simulation parameters
     auto simul_node = tube_node["simulation"];

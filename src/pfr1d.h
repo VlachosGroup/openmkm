@@ -119,7 +119,7 @@ public:
         return m_gas->kineticsSpeciesIndex(name);
     }
 
-
+    void setConstraints();
 
     double getIntEnergyMass() const
     {

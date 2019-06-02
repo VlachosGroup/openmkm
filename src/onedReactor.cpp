@@ -180,6 +180,7 @@ void run_1d_reactor(YAML::Node& tube_node,
         }
         pfr.reinit();
     }
+    pfr.setConstraints();
     gen_info << "Reactor operating mode: "  << mode << endl;
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
     
@@ -301,13 +302,13 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
-    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
 
-        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        gen_info << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
         for (auto i = 0; i < surf->nSpecies(); i++)
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
@@ -345,6 +346,7 @@ void run_1d_reactor(YAML::Node& tube_node,
         }
         pfr.reinit();
     }
+    pfr.setConstraints();
     gen_info << "Reactor operating mode: "  << mode << endl;
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
     

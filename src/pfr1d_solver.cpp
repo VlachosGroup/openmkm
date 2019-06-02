@@ -36,6 +36,14 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     {
         std::cerr << err.what() << std::endl;
     }
+
+    vector<int> constraints(pfr->nEquations());
+    for (size_t i = 0; i < pfr->nEquations(); i++){
+        constraints[i] = pfr->constraint(i);
+        cout << i << " PFR1dSolver::init " << constraints[i] << endl;
+    }
+    setConstraints(constraints);
+
 }
 
 PFR1dSolver::~PFR1dSolver()
