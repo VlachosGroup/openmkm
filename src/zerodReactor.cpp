@@ -323,35 +323,35 @@ void run_0d_reactor(RctrType rctr_type,
             << setw(16) << left << "Density(kg/m3)" 
             << setw(16) << left << "U(J/kg)" 
             << endl;
-        
+       
         // Print the inlet state
         rnet.reinitialize();
-        print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
-                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
+        print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out,
+                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out,
                          state_var_out);
     }
 
-    // Transient state makes sense For BATCH and CSTR 
+    // Transient state makes sense For BATCH and CSTR
     ofstream gas_tr_mole_out ("gas_mole_tr.out", ios::out);
     ofstream gas_tr_mass_out ("gas_mass_tr.out", ios::out);
     ofstream gas_tr_msdot_out ("gas_msdot_tr.out", ios::out);
     ofstream surf_tr_out ("surf_cov_tr.out", ios::out);
     ofstream state_var_tr_out ("rctr_state_tr.out", ios::out);
     if (rctr_type != PFR_0D && times.size() > 1) {
-        gas_tr_mole_out 
+        gas_tr_mole_out
             << "Transient Gas Mole fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mole_out);
 
-        gas_tr_mass_out 
+        gas_tr_mass_out
             << "Transient Gas Mass fractions"  << endl;
         gas_print_specie_header("t(s)", gas_tr_mass_out);
 
-        gas_tr_msdot_out 
+        gas_tr_msdot_out
             << "Transient Surface Production Rates of  Gas Species"  << endl;
         gas_print_specie_header("t(s)", gas_tr_msdot_out);
 
-        surf_tr_out 
-            << "Transient Surace Coverages"  << endl 
+        surf_tr_out
+            << "Transient Surace Coverages"  << endl
             << setw(16) << left << "t(s)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
@@ -360,17 +360,17 @@ void run_0d_reactor(RctrType rctr_type,
         }
         surf_tr_out << endl;
 
-        state_var_tr_out 
+        state_var_tr_out
             << "Transient Reactor State"  << endl
-            << setw(16) << left << "t(s)" 
-            << setw(16) << left << "Temperature(K)" 
-            << setw(16) << left << "Pressure(Pa)" 
-            << setw(16) << left << "Density(kg/m3)" 
-            << setw(16) << left << "U(J/kg)" 
+            << setw(16) << left << "t(s)"
+            << setw(16) << left << "Temperature(K)"
+            << setw(16) << left << "Pressure(Pa)"
+            << setw(16) << left << "Density(kg/m3)"
+            << setw(16) << left << "U(J/kg)"
             << endl;
-     
-    }
 
+    }
+    
     vector<double> gas_X(gas->nSpecies());
 
     for (size_t i = 0; i < rctr_nos; i++) {
