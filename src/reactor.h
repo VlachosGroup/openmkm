@@ -17,7 +17,7 @@
 #include "cantera/IdealGasMix.h"
 #include "cantera/InterfaceLatInt.h"
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 enum RctrType {

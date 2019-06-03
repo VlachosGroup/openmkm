@@ -6,7 +6,7 @@
 using namespace std;
 using namespace Cantera;
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string output_file) 

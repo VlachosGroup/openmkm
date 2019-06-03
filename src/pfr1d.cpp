@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Cantera;
 
-namespace HeteroCt 
+namespace OpenMKM 
 {
 
 PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,

@@ -8,7 +8,7 @@
 
 #include "cantera/zeroD/IdealGasReactor.h"
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 /**

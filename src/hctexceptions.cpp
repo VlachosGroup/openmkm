@@ -10,7 +10,7 @@
 
 #include "hctexceptions.h"
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 // *** Exceptions ***

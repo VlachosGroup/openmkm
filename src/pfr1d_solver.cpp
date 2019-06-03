@@ -10,7 +10,7 @@
 using namespace Cantera;
 using namespace std;
 
-namespace HeteroCt 
+namespace OpenMKM 
 {
 
 PFR1dSolver::PFR1dSolver(PFR1d* pfr)

@@ -14,7 +14,7 @@
 #include "cantera/base/ctexceptions.h"
 #include <exception>
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 /*!

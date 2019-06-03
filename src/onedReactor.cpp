@@ -31,7 +31,7 @@
 using namespace std;
 using namespace Cantera;
 
-namespace HeteroCt 
+namespace OpenMKM 
 {
 
    

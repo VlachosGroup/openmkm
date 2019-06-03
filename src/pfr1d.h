@@ -31,7 +31,7 @@
 #define SUPPRESS_WARNINGS true
 #endif
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 // Helper functions

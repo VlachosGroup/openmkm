@@ -3,7 +3,7 @@
 #ifndef HTRCT_UTIL_H
 #define HTRCT_UTIL_H
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 std::vector<double> get_log10_intervals(double end_val, double initial_step, int intervals=20);

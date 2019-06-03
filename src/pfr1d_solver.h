@@ -11,7 +11,7 @@
 #include "pfr1d.h"
 #include "cantera/numerics/IDA_Solver.h"
 
-namespace HeteroCt {
+namespace OpenMKM {
 
 class PFR1dSolver
 {

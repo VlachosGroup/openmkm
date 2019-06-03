@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 std::vector<double> get_log10_intervals(double end_val, double initial_step, int interval_no)

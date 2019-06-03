@@ -30,7 +30,7 @@
 #include "hctexceptions.h"
 
 
-namespace HeteroCt 
+namespace OpenMKM 
 {
 
 using namespace std;

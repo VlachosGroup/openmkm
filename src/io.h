@@ -17,7 +17,7 @@
 #include "cantera/kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 /**

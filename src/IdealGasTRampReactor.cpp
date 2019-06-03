@@ -12,7 +12,7 @@
 using namespace Cantera;
 using namespace std;
 
-namespace HeteroCt
+namespace OpenMKM
 {
 
 void IdealGasTRampReactor::evalEqs(doublereal time, doublereal* y,
