@@ -1,6 +1,5 @@
 ---
 layout: default
-title: Install
 ---
 
 # OpenMKM Installation Guide
