@@ -1,5 +1,7 @@
 ---
 layout: default
+title: Install
+permalink: /install/
 ---
 
 # OpenMKM Installation Guide
