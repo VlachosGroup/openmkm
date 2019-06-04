@@ -26,6 +26,7 @@
 #include "reactor.h"
 #include "pfr1d.h"
 #include "pfr1d_solver.h"
+#include "io.h"
 
 
 using namespace std;
@@ -228,22 +229,58 @@ void run_1d_reactor(YAML::Node& tube_node,
     ofstream gas_msdot_out("gas_msdot_ss.out");
     ofstream surf_cov_out("surf_cov_ss.out");
     ofstream state_var_out("rctr_state_ss.out");
+    ofstream rates_out("rates_ss.out", ios::out);
 
     gas_mole_out.precision(6);
     gas_mass_out.precision(6);
     gas_msdot_out.precision(6);
     surf_cov_out.precision(6);
     state_var_out.precision(6);
+    rates_out.precision(6);
+
+    auto rpa_flag = false;
+    auto rpa_node = simul_node["rpa"];
+    if (rpa_node && !rpa_node.IsNull()){
+        rpa_flag = rpa_node.as<bool>();
+    }
 
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
         print_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
                          gas_msdot_out, surf_cov_out, state_var_out);
+        if (rpa_flag) {
+            string rpa_file_name = "rates_z-";
+            rpa_file_name += to_string(z);
+            rpa_file_name += ".out";
+            ofstream rates_out (rpa_file_name, ios::out); // Masks the name
+            print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                                rates_out);
+            rates_out.precision(6);
+
+            auto rxn_index = 0;
+            print_rxn_rates(gas.get(), rxn_index, rates_out);
+            rxn_index += gas->nReactions();
+            for (auto surf : surfaces) {
+                print_rxn_rates(surf.get(), rxn_index, rates_out);
+                rxn_index += surf->nReactions();
+            }
+        }
     }
+
     
     pfr_solver.writeStateData("1d_pfr_state.out");
     pfr_solver.writeGasData("1d_pfr_gas.out");
     pfr_solver.writeSurfaceData("1d_pfr_surface.out");
+
+    // Print final rpa data
+    rates_out.precision(6);
+    auto rxn_index = 0;
+    print_rxn_rates(gas.get(), rxn_index, rates_out);
+    rxn_index += gas->nReactions();
+    for (auto surf : surfaces) {
+        print_rxn_rates(surf.get(), rxn_index, rates_out);
+        rxn_index += surf->nReactions();
+    }
 
     //vector<double> gas_X(gas->nSpecies());
 

@@ -33,7 +33,7 @@ include <yaml-cpp/yaml.h>
 using namespace std;
 using namespace std::chrono;
 using namespace Cantera;
-using namespace HeteroCt;
+using namespace OpenMKM;
 
 
 
@@ -46,8 +46,8 @@ std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH},
 int main(int argc, char* argv[]) 
 {
     ofstream gen_info ("general_info.out", ios::out);
-    print_htrct_header(gen_info);
-    print_htrct_header(cout);
+    print_omkm_header(gen_info);
+    print_omkm_header(cout);
     if (argc < 3) {
         // TODO: Throw error
         ;
@@ -127,6 +127,7 @@ int main(int argc, char* argv[])
     /* Print the species thermodynamic info */
     print_formation_enthalpy(all_phases, "Hform.out");
     print_formation_entropy(all_phases, "Sform.out");
+    print_species(all_phases, "species.out");
 
     /* Print the reaction thermodynamic info */
     size_t n_rxns = 0;
@@ -135,6 +136,7 @@ int main(int argc, char* argv[])
     }
     cout << "Total # of reactions: " << n_rxns << endl;
 
+    print_rxns(all_km, "reactions.out");
     print_rxn_enthalpy(all_km, gas->temperature(), "Hrxn.out");
     print_rxn_entropy(all_km, "Srxn.out");
     print_rxn_gibbs(all_km, gas->temperature(), "Grxn.out");

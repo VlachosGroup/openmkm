@@ -19,6 +19,11 @@
 
 namespace OpenMKM
 {
+/**
+ * Utility function to print all species in the given phases
+ */
+void print_species(std::vector<std::shared_ptr<Cantera::ThermoPhase> > phases, 
+                   std::string output_file);
 
 /**
  * Utility function to print formation enthalpies of species
@@ -31,6 +36,12 @@ void print_formation_enthalpy(std::vector<std::shared_ptr<Cantera::ThermoPhase> 
  */
 void print_formation_entropy(std::vector<std::shared_ptr<Cantera::ThermoPhase> > phases, 
                              std::string output_file);
+
+/**
+ * Utility function to print all given reactions 
+ */
+void print_rxns(std::vector<Cantera::Kinetics*> kinetic_mgrs, 
+                std::string output_file);
 
 /**
  * Utility function to print reaction enthalpies
@@ -77,9 +88,19 @@ void print_rxn_kr(std::vector<Cantera::Kinetics*> kinetic_mgrs,
                   std::string output_file);
 
 /**
- * Utility function to print hetero_ct header 
+ * Utility function to print OpenMKM header 
  */
-void print_htrct_header(std::ostream& out); 
+void print_omkm_header(std::ostream& out); 
+
+/**
+ * Utility function to print reaction rates
+ */
+void print_rxn_rates(Cantera::Kinetics* kin, int rxn_index, std::ofstream& out);
+
+/**
+ * Utility function to print header before printing reaction rates
+ */
+void print_rxn_rates_hdr(std::string hdr, std::ofstream& out);
 
 
 }

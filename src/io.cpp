@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "io.h"
 
@@ -8,7 +9,20 @@ using namespace Cantera;
 
 namespace OpenMKM
 {
-
+void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
+{
+    vector<string> species; 
+    ofstream out (output_file);
+    int sp_indx = 1;
+    for  (const auto phase: phases){
+        for (size_t k = 0; k < phase->nSpecies(); k++) {
+            out.width(12); 
+            out << std::right << sp_indx++;
+            out.width(16); 
+            out << std::right << phase->speciesName(k) << endl;
+        }   
+    }   
+}
 void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
 {
     vector<doublereal> hform; 
@@ -42,6 +56,23 @@ void print_formation_entropy(vector<shared_ptr<ThermoPhase>> phases, string outp
     }   
 }
 
+void print_rxns(vector<Kinetics*> kinetic_mgrs, string output_file)
+{
+    ofstream out (output_file);
+    //out << "#Dimensionless enthalpies of reactions (H/RT)\n" << endl;
+    int rxn_indx = 1;
+    for  (const auto mgr: kinetic_mgrs){
+        size_t size = mgr->nReactions();
+        if (size > 0) {
+            for (size_t k = 0; k < size; k++) {
+                out.width(12);
+                out << std::left << rxn_indx++;
+                out.width(12);
+                out << std::left << mgr->reactionString(k) << endl;
+            }
+        }
+    }
+}
 
 void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string output_file)
 {
@@ -186,7 +217,7 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
     }
 }
 
-void print_htrct_header(std::ostream& out) {
+void print_omkm_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
         << "OpenMKM: version 0.1.0\n" 
         << "-----------------------------------------------------------\n\n" 
@@ -195,5 +226,50 @@ void print_htrct_header(std::ostream& out) {
         << "OpenMKM is open source and is developed at Delaware Energy" << std::endl
         << "Institute, Unitversity of Delaware.\n\n\n"; 
 }
+
+/**
+ * Utility function to print reaction rates
+ */
+void print_rxn_rates(Kinetics* kin, int rxn_start_index, ofstream& out)
+{
+    vector<double> fwd_rts;
+    vector<double> rev_rts;
+    vector<double> net_rts;
+    auto nRxns = kin->nReactions();
+    if (nRxns) {
+        fwd_rts.resize(nRxns);
+        rev_rts.resize(nRxns);
+        net_rts.resize(nRxns);
+        kin->getFwdRatesOfProgress(fwd_rts.data());
+        kin->getRevRatesOfProgress(rev_rts.data());
+        kin->getNetRatesOfProgress(net_rts.data());
+        for (size_t i = 0; i < nRxns; i++) {
+            auto pe = fwd_rts[i]/(fwd_rts[i] + rev_rts[i]);
+            out << setw(16) << rxn_start_index + i << scientific
+                << setw(16) << left << fwd_rts[i]
+                << setw(16) << left << rev_rts[i]
+                << setw(16) << left << net_rts[i]
+                << setw(16) << left << pe
+                << kin->reactionString(i) << endl;
+        }
+    }
+}
+
+/**
+ * Utility function to print header before printing reaction rates
+ */
+void print_rxn_rates_hdr(string hdr, ofstream& out)
+{
+    out << hdr << endl
+        << setw(16) << left << "Reaction No."
+        << setw(16) << left << "Fwd Rate"
+        << setw(16) << left << "Rev Rate"
+        << setw(16) << left << "Net Rate"
+        << setw(16) << left << "Partial Equil."
+        << setw(32) << left << "Reaction String"
+        << endl;
+}
+
+
 
 }

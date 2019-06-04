@@ -28,6 +28,7 @@
 #include "util.h"
 #include "reactor.h"
 #include "hctexceptions.h"
+#include "io.h"
 
 
 namespace OpenMKM 
@@ -287,8 +288,34 @@ void run_0d_reactor(RctrType rctr_type,
     ofstream gas_ss_mass_out ("gas_mass_ss.out", ios::out);
     ofstream gas_ss_msdot_out ("gas_msdot_ss.out", ios::out);
     ofstream surf_ss_out ("surf_cov_ss.out", ios::out);
-    ofstream state_var_out ("rctr_state.out", ios::out);
+    ofstream state_var_out ("rctr_state_ss.out", ios::out);
+    ofstream rates_out ("rates_ss.out", ios::out);
 
+    
+    // Reaction path analysis (RPA) data, consisting of rates of progress.
+    // By default these values are written for simulation end time (PFR or CSTR)
+    // and for PFR exit. If enabled, RPA data is also written for all z-points
+    // of PFR
+    auto rpa_flag = false;
+    if (rctr_type == PFR_0D){
+        auto rpa_node = simul_node["rpa"];
+        if (rpa_node && !rpa_node.IsNull()){
+            rpa_flag = rpa_node.as<bool>();
+        }
+    }
+
+    auto state_var_print_hdr = [](ostream& out, const string hdr) -> void
+    {
+        out << hdr << endl
+            << setw(16) << left << "z(m)"
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "U(J/kg)" 
+            << endl;
+    };
+
+    
     if (rctr_type != BATCH) {
         gas_ss_mole_out 
             << "Gas Mole fractions at Steady State "  << endl;
@@ -313,14 +340,11 @@ void run_0d_reactor(RctrType rctr_type,
         }
         surf_ss_out << endl;
 
-        state_var_out 
-            << "Reactor State Variables at Steady State" << endl
-            << setw(16) << left << "z(m)"
-            << setw(16) << left << "Temperature(K)" 
-            << setw(16) << left << "Pressure(Pa)" 
-            << setw(16) << left << "Density(kg/m3)" 
-            << setw(16) << left << "U(J/kg)" 
-            << endl;
+        state_var_print_hdr(state_var_out, "Steady State Reactor State");
+
+        print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                            rates_out);
+
         
         // Print the inlet state
         rnet.reinitialize();
@@ -358,14 +382,7 @@ void run_0d_reactor(RctrType rctr_type,
         }
         surf_tr_out << endl;
 
-        state_var_tr_out 
-            << "Transient Reactor State"  << endl
-            << setw(16) << left << "t(s)" 
-            << setw(16) << left << "Temperature(K)" 
-            << setw(16) << left << "Pressure(Pa)" 
-            << setw(16) << left << "Density(kg/m3)" 
-            << setw(16) << left << "U(J/kg)" 
-            << endl;
+        state_var_print_hdr(state_var_tr_out, "Transient Reactor State");
      
     }
 
@@ -409,6 +426,35 @@ void run_0d_reactor(RctrType rctr_type,
         print_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
                             gas_ss_mole_out, gas_ss_mass_out, 
                             gas_ss_msdot_out, surf_ss_out, state_var_out);
+
+        if (rpa_flag) {
+            string rpa_file_name = "rates_z-";
+            rpa_file_name += to_string((i+0.5)*rctr_vol);
+            rpa_file_name += ".out";
+            ofstream rates_out (rpa_file_name, ios::out); // Masks the name
+            print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                                rates_out);
+
+            rates_out.precision(6);
+
+            auto rxn_index = 1;
+            print_rxn_rates(gas.get(), rxn_index, rates_out);
+            rxn_index += gas->nReactions();
+            for (auto surf : surfaces) {
+                print_rxn_rates(surf.get(), rxn_index, rates_out);
+                rxn_index += surf->nReactions();
+            }
+        }
+    }
+
+    // Print final rpa data
+    rates_out.precision(6);
+    auto rxn_index = 1;
+    print_rxn_rates(gas.get(), rxn_index, rates_out);
+    rxn_index += gas->nReactions();
+    for (auto surf : surfaces) {
+        print_rxn_rates(surf.get(), rxn_index, rates_out);
+        rxn_index += surf->nReactions();
     }
 }
 

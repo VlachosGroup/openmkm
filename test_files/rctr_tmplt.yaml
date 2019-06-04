@@ -59,6 +59,8 @@ simulation:
                         # Options are regular, logarithmic. 
     step_size: 1e-6     # Time advancement for each step. In case of logarithmic stepping, step size 
                         # is increased by 10 after 10 iterations starting with the given step
+                        # For 1d PFR, step_size is the z-intervals where reactor state is evaluated
+                        # and outputted.
     solver:             # Options to numerical solver. This is not mandatory, but suggested
         atol: 1e-10         # Absolute tolerance (Refer to SUNDIALs documentation for more info), 
                             # At present, atol is only scalar
@@ -66,6 +68,9 @@ simulation:
         initial_step_size: 1e-13  # Initial step size internal to solver
         maxsteps: 3000      # Max # of steps for any given time advancement 
         maxstepsize: 0.5    # Should not be larger than residence time
+    rpa: false          # Optional node to print out data for reaction path analysis. 
+                        # By default, data for RPA is printed at steady state for CSTR
+                        # and at end of tube for PFR. If true, RPA data is printed for every z-step in PFR
 
 # Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
 # A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
