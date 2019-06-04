@@ -5,6 +5,7 @@ OpenMKM is a multiphysics and multiscale software aimed at Chemical Engineers in
 modeling chemical kinetics for heterogeneous catalytic reactions. OpenMKM is opensource software 
 and is developed at Delaware Energy Institute, University of Delaware. 
 OpenMKM is written in C++ and is compiled and executed from command line. 
+Here is a quick guide on installing and running OpenMKM. More detailed guides can be accessed from the navigation bar.
 
 ## Installation
 
@@ -15,6 +16,7 @@ Please note that the official version and the modified version differ in their i
 coverage effects. Then [install](https://cantera.org/install/compiling-install.html)  Cantera 
 from source. Cantera uses scons for package building. To compile the source, here is a sample scons 
 command used.
+
 ~~~ bash
 scons build python_package=full f90_interface=y doxygen_docs=yes \
 system_eigen=y system_sundials=y  \
