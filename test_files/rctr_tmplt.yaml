@@ -69,8 +69,22 @@ simulation:
         maxsteps: 3000      # Max # of steps for any given time advancement 
         maxstepsize: 0.5    # Should not be larger than residence time
     rpa: false          # Optional node to print out data for reaction path analysis. 
-                        # By default, data for RPA is printed at steady state for CSTR
-                        # and at end of tube for PFR. If true, RPA data is printed for every z-step in PFR
+                        # By default, data for RPA is only printed at steady state for CSTR
+                        # and at end of tube for PFR. If rpa set to true, RPA data is printed for every z-step in PFR
+    parametric_study: 
+        temperature:
+            sample_no: 50          # Number of samples
+            distribution:          # Distribution to draw the samples from. More effective than linear variation of the parameter
+                type: normal       # Type of the distribution: Normal mode is characterized by mean and standard deviation
+                mean: 950          # Mean of the normal distribution
+                std_dev : 5        # Standard deviation of the distribution
+        pressure: 
+            sample_no: 50
+            distribution: 
+                type: uniform       # For uniform distribution, specify upper and lower limits
+                ul : "1.0001 atm"   # Upper limit
+                ll : "0.9999 atm"   # Lower Limit
+        flow_rate: NULL
 
 # Phase definitions are in Cantera CTI/XML file, which is supplied as second argument.
 # A CTI/XML file can contain many (arbitrary number of) phase definitions and all of them
