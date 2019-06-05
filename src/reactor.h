@@ -7,8 +7,8 @@
 
 // This file is part of hetero_ct. See License.txt in the top level directory
 
-#ifndef HTRCT_ZEROD_REACTOR_H
-#define HTRCT_ZEROD_REACTOR_H
+#ifndef OMKM_ZEROD_REACTOR_H
+#define OMKM_ZEROD_REACTOR_H
 
 #include <vector>
 #include <memory>
