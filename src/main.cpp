@@ -28,7 +28,7 @@ include <yaml-cpp/yaml.h>
 
 #include "io.h"
 #include "reactor.h"
-#include "hctexceptions.h"
+#include "omkmexceptions.h"
 
 using namespace std;
 using namespace std::chrono;

@@ -1,5 +1,5 @@
 /**
- * @file hctexceptions.h
+ * @file omkmexceptions.h
  *   Definitions for the classes that are
  *   thrown when %HeteroCt experiences an error condition
  *   (also contains errorhandling module text - see \ref errorhandling).
@@ -7,8 +7,8 @@
 
 // This file is part of HeteroCt. See License.txt in the top-level directory.
 
-#ifndef HCT_CTEXCEPTIONS_H
-#define HCT_CTEXCEPTIONS_H
+#ifndef OMKM_CTEXCEPTIONS_H
+#define OMKM_CTEXCEPTIONS_H
 
 #include "cantera/base/fmt.h"
 #include "cantera/base/ctexceptions.h"
@@ -58,7 +58,11 @@ public:
                     const std::string& failure_mode) :
         Cantera::CanteraError(procedure), node_(node_name), failure_mode_(failure_mode) {}
 
-    virtual std::string getMessage() const;
+    virtual std::string getMessage() const
+    {
+        return fmt::format("Failed to parse YAML node ({}). {}.",
+                           node_, failure_mode_);
+    }
     virtual std::string getClass() const {
         return "YAMLParserError";
     }
