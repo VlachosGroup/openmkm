@@ -21,7 +21,9 @@ YAML::Node getChildNode(YAML::Node& p_nd,
 
 class ReactorParser {
 public:
-    ReactorParser() {}
+    ReactorParser() 
+        : m_parametric_study(false) 
+    {}
     ReactorParser(std::string rctr_file) {
         LoadFile(rctr_file);
     }
@@ -35,9 +37,14 @@ public:
     
     std::shared_ptr<Cantera::IdealGasMix> getGasPhase();
 
+
+    bool parametric_study_enabled(); 
+
+    /*
     bool validate() { // TODO: Implement for one shot error checking
-        return false;
+        return true;
     }
+    */
 
 private:
     YAML::Node m_tube_nd;
