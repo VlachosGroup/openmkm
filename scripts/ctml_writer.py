@@ -1789,6 +1789,61 @@ class lateral_interaction(object):
 
         return i
 
+class lateral_interactions(object):
+    """
+    Coverage dependent Lateral interactions given conveniently in a 
+    single definition.  
+    The code internally converts them into individual lateral reaction
+    parameter for pair of species. Workly only for single interaction 
+    strength. It writes to XML file as 3 parameter
+    lateral interaction model (Two strength parameters and one coverage
+    threhsold  parameter).
+    """
+    def __init__(self,
+                 species = '',
+                 interaction_matrix = None,
+                 coverage_thresholds = None):
+        """
+        :param species:
+            Surface species between which lateral interactions are
+            defined. Given as a string with white space separator.
+            Assumption is that species are defined locally.
+        :param interaction_matrix:
+            The lateral interaction strengths defined as symmetric matrix, 
+            and each individual lateral interaction
+            is considered picewise linear. The strength parameters define the
+            slopes.
+        :param coverage_thresholds:
+            Coverage threshold at which the lateral interaction strength changes.
+            Could be None or one float for each species. 
+            If not coverage_thresholds are given, a default value of 0 is used.
+        """
+        self._species = species
+
+        def get_list(a):
+            if hasattr(a, '__iter__'):
+                return list(a)
+            else:
+                return [a]
+
+        if not coverage_thresholds:
+            coverage_thresholds = [0] * len(interaction_matrix)
+
+        if len(coverage_thresholds) < len(interaction_matrix):
+            coverage_threshoulds += [0] * (
+                    len(interaction_matrix) - len(coverage_thresholds))
+
+        self._intxn_mat = interaction_matrix
+        self._coverage_thresholds = coverage_thresholds
+        
+        # Define the individual lateral_interaction for every species pair
+        species_lst = species.split()
+        for i, species1 in enumerate(species_lst):
+            for j, species2 in enumerate(species_lst):
+                lateral_interaction(" ".join([species1, species2]), 
+                                    interaction_matrix[i][j],
+                                    coverage_thresholds[j])
+
 #-------------------
 
 
