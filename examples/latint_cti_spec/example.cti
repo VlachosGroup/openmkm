@@ -272,23 +272,59 @@ species(name='RU(B)',
         size=1.0)
 
 #------------------------------------------------------------------------------
-# Interaction Data
+# Lateral Interaction Data
 #------------------------------------------------------------------------------
 lateral_interaction('N(S1) N(S1)',     [-47.0179], [0])
 lateral_interaction('N(S1) H(S1)',     [-17.7545], [0])
 lateral_interaction('N(S1) NH3(S1)',   [-25.1631], [0])
 lateral_interaction('N(S1) NH2(S1)',   [-20.762],  [0])
 lateral_interaction('N(S1) NH(S1)',    [-48.7823], [0])
+lateral_interaction('H(S1) N(S1)',     [-17.7545], [0])
 lateral_interaction('H(S1) H(S1)',     [-6.7043],  [0])
 lateral_interaction('H(S1) NH3(S1)',   [-9.5019],  [0])
 lateral_interaction('H(S1) NH2(S1)',   [-7.84],    [0])
 lateral_interaction('H(S1) NH(S1)',    [-18.4208], [0])
+lateral_interaction('NH3(S1) N(S1)',   [-25.1631], [0])
+lateral_interaction('NH3(S1) H(S1)',   [-9.5019],  [0])
 lateral_interaction('NH3(S1) NH3(S1)', [-13.4668], [0])
 lateral_interaction('NH3(S1) NH2(S1)', [-11.1115], [0])
 lateral_interaction('NH3(S1) NH(S1)',  [-26.1074], [0])
+lateral_interaction('NH2(S1) N(S1)',   [-20.762],  [0])
+lateral_interaction('NH2(S1) H(S1)',   [-7.84],    [0])
+lateral_interaction('NH2(S1) NH3(S1)', [-11.1115], [0])
 lateral_interaction('NH2(S1) NH2(S1)', [-9.1681],  [0])
 lateral_interaction('NH2(S1) NH(S1)',  [-21.5412], [0])
+lateral_interaction('NH(S1) N(S1)',    [-48.7823], [0])
+lateral_interaction('NH(S1) H(S1)',    [-18.4208], [0])
+lateral_interaction('NH(S1) NH3(S1)',  [-26.1074], [0])
+lateral_interaction('NH(S1) NH2(S1)',  [-21.5412], [0])
 lateral_interaction('NH(S1) NH(S1)',   [-50.6129], [0])
+
+
+#------------------------------------------------------------------------------
+# Alternative way of specifying Lateral Interaction Data
+#
+# Interaction energy is given by 
+# IntrxnEnrgy_i = \sum_j IntrxnEnrgy_{i,j}
+# IntrxnEnrgy_{i,j} = 0 for \theta_j < \theta^{lt}_j 
+# IntrxnEnrgy_{i,j} = IntrxnStrngth_{i,j} * (\theta - theta^{lt})_j 
+# for \theta_j > \theta^{lt}_j and \theta_j < \theta^{ht}_j.
+# \theta represent surface coverages.
+# "lt" means lower threshold and "ht" means higher threshold, which is 1.
+#
+# In the ``lateral_interactions`` class definition,
+# `interaction_matrix` defines the interaction strength
+# `coverage_thresholds` define lower limits for surface coverages. 
+#  If not given, 0 is used.
+#------------------------------------------------------------------------------
+#lateral_interactions(
+#    species = 'N(S1) H(S1) NH3(S1) NH2(S1) NH(S1)', 
+#    interaction_matrix = [[-47.0179, -17.7545, -25.1631, -20.7620, -48.7823],
+#                          [-17.7545,  -6.7043,  -9.5019,  -7.8400, -18.4208],
+#                          [-25.1631,  -9.5019, -13.4668, -11.1115, -26.1074],
+#                          [-20.762,   -7.8400, -11.1115,  -9.1681, -21.5412],
+#                          [-48.7823, -18.4208, -26.1074, -21.5412, -50.6129]],
+#    coverage_thresholds = [0, 0, 0, 0, 0])
 
 #-------------------------------------------------------------------------------
 # Reaction data
