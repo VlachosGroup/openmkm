@@ -17,15 +17,19 @@
 #include "cantera/IdealGasMix.h"
 #include "cantera/InterfaceLatInt.h"
 
+#include "reactor_parser.h"
+
 namespace OpenMKM
 {
 
+/*
 enum RctrType {
     BATCH,
     CSTR,
     PFR_0D,
     PFR
 };
+*/
 
 
 void run_0d_reactor(RctrType rctr_type, 

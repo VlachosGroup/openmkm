@@ -29,6 +29,7 @@ include <yaml-cpp/yaml.h>
 #include "io.h"
 #include "reactor.h"
 #include "omkmexceptions.h"
+#include "reactor_parser.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -56,16 +57,19 @@ int main(int argc, char* argv[])
     auto start_t = high_resolution_clock::now();
 
     string tube_file_name {argv[1]};       // Tube drive file in YAML format
-    string phase_file_name {argv[2]};      // Thermodata in either CTI/XML formats
+    string phase_filename {argv[2]};      // Thermodata in either CTI/XML formats
     auto tube_node = YAML::LoadFile(tube_file_name);
     
     // Read the gas phase definition
-    auto phase_node = tube_node["phases"];
-    string gas_phase_name = phase_node["gas"]["name"].as<string>();
-    auto gas = make_shared<IdealGasMix>(phase_file_name, gas_phase_name);
+    //auto phase_node = tube_node["phases"];
+    //string gas_phase_name = phase_node["gas"]["name"].as<string>();
+    //auto gas = make_shared<IdealGasMix>(phase_file_name, gas_phase_name);
+    
+    auto rctr_parser = ReactorParser(tube_file_name);
+    auto gas = rctr_parser.getGasPhase(phase_filename);
     vector<shared_ptr<ThermoPhase>> all_phases {gas};
     vector<Kinetics*> all_km {gas.get()};
-    string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
+    //string gas_phase_X = phase_node["gas"]["initial_state"].as<string>();
 
 
     /* Read the state variables */
@@ -75,11 +79,29 @@ int main(int argc, char* argv[])
     };
 
     // Set the temp and press for all phases
-    auto temp = strSItoDbl(rctr_node["temperature"].as<string>());
-    auto press = strSItoDbl(rctr_node["pressure"].as<string>());
-    gas->setState_TPX(temp, press, gas_phase_X);
+    //auto temp = strSItoDbl(rctr_node["temperature"].as<string>());
+    //auto press = strSItoDbl(rctr_node["pressure"].as<string>());
+    //gas->setState_TPX(temp, press, gas_phase_X);
 
     // Try to read the bulk node and if present read surface definitons as well
+    bool blk_phase_defined = rctr_parser.BulkPhaseDefined(phase_filename);
+    vector<ThermoPhase*> gb_phases;
+    if (blk_phase_defined) {
+        auto bulk = rctr_parser.getBulkPhase(phase_filename);
+        all_phases.push_back(bulk);
+        gb_phases.push_back(gas.get()); 
+        gb_phases.push_back(bulk.get());
+    }
+    bool surf_phases_defined = rctr_parser.SurfacePhasesDefined(phase_filename);
+    vector<shared_ptr<InterfaceInteractions>> surf_phases;
+    if (surf_phases_defined && blk_phase_defined) {
+        surf_phases = rctr_parser.getSurfPhases(phase_filename, gb_phases);
+        for (auto& surf_phase : surf_phases) {
+            all_phases.push_back(surf_phase);
+            all_km.push_back(surf_phase.get());
+        }
+    }
+    /*  Old code to read the bulk and surface phases
     //vector<shared_ptr<Interface>> surf_phases;
     vector<shared_ptr<InterfaceInteractions>> surf_phases;
     vector<SurfPhase*> surf_phases1;
@@ -123,6 +145,7 @@ int main(int argc, char* argv[])
             surf_phases[i]->setCoveragesByName(surface_states[i]);
         }
     }
+    */
 
     /* Print the species thermodynamic info */
     print_formation_enthalpy(all_phases, "Hform.out");
@@ -145,9 +168,9 @@ int main(int argc, char* argv[])
     print_rxn_kr(all_km,  "kr.out");
 
 
-    auto rctr_type_node = rctr_node["type"];
-    auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
-
+    //auto rctr_type_node = rctr_node["type"];
+    //auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
+    auto rctr_type = rctr_parser.getReactorType();
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
         run_0d_reactor(rctr_type, tube_node, gas, surf_phases, gen_info);
 
