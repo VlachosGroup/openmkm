@@ -1,7 +1,7 @@
 #include <vector>
 
-#ifndef HTRCT_UTIL_H
-#define HTRCT_UTIL_H
+#ifndef OMKM_UTIL_H
+#define OMKM_UTIL_H
 
 namespace OpenMKM
 {
