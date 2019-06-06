@@ -27,6 +27,7 @@ void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string out
 {
     vector<doublereal> hform; 
     ofstream out (output_file);
+    out << "#Dimensionless formation enthalpies of species (H/RT)\n" << endl;
     for  (const auto phase: phases){
         hform.resize(phase->nSpecies());
         phase->getEnthalpy_RT(hform.data());
