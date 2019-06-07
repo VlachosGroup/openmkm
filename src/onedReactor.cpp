@@ -45,8 +45,8 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     //auto rctr_node = tube_node["reactor"];
 
     // Read the reactor dimensions
-    double rctr_xc_area = rctr_parser.getReactorXCArea();
-    double rctr_len = rctr_parser.getReactorLength();
+    double rctr_xc_area = rctr_parser.getXCArea();
+    double rctr_len = rctr_parser.getLength();
 
     bool fr_defined = rctr_parser.FlowRateDefined();
     bool mfr_defined = rctr_parser.MassFlowRateDefined();
@@ -70,29 +70,40 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         velocity = rctr_len / rt;
     }
 
+    /*
     double cat_abyv = 0;
     if(rctr_parser.catalystAreaDefined()) {
         cat_abyv = rctr_parser.getCatalystAbyV();
     }
+    */
+    double cat_abyv = rctr_parser.getCatalystAbyV(); // 0 if not defined
+
+    if (cat_abyv == 0.0 && surfaces.size() > 0){
+        cout << "Catalyst size is defined as 0. Ignoring the surface phases" << endl;
+    }
 
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
-    for (const auto surf: surfaces) {
-        ikin.push_back(surf.get());
-        surf_ph.push_back(surf.get());
+    if (cat_abyv != 0.0) {
+        for (const auto surf: surfaces) {
+            ikin.push_back(surf.get());
+            surf_ph.push_back(surf.get());
+        }
+
+        // Equilibriate the surface before starting PFR simulation
+        cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+        for (const auto surf: surfaces) {
+            surf->solvePseudoSteadyStateProblem();
+            vector<double> cov(surf->nSpecies());
+            surf->getCoverages(cov.data());
+
+            cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+            for (auto i = 0; i < surf->nSpecies(); i++)
+                gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
+        }
     }
 
-    // Start the simulation
-    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
-    for (const auto surf: surfaces) {
-        surf->solvePseudoSteadyStateProblem();
-        vector<double> cov(surf->nSpecies());
-        surf->getCoverages(cov.data());
-
-        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
-        for (auto i = 0; i < surf->nSpecies(); i++)
-            gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
-    }
+    
 
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
     
@@ -228,8 +239,8 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     //auto rctr_node = tube_node["reactor"];
 
     // Read the reactor dimensions
-    double rctr_xc_area = rctr_parser.getReactorXCArea();
-    double rctr_len = rctr_parser.getReactorLength();
+    double rctr_xc_area = rctr_parser.getXCArea();
+    double rctr_len = rctr_parser.getLength();
 
     bool fr_defined = rctr_parser.FlowRateDefined();
     bool mfr_defined = rctr_parser.MassFlowRateDefined();

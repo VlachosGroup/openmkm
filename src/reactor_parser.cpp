@@ -150,19 +150,41 @@ RctrType ReactorParser::getReactorType()
 }
 
 //! Return reactor (PFR) cross section area
-double ReactorParser::getReactorXCArea()
+double ReactorParser::getXCArea()
 {
     auto area_nd = getChildNode(m_rctr_nd, "tube.reactor",
                                 vector<string>{"area"});
     return strSItoDbl(area_nd.as<string>());
 }
 
-double ReactorParser::getReactorLength()
+//! Return reactor (PFR) length 
+double ReactorParser::getLength()
 {
     auto length_nd = getChildNode(m_rctr_nd, "tube.reactor",
                                   vector<string>{"length"});
     return strSItoDbl(length_nd.as<string>());
 }
+
+// Returns reactor volume 
+double ReactorParser::getVolume()
+{
+    auto vol_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                               vector<string>{"volume"});
+    return strSItoDbl(vol_nd.as<string>());
+}
+
+// Returns # of CSTRs to use for PFR_0D
+size_t ReactorParser::getNodes()
+{
+    size_t rctr_nodes = 1;
+    auto kids = vector<string>{"nodes"};
+    if(!IsChildNodeAvailable(m_rctr_nd, kids)){
+        return rctr_nodes;
+    }
+    auto rctr_node_nd = getChildNode(m_rctr_nd, "tube.reactor", kids);
+    return rctr_node_nd.as<size_t>();
+}
+
 
 bool ReactorParser::FlowRateDefined()
 {
@@ -208,8 +230,11 @@ bool ReactorParser::catalystAreaDefined()
 //! Catalyst Area by Reactor Volume
 double ReactorParser::getCatalystAbyV()
 {
-    auto cat_abyv_nd = getChildNode(m_rctr_nd, "tube.reactor",
-                                    vector<string>{"cat_abyv"});
+    auto kids = vector<string>{"cat_abyv"};
+    if(!IsChildNodeAvailable(m_rctr_nd, kids)){
+        return 0.0;
+    }
+    auto cat_abyv_nd = getChildNode(m_rctr_nd, "tube.reactor", kids);
     return strSItoDbl(cat_abyv_nd.as<string>());
 }
 
@@ -331,6 +356,8 @@ double ReactorParser::getSolverMaxSteps()
                                     vector<string>{"max_steps", "solver"});
     return maxsteps_nd.as<double>();
 }
+
+// Simulation parameters that are not part of solver
 
 //! Checks if initial step where simulation ouput is printed is defined
 bool ReactorParser::initStepDefined()

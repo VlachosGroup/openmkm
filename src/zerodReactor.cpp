@@ -44,49 +44,10 @@ void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
                       ofstream& gas_mole_out, ofstream& gas_mass_out, 
                       ofstream& gas_msdot_out, ofstream& surf_cov_out,
                       ofstream& state_var_out)
-{
-
-    vector<double> work(rctr->contents().nSpecies());
-
-    state_var_out << setw(16) << left  << z
-                  << setw(16) << left  << rctr->temperature()
-                  << setw(16) << left  << rctr->pressure() 
-                  << setw(16) << left  << rctr->density() 
-                  << setw(16) << left  << rctr->intEnergy_mass() 
-                  << endl;
-
-    auto gas_var_print = [&work, &z](ostream& out) -> void
-    {
-        out << setw(16) << left << z;
-        for (auto k = 0; k < work.size(); k++) {
-            out << setw(16) << left << work[k];
-        }
-        out << endl;
-    };
-
-    rctr->contents().getMoleFractions(work.data());
-    gas_var_print(gas_mole_out);
-
-    rctr->contents().getMassFractions(work.data());
-    gas_var_print(gas_mass_out);
-
-    rctr->getSurfaceProductionRates(work.data());
-    gas_var_print(gas_msdot_out);
-
-    surf_cov_out << setw(16) << left << z;
-    for (auto j = 0;  j <  surfaces.size(); j++) {
-        work.resize(surfaces[j]->nSpecies());
-        rctr->surface(j)->getCoverages(work.data());    
-        for (auto k = 0; k < work.size(); k++) {
-            surf_cov_out << setw(16) << left << work[k];
-        }
-    }
-    surf_cov_out << endl;
-}
 */
 
 
-void run_0d_reactor(RctrType rctr_type, 
+void run_0d_reactor(RctrType rctr_type1, 
                     YAML::Node& tube_node,
                     ReactorParser& rctr_parser,
                     shared_ptr<IdealGasMix> gas, 
@@ -98,21 +59,28 @@ void run_0d_reactor(RctrType rctr_type,
 
     auto rctr = make_shared<IdealGasTRampReactor>();
     rctr->insert(*gas);
+    gen_info_out << "reactor density " << rctr->density() << endl;
 
     // Read the reactor dimensions
 
+    double rctr_vol = rctr_parser.getVolume();
+    auto rctr_type = rctr_parser.getReactorType();
+    /*
     double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
     if (!rctr_vol) {
         // TODO: Raise Error
         ;
     }
+    */
     size_t rctr_nos = 1;
     if (rctr_type == PFR_0D) { // Modify rctr_nos only for PFR_0D
+        /*
         auto nd_node = rctr_node["nodes"];
         if (nd_node)
             if (!nd_node.IsNull())
                 rctr_nos = nd_node.as<int>();
-
+                */
+        rctr_nos = rctr_parser.getNodes();
         if (rctr_nos == 1) { // Raise warning to increase cstr number
             cout << "Number of nodes in 0d PFR simulation is 1. \n " 
                  << "Suggestion: Input 'nodes' parameter if not given already or " 
@@ -124,6 +92,8 @@ void run_0d_reactor(RctrType rctr_type,
     rctr->setInitialVolume(rctr_vol);
     vector<shared_ptr<ReactorSurface>> cat_surfs;
     vector<SurfPhase*> surf_phases;
+
+    /*
     auto cat_node = rctr_node["cat_abyv"];
     if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
         throw YAMLParserError("zerodReactor.cpp::runZerodReactor", "cat_abyv", 
@@ -133,6 +103,24 @@ void run_0d_reactor(RctrType rctr_type,
     if (cat_node && !cat_node.IsNull()) {
         double cat_area = strSItoDbl(cat_node.as<string>());
         cat_area *= rctr_vol;
+        size_t surf_spec_no = 0;
+        for (const auto surf : surfaces) {
+            surf_spec_no += surf->nSpecies();
+            auto cat_surf = make_shared<ReactorSurface>(); 
+            cat_surf->setKinetics(surf.get());
+            surf_phases.push_back(dynamic_cast<SurfPhase*> (surf.get()));
+            vector<double> coverages(surf->nSpecies());
+            surf->getCoverages(coverages.data());
+            cat_surf->setCoverages(coverages.data());
+            cat_surf->setArea(cat_area);
+            cat_surfs.push_back(cat_surf);
+            rctr->addSurface(cat_surf.get());
+        }
+    }
+    */
+    double cat_abyv = rctr_parser.getCatalystAbyV();
+    if (cat_abyv != 0.0) {
+        auto cat_area = cat_abyv * rctr_vol;
         size_t surf_spec_no = 0;
         for (const auto surf : surfaces) {
             surf_spec_no += surf->nSpecies();
@@ -161,6 +149,7 @@ void run_0d_reactor(RctrType rctr_type,
     auto outlet = make_shared<PressureController>();
     
     if (rctr_type != BATCH) {
+        /*
         auto inlet_node = tube_node["inlet_gas"];
         auto flowrate_node = inlet_node["flow_rate"];
         auto restime_node = inlet_node["residence_time"];
@@ -178,6 +167,31 @@ void run_0d_reactor(RctrType rctr_type,
         else {
             mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
         }
+        */
+        bool fr_defined = rctr_parser.FlowRateDefined();
+        bool mfr_defined = rctr_parser.MassFlowRateDefined();
+        bool rt_defined = rctr_parser.ResidenceTimeDefined();
+        int no_var_defined = fr_defined + mfr_defined + rt_defined;
+        if (no_var_defined > 1) {
+            cout << "Define only one of 'flow_rate', 'mass_flow_rate', "
+                 << "'residence_time'. Only one of the variables is used " 
+                 << "in the order shown above" << endl;
+        } else if (!no_var_defined) {
+            cout << "Define one of 'flow_rate', 'mass_flow_rate', "
+                 << "'residence_time' within inlet_gas." << endl;
+        }
+        double mfr{0};
+        if (fr_defined) {
+            auto flow_rate = rctr_parser.getFlowRate();
+            mfr = rctr->mass() * flow_rate / rctr_vol;
+        }
+        else if (mfr_defined) {
+            mfr = rctr_parser.getMassFlowRate();
+        } else if (rt_defined) {
+            auto rt = rctr_parser.getResidenceTime();
+            mfr = rctr->mass()/rt;
+        }
+
         inlet_mfc->setMassFlowRate(mfr);
         outlet->setMaster(inlet_mfc.get());
         outlet->setPressureCoeff(0.00001);
@@ -187,12 +201,13 @@ void run_0d_reactor(RctrType rctr_type,
         outlet->install(*rctr, *exhst);
     }
 
-    gen_info_out << "reactor density " << rctr->density() << endl;
 
     rctr->setChemistry();
 
     // Read the reactor mode and set corresponding parameters
-    string mode = rctr_node["mode"].as<string>();
+    //string mode = rctr_node["mode"].as<string>();
+    string mode = rctr_parser.getMode();
+
     // heat_rsrv and wall are nominally defined.
     // They are used if heat transfer is required.
     auto heat_rsrv = make_shared<Reservoir>(); 
@@ -202,9 +217,12 @@ void run_0d_reactor(RctrType rctr_type,
     else {
         rctr->setEnergy(1);
         if (mode == "heat"){
-            double htc = strSItoDbl(rctr_node["htc"].as<string>());
-            double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
-            double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
+            //double htc = strSItoDbl(rctr_node["htc"].as<string>());
+            //double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
+            //double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
+            double htc = rctr_parser.getWallHeatTransferCoeff();  // htc
+            double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
+            double ext_temp = rctr_parser.getExternalTemp();      // Text
             auto press = gas->pressure();
             gas->setState_TP(ext_temp, press);
             heat_rsrv->insert(*gas);
@@ -259,6 +277,7 @@ void run_0d_reactor(RctrType rctr_type,
     rnet.addReactor(*rctr);
 
     // Pass any user defined numerical options to the solver
+    /*
     auto solver_node = simul_node["solver"];
     if (solver_node && !solver_node.IsNull()){
         auto abs_tol_node = solver_node["atol"];
@@ -275,6 +294,20 @@ void run_0d_reactor(RctrType rctr_type,
         }
         // Implement the other options here 
     }
+    */
+    if (rctr_parser.tolerancesDefined()){
+        auto abs_tol = rctr_parser.get_atol();
+        auto rel_tol = rctr_parser.get_rtol();
+        rnet.setTolerances(rel_tol, abs_tol);
+    }
+    /* For these options, changes have to be made in Cantera
+    if (rctr_parser.solverInitStepSizeDefined()){
+        rnet.setInitialStepSize(rctr_parser.getSolverInitStepSize());
+    }
+    if (rctr_parser.solverMaxStepsDefined()){
+        rnet.setMaxNumSteps(rctr_parser.getSolverMaxSteps());
+    }*/
+
 
     auto gas_print_specie_header = [&gas](string ind_var, ostream& out) -> void
     {
@@ -299,13 +332,14 @@ void run_0d_reactor(RctrType rctr_type,
     // By default these values are written for simulation end time (PFR or CSTR)
     // and for PFR exit. If enabled, RPA data is also written for all z-points
     // of PFR
-    auto rpa_flag = false;
+    /*auto rpa_flag = false;
     if (rctr_type == PFR_0D){
         auto rpa_node = simul_node["rpa"];
         if (rpa_node && !rpa_node.IsNull()){
             rpa_flag = rpa_node.as<bool>();
         }
-    }
+    }*/
+    auto rpa_flag = rctr_parser.RPA();
 
     auto state_var_print_hdr = [](ostream& out, const string hdr) -> void
     {

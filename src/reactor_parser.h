@@ -68,11 +68,17 @@ public:
 
     // Get Reactor Dimensions
 
-    //! Get the PFR Length 
-    double getReactorLength();
+    //! PFR Length 
+    double getLength();
 
-    //! Get the PFR Cross Section Area
-    double getReactorXCArea();
+    //! PFR Cross Section Area
+    double getXCArea();
+
+    //! Reactor volume for 0d reactors 
+    double getVolume();
+
+    //! # CSTRs to use for 0d PFR
+    size_t getNodes();
 
     bool catalystAreaDefined();
     double getCatalystAbyV();
