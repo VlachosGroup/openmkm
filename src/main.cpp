@@ -38,11 +38,12 @@ using namespace OpenMKM;
 
 
 
-std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH}, 
+/*std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH}, 
                                                {"cstr", CSTR}, 
                                                {"pfr_0d", PFR_0D}, 
                                                {"pfr", PFR}}; 
 
+                                               */
 
 int main(int argc, char* argv[]) 
 {
@@ -73,10 +74,11 @@ int main(int argc, char* argv[])
 
 
     /* Read the state variables */
-    auto rctr_node = tube_node["reactor"];
+    /*auto rctr_node = tube_node["reactor"];
     if (!rctr_node) {
         throw YAMLParserError("main.cpp::main", "reactor", "Node not found");
     };
+    */
 
     // Set the temp and press for all phases
     //auto temp = strSItoDbl(rctr_node["temperature"].as<string>());
@@ -172,11 +174,11 @@ int main(int argc, char* argv[])
     //auto rctr_type = RctrTypeMap[rctr_type_node.as<string>()];
     auto rctr_type = rctr_parser.getReactorType();
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
-        run_0d_reactor(rctr_type, tube_node, gas, surf_phases, gen_info);
+        run_0d_reactor(rctr_type, tube_node, rctr_parser, gas, surf_phases, gen_info);
 
     }
     else if (rctr_type == PFR) { // 1d reactor
-        run_1d_reactor(tube_node, gas, surf_phases, gen_info);
+        run_1d_reactor(rctr_parser, gas, surf_phases, gen_info);
     }
  
     auto end_t = high_resolution_clock::now();
