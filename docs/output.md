@@ -50,4 +50,23 @@ reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
 These files have either *_ss.out* or *_tr.out* . For clarity, the appendix is omitted.
 
-1. **gas\_mole**: 
+1. **gas\_mole**:  Mole fractions of gas species.
+
+2. **gas\_mass**:  Mass fractions of gas species.
+
+3. **gas_msdot**: Production rates of the gas species on the catalyst surface
+
+4. **rctr\_state**:  Temperature (in K), pressure (in Pascals), density (in $$kg/m^3$$) and either specific internal energy or specific enthalpy depending on the type of reactor.
+
+5.  **surf\_cov**: Coverage fractions in the range of [0,1] of the surface species on the catalyst surface.
+
+6. **rates**: Forward, reverse, and net rates of progress in mol/s and partial equilibrium of the reactions.
+
+## Simulation data
+
+These files contain messages showing the status of the simulation such as execution time, and any warnings and error messages.
+
+1. **general\_info.out**: Status of the simulation such as execution time, and any run time messages, warnings and error messages.
+
+2. **console or screen**: Status of the simulation such as execution time, and any run time messages, warnings and error messages.
+
