@@ -46,10 +46,10 @@ where $$E$$ is the internal energy of the reactor, $$Q$$ is the external heat su
 and $$W$$ is the work done on the reactor. $$W$$ is 0 if the reactor volume is fixed, otherwise it is $$PdV$$.
 
 The heat flux, $$\frac{dQ}{dt}$$, supplied to the reactor through an outer wall 
-with an area, $$A$$, and heat transfer cofficient, $$\hat{h}$$, from an external 
+with an area, $$A_{wall}$$, and heat transfer cofficient, $$\hat{h}$$, from an external 
 heat source  at temperature, $$T_{ext}$$, is given as 
 
-$$\frac{dQ}{dt} = \hat{h}A(T_{ext} - T), $$
+$$\frac{dQ}{dt} = \hat{h}A_{wall}(T_{ext} - T), $$
 
 where T is the reactor temperature. The internal energy of the reactor could be 
 written as $$E = m \sum_k Y_k e_k$$, where $$e_k$$ is the specific internal 
