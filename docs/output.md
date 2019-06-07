@@ -48,7 +48,7 @@ reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
 ## Reactor State data
 
-These files have either *_ss.out* or *_tr.out* . For clarity, the appendix is omitted.
+These file specified below have either *_ss.out* or *_tr.out* extensions. For clarity, the extensions are omitted.
 
 1. **gas\_mole**:  Mole fractions of gas species.
 
