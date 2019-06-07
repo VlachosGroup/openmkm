@@ -21,9 +21,8 @@ data end with *_ss.out*. Similarly, output files containing the transient state
 data end with *_tr.out*. Elementary data such as species formation enthalpies and
 reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
-## Elementary data
 
-### Species data
+## Species data
 
 1. **species.out**: Lists the species supplied in the input starting with species in gas phase, followed by species in bulk phase and surface phases.
 
@@ -31,7 +30,7 @@ reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
 3. **Sform.out**: Lists the dimensionless formatin entropies (S/R) of the species. These are calculated from the NASA polynomials specified in the input. 
 
-### Reaction data
+## Reaction data
 
 1. **reactions.out**: Lists the reactions supplied in the input file.
 
@@ -47,7 +46,8 @@ reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
 7. **kr.out**: Lists the reverse rate constants, $k_r$,  of the reactions at the input temperature. These are calculated from the forward and equilibrium rate constants. 
 
+## Reactor State data
 
-4. **Grxn.out**: Lists the dimensionless Gibbs free energies (G/RT) of the reactions at the input temperature. These are calculated from the formatin enthalpies, entropies, and the stoichometry coefficients of the species participating in the reactions. 
+These files have either *_ss.out* or *_tr.out* . For clarity, the appendix is omitted.
 
-5. 
+1. **gas\_mole**: 
