@@ -42,9 +42,9 @@ reaction rate constants do not contain *_ss* or *_tr* before *.out*.
 
 5. **kc.out**: Lists the equilibrium constants, $K$,  of the reactions at the input temperature. These are calculated from the Gibbs free energies of the reactions.
 
-6. **kf.out**: Lists the forward rate constants, $k_f$,  of the reactions at the input temperature. These are calculated from the activation energies, and pre-exponentials supplied. 
+6. **kf.out**: Lists the forward rate constants, $$k_f$$,  of the reactions at the input temperature. These are calculated from the activation energies, and pre-exponentials supplied. 
 
-7. **kr.out**: Lists the reverse rate constants, $k_r$,  of the reactions at the input temperature. These are calculated from the forward and equilibrium rate constants. 
+7. **kr.out**: Lists the reverse rate constants, $$k_r$$,  of the reactions at the input temperature. These are calculated from the forward and equilibrium rate constants. 
 
 ## Reactor State data
 
