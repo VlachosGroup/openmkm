@@ -16,6 +16,10 @@
 #include "cantera/base/config.h"
 #include "cantera/kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/zeroD/Reactor.h"
+
+#include "pfr1d.h"
 
 namespace OpenMKM
 {
@@ -101,6 +105,24 @@ void print_rxn_rates(Cantera::Kinetics* kin, int rxn_index, std::ofstream& out);
  * Utility function to print header before printing reaction rates
  */
 void print_rxn_rates_hdr(std::string hdr, std::ofstream& out);
+
+/**
+ * Utility function to print (1d) PFR reactor state at given distance from inlet
+ */
+void print_pfr_rctr_state(double z, PFR1d* rctr, 
+                          std::vector<Cantera::SurfPhase*> surfaces,
+                          std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
+                          std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
+                          std::ofstream& state_var_out);
+/**
+ * Utility function to print 0d reactor state at given distance from inlet
+ */
+void print_0d_rctr_state(double z, Cantera::Reactor* rctr, 
+                          std::vector<Cantera::SurfPhase*> surfaces,
+                          std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
+                          std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
+                          std::ofstream& state_var_out);
+
 
 
 }

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include "cantera/zeroD/ReactorSurface.h"
 #include "io.h"
 
 using namespace std;
@@ -271,6 +272,98 @@ void print_rxn_rates_hdr(string hdr, ofstream& out)
         << endl;
 }
 
+
+/**
+ * Utility function to print PFR state at given distance z from inlet
+ */
+void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
+                          ofstream& gas_mole_out, ofstream& gas_mass_out,
+                          ofstream& gas_msdot_out, ofstream& surf_cov_out,
+                          ofstream& state_var_out)
+{
+
+    vector<double> work(rctr->contents().nSpecies());
+
+    state_var_out << setw(16) << left  << z
+                  << setw(16) << left  << rctr->contents().temperature()
+                  << setw(16) << left  << rctr->contents().pressure()
+                  << setw(16) << left  << rctr->contents().density()
+                  //<< setw(16) << left  << rctr->intEnergy_mass()
+                  << endl;
+
+    auto gas_var_print = [&work, &z](ostream& out) -> void
+    {
+        out << setw(16) << left << z;
+        for (auto k = 0; k < work.size(); k++) {
+            out << setw(16) << left << work[k];
+        }
+        out << endl;
+    };
+
+    rctr->contents().getMoleFractions(work.data());
+    gas_var_print(gas_mole_out);
+
+    rctr->contents().getMassFractions(work.data());
+    gas_var_print(gas_mass_out);
+
+    rctr->getSurfaceProductionRates(work.data());
+    gas_var_print(gas_msdot_out);
+
+
+    surf_cov_out << setw(16) << left << z;
+    for (auto j = 0;  j <  surfaces.size(); j++) {
+        work.resize(surfaces[j]->nSpecies());
+        rctr->surface(j)->getCoverages(work.data());
+        for (auto k = 0; k < work.size(); k++) {
+            surf_cov_out << setw(16) << left << work[k];
+        }
+    }
+    surf_cov_out << endl;
+}
+
+void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
+                         ofstream& gas_mole_out, ofstream& gas_mass_out,
+                         ofstream& gas_msdot_out, ofstream& surf_cov_out,
+                         ofstream& state_var_out)
+{
+
+    vector<double> work(rctr->contents().nSpecies());
+
+    state_var_out << setw(16) << left  << z
+                  << setw(16) << left  << rctr->temperature()
+                  << setw(16) << left  << rctr->pressure() 
+                  << setw(16) << left  << rctr->density() 
+                  << setw(16) << left  << rctr->intEnergy_mass() 
+                  << endl;
+
+    auto gas_var_print = [&work, &z](ostream& out) -> void
+    {
+        out << setw(16) << left << z;
+        for (auto k = 0; k < work.size(); k++) {
+            out << setw(16) << left << work[k];
+        }
+        out << endl;
+    };
+
+    rctr->contents().getMoleFractions(work.data());
+    gas_var_print(gas_mole_out);
+
+    rctr->contents().getMassFractions(work.data());
+    gas_var_print(gas_mass_out);
+
+    rctr->getSurfaceProductionRates(work.data());
+    gas_var_print(gas_msdot_out);
+
+    surf_cov_out << setw(16) << left << z;
+    for (auto j = 0;  j <  surfaces.size(); j++) {
+        work.resize(surfaces[j]->nSpecies());
+        rctr->surface(j)->getCoverages(work.data());    
+        for (auto k = 0; k < work.size(); k++) {
+            surf_cov_out << setw(16) << left << work[k];
+        }
+    }
+    surf_cov_out << endl;
+}
 
 
 }

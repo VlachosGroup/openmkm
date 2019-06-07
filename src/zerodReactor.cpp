@@ -39,6 +39,7 @@ using namespace Cantera;
 
 //TODO: Add nSurfaces() function to Reactor/ReactorBase to eliminate the need
 // to pass surfaces argument
+/*
 void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces, 
                       ofstream& gas_mole_out, ofstream& gas_mass_out, 
                       ofstream& gas_msdot_out, ofstream& surf_cov_out,
@@ -82,10 +83,12 @@ void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
     }
     surf_cov_out << endl;
 }
+*/
 
 
 void run_0d_reactor(RctrType rctr_type, 
                     YAML::Node& tube_node,
+                    ReactorParser& rctr_parser,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<InterfaceInteractions>> surfaces,
                     ofstream& gen_info_out) 
@@ -348,9 +351,9 @@ void run_0d_reactor(RctrType rctr_type,
         
         // Print the inlet state
         rnet.reinitialize();
-        print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
-                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
-                         state_var_out);
+        print_0d_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
+                            gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
+                            state_var_out);
     }
 
     // Transient state makes sense For BATCH and CSTR 
@@ -414,16 +417,16 @@ void run_0d_reactor(RctrType rctr_type,
         for (const auto & tm : times) {
             rnet.advance(tm);
             if (transient_log) {
-                print_rctr_state(tm, rctr.get(), surf_phases, 
-                                 gas_tr_mole_out, gas_tr_mass_out, 
-                                 gas_tr_msdot_out, surf_tr_out, 
-                                 state_var_tr_out);
+                print_0d_rctr_state(tm, rctr.get(), surf_phases, 
+                                    gas_tr_mole_out, gas_tr_mass_out, 
+                                    gas_tr_msdot_out, surf_tr_out, 
+                                    state_var_tr_out);
 
             }
         }
         rctr->restoreState();
 
-        print_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
+        print_0d_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
                             gas_ss_mole_out, gas_ss_mass_out, 
                             gas_ss_msdot_out, surf_ss_out, state_var_out);
 
@@ -460,6 +463,7 @@ void run_0d_reactor(RctrType rctr_type,
 
 void run_0d_reactor(RctrType rctr_type, 
                     YAML::Node& tube_node,
+                    ReactorParser& rctr_parser,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<Interface>> surfaces,
                     ofstream& gen_info_out) 
@@ -679,9 +683,9 @@ void run_0d_reactor(RctrType rctr_type,
         
         // Print the inlet state
         rnet.reinitialize();
-        print_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
-                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
-                         state_var_out);
+        print_0d_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
+                            gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
+                            state_var_out);
     }
 
     // Transient state makes sense For BATCH and CSTR 
@@ -752,16 +756,16 @@ void run_0d_reactor(RctrType rctr_type,
         for (const auto & tm : times) {
             rnet.advance(tm);
             if (transient_log) {
-                print_rctr_state(tm, rctr.get(), surf_phases, 
-                                 gas_tr_mole_out, gas_tr_mass_out, 
-                                 gas_tr_msdot_out, surf_tr_out, 
-                                 state_var_tr_out);
+                print_0d_rctr_state(tm, rctr.get(), surf_phases, 
+                                    gas_tr_mole_out, gas_tr_mass_out, 
+                                    gas_tr_msdot_out, surf_tr_out, 
+                                    state_var_tr_out);
 
             }
         }
         rctr->restoreState();
 
-        print_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
+        print_0d_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
                             gas_ss_mole_out, gas_ss_mass_out, 
                             gas_ss_msdot_out, surf_ss_out, state_var_out);
     }
