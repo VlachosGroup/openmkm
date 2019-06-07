@@ -6,7 +6,7 @@ modeling chemical kinetics for heterogeneous catalytic reactions. OpenMKM is ope
 and is developed at Delaware Energy Institute, University of Delaware. 
 OpenMKM is written in C++ and is compiled and executed from command line. 
 
-Follow the links in the navigation bar for instructions on installing and running MKM>
+Follow the links in the navigation bar for instructions on installing and running OpenMKM
 
 
 ## Credits
