@@ -359,6 +359,32 @@ double ReactorParser::getSolverMaxSteps()
 
 // Simulation parameters that are not part of solver
 
+// TPD Params
+// TPD end temperature
+double ReactorParser::getTPDEndTemp()
+{
+    auto tend_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                vector<string>{"Tend"});
+    return strSItoDbl(tend_nd.as<string>());
+}
+
+// TPD temperature ramp
+double ReactorParser::getTPDTempRamp()
+{
+    auto tramp_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                 vector<string>{"Tramp"});
+    return strSItoDbl(tramp_nd.as<string>());
+}
+
+// Simulation end time for CSTR and batch reactors 
+double ReactorParser::getEndTime()
+{
+    auto end_time_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                    vector<string>{"end_time"});
+    return strSItoDbl(end_time_nd.as<string>());
+}
+
+
 //! Checks if initial step where simulation ouput is printed is defined
 bool ReactorParser::initStepDefined()
 {
@@ -374,6 +400,36 @@ double ReactorParser::getInitStep()
     return initstep_nd.as<double>();
 }
 
+//! Parses the flag to enable transient output 
+bool ReactorParser::logTransient()
+{
+    auto transient_flag = false;
+    auto kids = vector<string>{"transient"};
+    if(IsChildNodeAvailable(m_simul_nd, kids)){
+        auto transient_nd = getChildNode(m_simul_nd, "tube.simulation", kids);
+        transient_flag = transient_nd.as<bool>();
+    }
+    if (!transient_flag) {// Enable if tpd is enabled
+        if(getMode() == "tpd"){
+            transient_flag = true;
+            cout << "Simulation in TPD Mode: " << endl
+                 << "Enabling printing varaibles at transient state" << endl;
+        }
+    }
+    return transient_flag;
+}
+
+//! Parses the flag to enable transient output 
+string ReactorParser::steppingType()
+{
+    if(getMode() == "tpd"){
+        cout << "Simulation in TPD Mode: Regular stepping." << endl;
+        return "regular";
+    }
+    auto stepping_nd = getChildNode(m_simul_nd, "tube.simulation", 
+                                    vector<string>{"stepping"});
+    return stepping_nd.as<string>();
+}
 
 
 

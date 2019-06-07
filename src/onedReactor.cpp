@@ -23,7 +23,7 @@
 #include "cantera/zeroD/flowControllers.h"
 
 #include "util.h"
-#include "reactor.h"
+#include "run_reactor.h"
 #include "pfr1d.h"
 #include "pfr1d_solver.h"
 #include "io.h"

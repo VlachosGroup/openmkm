@@ -44,7 +44,21 @@ public:
         read_mandatory_nodes();
     }
 
-    void read_mandatory_nodes();
+    double temperature() {
+        return m_T;
+    }
+
+    double T() {
+        return m_T;
+    }
+
+    double pressure() {
+        return m_P;
+    }
+    
+    double P() {
+        return m_P;
+    }
     
     // Check for phases and read them
     bool GasPhaseDefined(std::string phase_filename);
@@ -110,9 +124,16 @@ public:
     double getSolverMaxSteps();
 
     // Simulation output flags & parameters
+    
     bool initStepDefined();
-
+    bool logTransient();
     double getInitStep();
+    std::string steppingType();
+    double getEndTime();
+
+    // Simulation flags for TPD
+    double getTPDTempRamp();
+    double getTPDEndTemp();
 
     bool RPA();
 
@@ -138,6 +159,8 @@ public:
         return true;
     }
     */
+protected:
+    void read_mandatory_nodes();
 
 private:
     YAML::Node m_tube_nd;
