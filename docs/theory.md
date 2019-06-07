@@ -4,7 +4,7 @@ layout: default
 # <span style="color:blue">Background Theory</span>
 Microkinetic modeling connects the elementary reaction kinetics to thermodynamic 
 quantities measurable at reactor scale such as temperature, pressure, species mass, etc. 
-Here, theoretical underpinnings of microkinetic modeling such as rate constants, 
+Here, theoretical underpinnings of microkinetic modeling such as the  
 governing equations of the reactor models are presented.
 
 ## <span style="color:blue"> Reactor Models and Governing Equations</span>
@@ -46,7 +46,7 @@ where $$E$$ is the internal energy of the reactor, $$Q$$ is the external heat su
 and $$W$$ is the work done on the reactor. $$W$$ is 0 if the reactor volume is fixed, otherwise it is $$PdV$$.
 
 The heat flux, $$\frac{dQ}{dt}$$, supplied to the reactor through an outer wall 
-with an area, $$A$$ and heat transfer cofficient, $$\hat{h}$$, from an external 
+with an area, $$A$$, and heat transfer cofficient, $$\hat{h}$$, from an external 
 heat source  at temperature, $$T_{ext}$$, is given as 
 
 $$\frac{dQ}{dt} = \hat{h}A(T_{ext} - T), $$
@@ -70,11 +70,11 @@ $$\tau$$ (called residence time), inside the reactor, after which it get expelle
 from the reactor through the outlet. The volumetric flow rate, $$r$$ is also 
 defined in terms of mass flow rate, $$\dot{m}_0$$, which is given as 
 $$\dot{m}_0 = \rho_0 r$$. Similarly, flow rate, $$r$$ and residence time, $$\tau$$ 
-are related as $$\tau = V/r$$. At the inlet, the reacting fluid contains only 
-reactants, but at the outlet, it contains both reactants, products, and reaction 
+are related as $$\tau = V/r$$. At the beginning, the reacting fluid contains only 
+reactants, but as time progresses, it contains both reactants, products, and reaction 
 intemediaries.  The reactor is typically operated at steady state conditions, 
 where the composition of the reacting fluid inside the 
-CSTR, which is typically different from the composition of the feed, does not change.
+CSTR, which is typically different from the composition of the initial feed, does not change.
 
 #### Mass Balance
 
@@ -84,7 +84,7 @@ $$ \rho\frac{dY_k}{dt} =  \frac{\dot{m}_0}{V} (Y_{k,0}- Y_k) + (\dot{\omega_k} +
 
 $$\rho c_p \frac{dT}{dt} = \frac{\dot{m}_0}{V} \sum_k{Y_{k,0}(h_k,0- h_k)} - \sum_k{h_k W_k (\dot{\omega_k} + \dot{s_k} \frac{A_{cat}}{V})} +  \hat{h}\frac{A_{wall}}{V}(T_{ext} - T),$$ 
 
-where $$c_p$$ is the specific heat for unit mass at constant pressure, $$W_k h_k$$ is the molar specific enthalpy of kth species, and $$h_k$$ is the specific enthalpy of kth species at unit mass.
+where $$c_p$$ is the specific heat for unit mass at constant pressure, $$W_k h_k$$ is the molar specific enthalpy of kth species, and $$h_k$$ is the specific enthalpy of kth species at unit mass. $$Y_{k,0}$$ and $$h_{k,0}$$ represent the initial mass fractions and initial specific enthalpies (w.r.t. unit mass) of kth species respectively.
 
 ### <span style="color:blue">PFR</span>
 A PFR is a tubular reactor with cross sectional area $$A_c$$. Reacting fluid enters 
@@ -129,5 +129,5 @@ fluid. On a catalytic surface, the site density is considered as fixed. This res
 
 $$\sum_k^{K_S}{\theta_k} = 1.$$
 
-While the energy and mass balance equations are differential in nature, surface coverage conservation equation is purely algebraic.
+While the energy and mass balance equations are differential in nature, surface coverage conservation equation is algebraic.
 
