@@ -1,5 +1,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfLatIntPhase.h"
+#include "cantera/base/stringUtils.h"
 
 #include "omkmexceptions.h"
 #include "reactor_parser.h"
@@ -16,6 +17,7 @@ std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH},
                                                {"pfr_0d", PFR_0D},
                                                {"pfr", PFR}};
 
+// The descendents are specified in reverse order
 Node getChildNode(Node& p_nd, string p_name, vector<string> rev_descendants)
 {
     if (rev_descendants.size()){
@@ -142,12 +144,223 @@ vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
 // Get Reactor Type
 RctrType ReactorParser::getReactorType()
 {
-    auto rctr_type_node = getChildNode(m_rctr_nd, "reactor",
-                                       vector<string>{"type"});
-    return RctrTypeMap[rctr_type_node.as<string>()];
+    auto rctr_type_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                     vector<string>{"type"});
+    return RctrTypeMap[rctr_type_nd.as<string>()];
+}
+
+//! Return reactor (PFR) cross section area
+double ReactorParser::getReactorXCArea()
+{
+    auto area_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                vector<string>{"area"});
+    return strSItoDbl(area_nd.as<string>());
+}
+
+double ReactorParser::getReactorLength()
+{
+    auto length_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                  vector<string>{"length"});
+    return strSItoDbl(length_nd.as<string>());
+}
+
+bool ReactorParser::FlowRateDefined()
+{
+    return IsChildNodeAvailable(m_inlet_nd, vector<string>{"flow_rate"});
+}
+
+bool ReactorParser::MassFlowRateDefined()
+{
+    return IsChildNodeAvailable(m_inlet_nd, vector<string>{"mass_flow_rate"});
+}
+
+bool ReactorParser::ResidenceTimeDefined()
+{
+    return IsChildNodeAvailable(m_inlet_nd, vector<string>{"residence_time"});
+}
+
+double ReactorParser::getFlowRate()
+{
+    auto fr_nd = getChildNode(m_inlet_nd, "tube.inlet_gas",
+                              vector<string>{"flow_rate"});
+    return strSItoDbl(fr_nd.as<string>());
+}
+
+double ReactorParser::getMassFlowRate()
+{
+    auto mfr_nd = getChildNode(m_inlet_nd, "tube.inlet_gas",
+                               vector<string>{"mass_flow_rate"});
+    return strSItoDbl(mfr_nd.as<string>());
+}
+
+double ReactorParser::getResidenceTime()
+{
+    auto rt_nd = getChildNode(m_inlet_nd, "tube.inlet_gas",
+                              vector<string>{"residence_time"});
+    return strSItoDbl(rt_nd.as<string>());
+}
+
+bool ReactorParser::catalystAreaDefined()
+{
+    return IsChildNodeAvailable(m_rctr_nd, vector<string>{"cat_abyv"});
+}
+
+//! Catalyst Area by Reactor Volume
+double ReactorParser::getCatalystAbyV()
+{
+    auto cat_abyv_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                    vector<string>{"cat_abyv"});
+    return strSItoDbl(cat_abyv_nd.as<string>());
+}
+
+//! Get Reactor Operational Modes
+//! The implemented modes are 
+//! "isothermal" -- isothermal operation, 
+//! "Tprofile"   -- Temperature profile along PFR 
+//! "TPD"        -- Temperature increased as a function of time 
+//! "adiabatic"  -- Adiabatic operation,
+//! "heat"       -- Heat conducting Walls
+string ReactorParser::getMode()
+{
+    auto mode_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                vector<string>{"mode"});
+    return mode_nd.as<string>();
+}
+
+//! Get Temperature Profile imposed on PFR
+//! The calling code should call this only if operational mode is "Tprofile".
+map<double, double> ReactorParser::getTProfile()
+{
+    auto tprofile_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                    vector<string>{"TProfile"});
+    /*if (!tprofile_nd.IsSequence()){
+        throw YAMLParserError("ReactorParser", "tube.reactor.TProfile",
+                              "Provide a sequence of dist: T");
+    }
+    */
+    map<double, double> T_profile;
+    for(YAML::const_iterator it = tprofile_nd.begin(); it != tprofile_nd.end(); ++it) {
+        T_profile.insert(pair<double, double>(strSItoDbl(it->first.as<string>()),
+                                              strSItoDbl(it->second.as<string>())));
+    }
+    return T_profile;
+}
+
+//! Get heat transfer coefficient of wall 
+//! The calling code should call this only if operational mode is "heat".
+double ReactorParser::getWallHeatTransferCoeff()
+{
+    auto htc_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                               vector<string>{"htc"});
+    return strSItoDbl(htc_nd.as<string>());
+}
+
+//! Get wall specific area (wall area by reactor volume)
+//! The calling code should call this only if operational mode is "heat".
+double ReactorParser::getWallSpecificArea()
+{
+    auto wall_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                               vector<string>{"wall_abyv"});
+    return strSItoDbl(wall_nd.as<string>());
+}
+
+//! Get temperature of heat source attached to wall 
+//! The calling code should call this only if operational mode is "heat".
+double ReactorParser::getExternalTemp()
+{
+    auto text_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                vector<string>{"Text"});
+    return strSItoDbl(text_nd.as<string>());
 }
 
 
+// Parameters to pass to Numerical Solver
+
+//! Checks if atol and rtol are defined
+bool ReactorParser::tolerancesDefined()
+{
+    vector<string> atol_kids {"atol", "solver"};
+    bool check_atol = IsChildNodeAvailable(m_simul_nd, atol_kids);
+    vector<string> rtol_kids {"rtol", "solver"};
+    bool check_rtol = IsChildNodeAvailable(m_simul_nd, rtol_kids);
+    return check_atol && check_rtol;
+}
+
+//! Parses atol to numerical solver if defined
+double ReactorParser::get_atol()
+{
+    auto atol_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                vector<string>{"atol", "solver"});
+    return atol_nd.as<double>();
+}
+
+//! Parses rtol to numerical solver if defined
+double ReactorParser::get_rtol()
+{
+    auto rtol_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                vector<string>{"rtol", "solver"});
+    return rtol_nd.as<double>();
+}
+
+//! Checks if initial step size to solver is defined
+bool ReactorParser::solverInitStepSizeDefined()
+{
+    return IsChildNodeAvailable(m_simul_nd, 
+                                vector<string> {"init_step_size", "solver"});
+}
+
+//! Parses initial step size to numerical solver if defined
+double ReactorParser::getSolverInitStepSize()
+{
+    auto initstep_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                    vector<string>{"init_step_size", "solver"});
+    return initstep_nd.as<double>();
+}
+
+//! Checks if maximum no of steps taken by solver is defined
+bool ReactorParser::solverMaxStepsDefined()
+{
+    return IsChildNodeAvailable(m_simul_nd, 
+                                vector<string> {"max_steps", "solver"});
+}
+
+//! Parses maximum steps taken by numerical solver if defined
+double ReactorParser::getSolverMaxSteps()
+{
+    auto maxsteps_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                    vector<string>{"max_steps", "solver"});
+    return maxsteps_nd.as<double>();
+}
+
+//! Checks if initial step where simulation ouput is printed is defined
+bool ReactorParser::initStepDefined()
+{
+    return IsChildNodeAvailable(m_simul_nd, 
+                                vector<string> {"init_step"});
+}
+
+//! Parses initial step where simulation output is printed if defined
+double ReactorParser::getInitStep()
+{
+    auto initstep_nd = getChildNode(m_simul_nd, "tube.simulation",
+                                    vector<string>{"init_step"});
+    return initstep_nd.as<double>();
+}
+
+
+
+
+// IO Flags at various points
+//! RPA at intermediate times or distances
+bool ReactorParser::RPA()
+{
+    auto kids = vector<string>{"rpa"};
+    if(!IsChildNodeAvailable(m_simul_nd, kids)){
+        return false;
+    }
+    auto rpa_nd = getChildNode(m_simul_nd, "tube.simulation", kids);
+    return rpa_nd.as<bool>();
+}
 
 // Parametric study related
 bool ReactorParser::T_parametric_study_enabled() 

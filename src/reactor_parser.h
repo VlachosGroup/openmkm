@@ -46,7 +46,7 @@ public:
 
     void read_mandatory_nodes();
     
-    // Check for phase and read them
+    // Check for phases and read them
     bool GasPhaseDefined(std::string phase_filename);
 
     std::shared_ptr<Cantera::IdealGasMix> getGasPhase(
@@ -65,6 +65,52 @@ public:
 
     //! Get Reactor Type
     RctrType getReactorType();
+
+    // Get Reactor Dimensions
+
+    //! Get the PFR Length 
+    double getReactorLength();
+
+    //! Get the PFR Cross Section Area
+    double getReactorXCArea();
+
+    bool catalystAreaDefined();
+    double getCatalystAbyV();
+
+    // Inlet parameters
+    //! 
+    bool FlowRateDefined();
+    bool MassFlowRateDefined();
+    bool ResidenceTimeDefined();
+    double getFlowRate();
+    double getMassFlowRate();
+    double getResidenceTime();
+
+    // Reactor Operational Modes
+
+    std::string getMode();
+    std::map<double, double> getTProfile();
+    double getWallHeatTransferCoeff();
+    double getWallSpecificArea();
+    double getExternalTemp();
+
+    // User defined numerical solver options 
+    bool tolerancesDefined();
+    double get_atol();
+    double get_rtol();
+    bool solverInitStepSizeDefined();
+    double getSolverInitStepSize();
+    bool solverMaxStepsDefined();
+    double getSolverMaxSteps();
+
+    // Simulation output flags & parameters
+    bool initStepDefined();
+
+    double getInitStep();
+
+    bool RPA();
+
+
 
     //! Parametric study 
     bool parametric_study_enabled(){

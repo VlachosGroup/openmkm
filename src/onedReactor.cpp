@@ -35,98 +35,44 @@ using namespace Cantera;
 namespace OpenMKM 
 {
 
-   
-void print_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
-                      ofstream& gas_mole_out, ofstream& gas_mass_out,
-                      ofstream& gas_msdot_out, ofstream& surf_cov_out,
-                      ofstream& state_var_out)
-{
- 
-    vector<double> work(rctr->contents().nSpecies());
- 
-    
-    state_var_out << setw(16) << left  << z
-                  << setw(16) << left  << rctr->contents().temperature()
-                  << setw(16) << left  << rctr->contents().pressure()
-                  << setw(16) << left  << rctr->contents().density()
-                  //<< setw(16) << left  << rctr->intEnergy_mass()
-                  << endl;
- 
-    auto gas_var_print = [&work, &z](ostream& out) -> void
-    {
-        out << setw(16) << left << z;
-        for (auto k = 0; k < work.size(); k++) {
-            out << setw(16) << left << work[k];
-        }
-        out << endl;
-    };
- 
-    rctr->contents().getMoleFractions(work.data());
-    gas_var_print(gas_mole_out);
- 
-    rctr->contents().getMassFractions(work.data());
-    gas_var_print(gas_mass_out);
- 
-    rctr->getSurfaceProductionRates(work.data());
-    gas_var_print(gas_msdot_out);
-    
-    
-    surf_cov_out << setw(16) << left << z;
-    for (auto j = 0;  j <  surfaces.size(); j++) {
-        work.resize(surfaces[j]->nSpecies());
-        rctr->surface(j)->getCoverages(work.data());
-        for (auto k = 0; k < work.size(); k++) {
-            surf_cov_out << setw(16) << left << work[k];
-        }
-    }
-    surf_cov_out << endl;
-    
-}
-
-
-void run_1d_reactor(YAML::Node& tube_node,
+//void run_1d_reactor(YAML::Node& tube_node, ReactorParser& rctr_parser,
+void run_1d_reactor(ReactorParser& rctr_parser,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<Interface>> surfaces,
                     ofstream& gen_info)
 {
     //Define the reactor based on the input file
-    auto rctr_node = tube_node["reactor"];
+    //auto rctr_node = tube_node["reactor"];
 
     // Read the reactor dimensions
-    auto area_node = rctr_node["area"];
-    auto len_node = rctr_node["length"];
-    //double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
-    if (!area_node || area_node.IsNull()){
-        ;//TODO: Raise Error
-    }
-    if (!len_node || len_node.IsNull()){
-        ;//TODO: Raise Error
-    }
-    double rctr_xc_area = strSItoDbl(rctr_node["area"].as<string>());
-    double rctr_len = strSItoDbl(rctr_node["length"].as<string>());
+    double rctr_xc_area = rctr_parser.getReactorXCArea();
+    double rctr_len = rctr_parser.getReactorLength();
 
-    auto inlet_node = tube_node["inlet_gas"];
-    auto flowrate_node = inlet_node["flow_rate"];     
-    auto mfr_node = inlet_node["mass_flow_rate"];
-    double velocity{0}, flow_rate{0},  mfr{0};
-    if (flowrate_node && !flowrate_node.IsNull()) {
-        flow_rate = strSItoDbl(inlet_node["flow_rate"].as<string>());
+    bool fr_defined = rctr_parser.FlowRateDefined();
+    bool mfr_defined = rctr_parser.MassFlowRateDefined();
+    bool rt_defined = rctr_parser.ResidenceTimeDefined();
+    int no_var_defined = fr_defined + mfr_defined + rt_defined;
+    if (no_var_defined > 1) {
+        cout << "Define only one of 'flow_rate', 'mass_flow_rate', 'residence_time'"
+             << "Only one of the variables is arbitrarily used" << endl;
+    }
+    double velocity{0};
+    if (fr_defined) {
+        auto flow_rate = rctr_parser.getFlowRate();
         velocity = flow_rate / rctr_xc_area;
-        mfr = gas->density() * flow_rate;
     }
-    else if (mfr_node && !mfr_node.IsNull()) {
-        mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
-        flow_rate = mfr / gas->density();
-        velocity = flow_rate /rctr_xc_area;
+    else if (mfr_defined) {
+        auto mfr = rctr_parser.getMassFlowRate();
+        auto flow_rate = mfr / gas->density();
+        velocity = flow_rate / rctr_xc_area;
+    } else if (rt_defined) {
+        auto rt = rctr_parser.getResidenceTime();
+        velocity = rctr_len / rt;
     }
 
-    auto cat_node = rctr_node["cat_abyv"];
-    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
-         ; // Throw error
-    }
-    double cat_abyv = 0.0;
-    if (cat_node && !cat_node.IsNull()) {
-        cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    double cat_abyv = 0;
+    if(rctr_parser.catalystAreaDefined()) {
+        cat_abyv = rctr_parser.getCatalystAbyV();
     }
 
     vector<InterfaceKinetics*> ikin;
@@ -148,18 +94,17 @@ void run_1d_reactor(YAML::Node& tube_node,
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
 
-    cout << "Reached here" << endl;
-    cout << flush;
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
-    cout << "Reached after PFR initialization" << endl;
-    cout << flush;
-    string mode = rctr_node["mode"].as<string>();
+    
+    //string mode = rctr_node["mode"].as<string>();
+    string mode = rctr_parser.getMode();
     cout << "mode " << mode << endl;
     if (mode == "isothermal") {
         pfr.setEnergy(0);
     }
     else if (mode == "tprofile") {
         pfr.setEnergy(0);
+        /*
         map<double, double> T_profile;
         auto tprofile_nd = rctr_node["TProfile"];
         if (!tprofile_nd || tprofile_nd.IsNull() || !tprofile_nd.IsSequence()){
@@ -170,14 +115,16 @@ void run_1d_reactor(YAML::Node& tube_node,
                                                  it->second.as<double>()));
         }
         pfr.setTProfile(T_profile);
+        */
+        pfr.setTProfile(rctr_parser.getTProfile());
     } 
     else {
         pfr.setEnergy(1);
         if (mode == "heat") {
-            double htc = strSItoDbl(rctr_node["htc"].as<string>());
-            double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
-            double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
-            pfr.setHeatTransfer(htc, ext_temp, wall_abyv);
+            double htc = rctr_parser.getWallHeatTransferCoeff();  // htc 
+            double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
+            double ext_temp = rctr_parser.getExternalTemp();      // Text
+            pfr.setHeatTransfer(htc, ext_temp, wall_abyv);  
         }
         pfr.reinit();
     }
@@ -196,33 +143,24 @@ void run_1d_reactor(YAML::Node& tube_node,
 
     PFR1dSolver pfr_solver {&pfr};
 
-    auto simul_node = tube_node["simulation"];
-    //auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
-    auto solver_node = simul_node["solver"];
-    auto abs_tol = solver_node["atol"].as<double>();
-    auto rel_tol = solver_node["rtol"].as<double>();
-    pfr_solver.setTolerances(rel_tol, abs_tol);
-
-    auto solver_init_step_size_nd = solver_node["init_step_size"];
-    if (solver_init_step_size_nd && !solver_init_step_size_nd.IsNull()) {
-        double solver_init_step_size = solver_init_step_size_nd.as<double>();
-        pfr_solver.setInitialStepSize(solver_init_step_size);
+    //auto simul_node = tube_node["simulation"];
+    if (rctr_parser.tolerancesDefined()){
+        auto abs_tol = rctr_parser.get_atol();
+        auto rel_tol = rctr_parser.get_rtol();
+        pfr_solver.setTolerances(rel_tol, abs_tol);
+    }
+    if (rctr_parser.solverInitStepSizeDefined()){
+        pfr_solver.setInitialStepSize(rctr_parser.getSolverInitStepSize());
+    }
+    if (rctr_parser.solverMaxStepsDefined()){
+        pfr_solver.setMaxNumSteps(rctr_parser.getSolverMaxSteps());
     }
 
-    auto solver_max_steps_nd = solver_node["max_steps"];
-    if (solver_max_steps_nd && !solver_max_steps_nd.IsNull()) {
-        int solver_max_steps = solver_max_steps_nd.as<int>();
-        pfr_solver.setMaxNumSteps(solver_max_steps);
+    double simul_init_step = 1e-6;
+    if (rctr_parser.initStepDefined()){
+        simul_init_step = rctr_parser.getInitStep();
     }
-    //pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
-    //
-    double simul_init_step_size = 1e-6;
-    auto simul_init_step_size_nd = simul_node["init_step"];
-    if (simul_init_step_size_nd && !simul_init_step_size_nd.IsNull()) {
-        simul_init_step_size = simul_init_step_size_nd.as<double>();
-    }
-    //vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
-    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step_size); //Use the same function to get z steps
+    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
 
     ofstream gas_mole_out("gas_mole_ss.out");
     ofstream gas_mass_out("gas_mass_ss.out");
@@ -238,16 +176,12 @@ void run_1d_reactor(YAML::Node& tube_node,
     state_var_out.precision(6);
     rates_out.precision(6);
 
-    auto rpa_flag = false;
-    auto rpa_node = simul_node["rpa"];
-    if (rpa_node && !rpa_node.IsNull()){
-        rpa_flag = rpa_node.as<bool>();
-    }
+    auto rpa_flag = rctr_parser.RPA();
 
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
-        print_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
-                         gas_msdot_out, surf_cov_out, state_var_out);
+        print_pfr_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
+                             gas_msdot_out, surf_cov_out, state_var_out);
         if (rpa_flag) {
             string rpa_file_name = "rates_z-";
             rpa_file_name += to_string(z);
@@ -282,53 +216,46 @@ void run_1d_reactor(YAML::Node& tube_node,
         rxn_index += surf->nReactions();
     }
 
-    //vector<double> gas_X(gas->nSpecies());
 
 }
 
-void run_1d_reactor(YAML::Node& tube_node,
+void run_1d_reactor(ReactorParser& rctr_parser,
                     shared_ptr<IdealGasMix> gas, 
                     vector<shared_ptr<InterfaceInteractions>> surfaces,
                     ofstream& gen_info)
 {
     //Define the reactor based on the input file
-    auto rctr_node = tube_node["reactor"];
+    //auto rctr_node = tube_node["reactor"];
 
     // Read the reactor dimensions
-    auto area_node = rctr_node["area"];
-    auto len_node = rctr_node["length"];
-    //double rctr_vol = strSItoDbl(rctr_node["volume"].as<string>());
-    if (!area_node || area_node.IsNull()){
-        ;//TODO: Raise Error
-    }
-    if (!len_node || len_node.IsNull()){
-        ;//TODO: Raise Error
-    }
-    double rctr_xc_area = strSItoDbl(rctr_node["area"].as<string>());
-    double rctr_len = strSItoDbl(rctr_node["length"].as<string>());
+    double rctr_xc_area = rctr_parser.getReactorXCArea();
+    double rctr_len = rctr_parser.getReactorLength();
 
-    auto inlet_node = tube_node["inlet_gas"];
-    auto flowrate_node = inlet_node["flow_rate"];     
-    auto mfr_node = inlet_node["mass_flow_rate"];
-    double velocity{0}, flow_rate{0},  mfr{0};
-    if (flowrate_node && !flowrate_node.IsNull()) {
-        flow_rate = strSItoDbl(inlet_node["flow_rate"].as<string>());
+    bool fr_defined = rctr_parser.FlowRateDefined();
+    bool mfr_defined = rctr_parser.MassFlowRateDefined();
+    bool rt_defined = rctr_parser.ResidenceTimeDefined();
+    int no_var_defined = fr_defined + mfr_defined + rt_defined;
+    if (no_var_defined > 1) {
+        cout << "Define only one of 'flow_rate', 'mass_flow_rate', 'residence_time'"
+             << "Only one of the variables is arbitrarily used" << endl;
+    }
+    double velocity{0};
+    if (fr_defined) {
+        auto flow_rate = rctr_parser.getFlowRate();
         velocity = flow_rate / rctr_xc_area;
-        mfr = gas->density() * flow_rate;
     }
-    else if (mfr_node && !mfr_node.IsNull()) {
-        mfr = strSItoDbl(inlet_node["mass_flow_rate"].as<string>());
-        flow_rate = mfr / gas->density();
-        velocity = flow_rate /rctr_xc_area;
+    else if (mfr_defined) {
+        auto mfr = rctr_parser.getMassFlowRate();
+        auto flow_rate = mfr / gas->density();
+        velocity = flow_rate / rctr_xc_area;
+    } else if (rt_defined) {
+        auto rt = rctr_parser.getResidenceTime();
+        velocity = rctr_len / rt;
     }
 
-    auto cat_node = rctr_node["cat_abyv"];
-    if (surfaces.size() > 0 && (!cat_node || cat_node.IsNull())){
-         ; // Throw error
-    }
-    double cat_abyv = 0.0;
-    if (cat_node && !cat_node.IsNull()) {
-        cat_abyv = strSItoDbl(rctr_node["cat_abyv"].as<string>());
+    double cat_abyv = 0;
+    if(rctr_parser.catalystAreaDefined()) {
+        cat_abyv = rctr_parser.getCatalystAbyV();
     }
 
     vector<InterfaceKinetics*> ikin;
@@ -339,29 +266,28 @@ void run_1d_reactor(YAML::Node& tube_node,
     }
 
     // Start the simulation
-    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
 
-        gen_info << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
         for (auto i = 0; i < surf->nSpecies(); i++)
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
 
-    cout << "Reached here" << endl;
-    cout << flush;
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
-    cout << "Reached after PFR initialization" << endl;
-    cout << flush;
-    string mode = rctr_node["mode"].as<string>();
+    
+    //string mode = rctr_node["mode"].as<string>();
+    string mode = rctr_parser.getMode();
     cout << "mode " << mode << endl;
     if (mode == "isothermal") {
         pfr.setEnergy(0);
     }
     else if (mode == "tprofile") {
         pfr.setEnergy(0);
+        /*
         map<double, double> T_profile;
         auto tprofile_nd = rctr_node["TProfile"];
         if (!tprofile_nd || tprofile_nd.IsNull() || !tprofile_nd.IsSequence()){
@@ -372,14 +298,16 @@ void run_1d_reactor(YAML::Node& tube_node,
                                                  it->second.as<double>()));
         }
         pfr.setTProfile(T_profile);
+        */
+        pfr.setTProfile(rctr_parser.getTProfile());
     } 
     else {
         pfr.setEnergy(1);
         if (mode == "heat") {
-            double htc = strSItoDbl(rctr_node["htc"].as<string>());
-            double wall_abyv = strSItoDbl(rctr_node["wall_abyv"].as<string>());
-            double ext_temp = strSItoDbl(rctr_node["Text"].as<string>());
-            pfr.setHeatTransfer(htc, ext_temp, wall_abyv);
+            double htc = rctr_parser.getWallHeatTransferCoeff();  // htc 
+            double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
+            double ext_temp = rctr_parser.getExternalTemp();      // Text
+            pfr.setHeatTransfer(htc, ext_temp, wall_abyv);  
         }
         pfr.reinit();
     }
@@ -398,57 +326,79 @@ void run_1d_reactor(YAML::Node& tube_node,
 
     PFR1dSolver pfr_solver {&pfr};
 
-    auto simul_node = tube_node["simulation"];
-    //auto end_time = strSItoDbl(simul_node["end_time"].as<string>());
-    auto solver_node = simul_node["solver"];
-    auto abs_tol = solver_node["atol"].as<double>();
-    auto rel_tol = solver_node["rtol"].as<double>();
-    pfr_solver.setTolerances(rel_tol, abs_tol);
-
-    auto solver_init_step_size_nd = solver_node["init_step_size"];
-    if (solver_init_step_size_nd && !solver_init_step_size_nd.IsNull()) {
-        double solver_init_step_size = solver_init_step_size_nd.as<double>();
-        pfr_solver.setInitialStepSize(solver_init_step_size);
+    //auto simul_node = tube_node["simulation"];
+    if (rctr_parser.tolerancesDefined()){
+        auto abs_tol = rctr_parser.get_atol();
+        auto rel_tol = rctr_parser.get_rtol();
+        pfr_solver.setTolerances(rel_tol, abs_tol);
+    }
+    if (rctr_parser.solverInitStepSizeDefined()){
+        pfr_solver.setInitialStepSize(rctr_parser.getSolverInitStepSize());
+    }
+    if (rctr_parser.solverMaxStepsDefined()){
+        pfr_solver.setMaxNumSteps(rctr_parser.getSolverMaxSteps());
     }
 
-    auto solver_max_steps_nd = solver_node["max_steps"];
-    if (solver_max_steps_nd && !solver_max_steps_nd.IsNull()) {
-        int solver_max_steps = solver_max_steps_nd.as<int>();
-        pfr_solver.setMaxNumSteps(solver_max_steps);
+    double simul_init_step = 1e-6;
+    if (rctr_parser.initStepDefined()){
+        simul_init_step = rctr_parser.getInitStep();
     }
-    //pfr_solver.setMaxNumSteps(5000);  //TODO: Make this optional input option
-    //
-    double simul_init_step_size = 1e-6;
-    auto simul_init_step_size_nd = simul_node["init_step"];
-    if (simul_init_step_size_nd && !simul_init_step_size_nd.IsNull()) {
-        simul_init_step_size = simul_init_step_size_nd.as<double>();
-    }
-    //vector<double> zvals = get_log10_intervals(rctr_len, 1e-7); //Use the same function to get z steps
-    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step_size); //Use the same function to get z steps
+    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
 
     ofstream gas_mole_out("gas_mole_ss.out");
     ofstream gas_mass_out("gas_mass_ss.out");
     ofstream gas_msdot_out("gas_msdot_ss.out");
     ofstream surf_cov_out("surf_cov_ss.out");
     ofstream state_var_out("rctr_state_ss.out");
+    ofstream rates_out("rates_ss.out", ios::out);
 
     gas_mole_out.precision(6);
     gas_mass_out.precision(6);
     gas_msdot_out.precision(6);
     surf_cov_out.precision(6);
     state_var_out.precision(6);
+    rates_out.precision(6);
+
+    auto rpa_flag = rctr_parser.RPA();
 
     for (const auto& z : zvals) {
         pfr_solver.solve(z);
-        print_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
-                         gas_msdot_out, surf_cov_out, state_var_out);
+        print_pfr_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
+                             gas_msdot_out, surf_cov_out, state_var_out);
+        if (rpa_flag) {
+            string rpa_file_name = "rates_z-";
+            rpa_file_name += to_string(z);
+            rpa_file_name += ".out";
+            ofstream rates_out (rpa_file_name, ios::out); // Masks the name
+            print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                                rates_out);
+            rates_out.precision(6);
+
+            auto rxn_index = 0;
+            print_rxn_rates(gas.get(), rxn_index, rates_out);
+            rxn_index += gas->nReactions();
+            for (auto surf : surfaces) {
+                print_rxn_rates(surf.get(), rxn_index, rates_out);
+                rxn_index += surf->nReactions();
+            }
+        }
     }
+
     
     pfr_solver.writeStateData("1d_pfr_state.out");
     pfr_solver.writeGasData("1d_pfr_gas.out");
     pfr_solver.writeSurfaceData("1d_pfr_surface.out");
 
-    //vector<double> gas_X(gas->nSpecies());
+    // Print final rpa data
+    rates_out.precision(6);
+    auto rxn_index = 0;
+    print_rxn_rates(gas.get(), rxn_index, rates_out);
+    rxn_index += gas->nReactions();
+    for (auto surf : surfaces) {
+        print_rxn_rates(surf.get(), rxn_index, rates_out);
+        rxn_index += surf->nReactions();
+    }
+
 
 }
 
