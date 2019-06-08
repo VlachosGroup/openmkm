@@ -10,7 +10,7 @@ OpenMKM uses two input files supplied as two arguments to the OpenMKM executable
 1. The first argument *rctr.yaml* is the name of yaml file specifying the reactor model parameters, 
 operating conditions, and the names of thermodynamic phases (which are defined in the Cantera XML file 
 supplied as second argument) and the starting composition and coverages of gas and surface phases 
-respectively. For more details on the yaml file format and the input options refer to the Input section. 
+respectively. For more details on the yaml file format, refer to the YAML subsection below.
 
 2. The second argument *input.xml* is Cantera input file in XML format which provides the 
 definitions of species, reactions, interactions, and gas, solid and  catalyst surface phases. 
