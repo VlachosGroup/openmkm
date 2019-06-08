@@ -82,8 +82,11 @@ supplied *\<OpenMKM\_ROOT\>/scripts/ctml_writer.py* script. Note that this scrip
 CTI and XML file formats are explained on Cantera website. Please read the [Cantera documentation](https://cantera.org/tutorials/input-files.html)  on the CTI and XML input file formats before reading further.
 
 ### Coverage dependent **lateral interactions** between surface species
+
 One main addition to the CTI and XML formats done by us is to add 
-specification for coverage dependent lateral interactions. To specifiy that a surface
+specification for coverage dependent lateral interactions. 
+Coverage effects need to be incorporated into the xml file supplied to OpenMKM. Since it is easy to work with CTI files, users have the option of specifying coverage effects in CTI file and then convert the CTI file into XML file with the python script *ctml_writer.py*.
+To specifiy that a surface
 has species with coverage dependent lateral interactions, in the CTI file, change the *interface* keyword to *interacting\_interface* and add *interactions="all"* in the arguments to *interacting\_interface*. 
 
 Following is an example surface phase definition required by OpenMKM 
@@ -113,7 +116,7 @@ interface(name='TERRACE',
 
 ```
 
-Please note that *interacting\_interface* is superset of *interacting\_interface*. It means it is safe to use *interacting\_interface* for all surface phase whether lateral interactions are present or not. **At present, OpenMKM works only with surface phases defined with *interacting\_interface* keyword. **
+Please note that *interacting\_interface* is superset of *interacting\_interface*. It means it is safe to use *interacting\_interface* for all surface phase whether lateral interactions are present or not. *At present, OpenMKM works only with surface phases defined with interacting\_interface keyword.*
 For phases without any lateral interactions use the following surface phase definition:
 
 ```python
@@ -127,23 +130,39 @@ interacting_interface(name='TERRACE',
 
 ```
 
-Now to specify the lateral interaction, use the following code in the CTI file
+Now to specify the lateral interaction, use the *lateral\_interactions* keyword 
+in the CTI file, which requires three keyword, *species*, -- species which have lateral interactions, *interaction\_matrix*, -- a matrix denoting the lateral interaction strengths, and *coverage\_thresholds*, -- coverage thresholds above which lateral interactions modifyAGibbs free energies of reactions.  
 
-*CANTERA_ROOT/interfaces/cython/cantera/ck2cti.py*, which parses gas.inp, surf.inp and thermdat files
-to generate the Cantera input file in CTI format. The CTI file needs to converted again into XML file
-using 
-For more information on the Cantera input file formats, refer to 
-[Cantera documentation on input file format](https://cantera.org/tutorials/input-files.html).
+```python
+lateral_interactions(
+    species = 'N(S1) H(S1) NH3(S1) NH2(S1) NH(S1)',
+    interaction_matrix = [[-47.0179, -17.7545, -25.1631, -20.7620, -48.7823],
+                          [-17.7545,  -6.7043,  -9.5019,  -7.8400, -18.4208],
+                          [-25.1631,  -9.5019, -13.4668, -11.1115, -26.1074],
+                          [-20.762,   -7.8400, -11.1115,  -9.1681, -21.5412],
+                          [-48.7823, -18.4208, -26.1074, -21.5412, -50.6129]],
+    coverage_thresholds = [0, 0, 0, 0, 0])
+```
 
-3. The chemkin input files are not sometimes parsed by ck2cti.py script. Refer to 
-[step by step guide](ck_conversion.md) on how to overcome those issues. 
+### Chemkin Users 
+Use
+*\<CANTERA\_ROOT\>/interfaces/cython/cantera/ck2cti.py*, which parses gas.inp, surf.inp and thermdat files
+to convert Chemkin files into the Cantera CTI input format. 
+For more information, refer to 
+[Cantera documentation](https://cantera.org/tutorials/input-files.html)  on input file format.
 
-4. Coverage effects need to be incorporated into the xml file. Since it is easy to work with CTI files, users have the option of specifying coverage effects in CTI file and then convert the CTI file into XML file with the python script *ctml_writer.py*.
+The chemkin input files are not sometimes parsed by ck2cti.py script. The troublesome file is often the surf.inp file due to bulk phase defintion. Remove the bulk phase defintion in surf.inp and retry. If it works, add the missing bulk phase definition directly in CTI file using the 
+*stoichiometric\_solid* keyword. Example definition is given below.
+
+```python
+stoichiometric_solid(name='bulk',
+                     elements="Ru",
+                     species="RU(B)",
+                     density=12.4,
+                     initial_state=state(temperature=300.0, pressure=OneAtm))
+```
 
 
 
-2. For syntax of the yaml file, refer to the [rctr_tmplt.yaml](rctr_tmplt.yaml) file, 
-which provides extensive comments on the keywords required by hetero_ct in the supplied yaml file.
-Multiple yaml files for various reactor models and operating modes are in located in *OpeMKM_Root/test_files* folder. 
 
 
