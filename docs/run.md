@@ -2,7 +2,7 @@
 layout: default
 ---
 
-## Running OpenMKM
+# Running OpenMKM
 When OpenMKM is installed and compiled by following the [instructions](install), *omkm* executable
 is generated. Copy the *omkm* executable file to the simulation folder.
 *omkm* executable requires two input files, which are specified as arguments in the command line. 
