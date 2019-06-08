@@ -73,10 +73,65 @@ contains full explanation of all the possible keywords given as comments next to
 each of the keywords.
 
 
-3. Some sample working simulations are
+## Cantera XML Input File.
+The second argument to OpenMKM is the name of Cantera XML file specifiying the definitions of thermodynamics of species, kinetics of reactions, and phases, which can be thought as collection of species and reactions.
+
+Cantera defines two format types  for its input called CTI and XML. Data defined in CTI format can be converted into XML format. The users are expected to work with CTI format, which is essentially a python code, and convert the CTI file into XML format using the 
+supplied *\<OpenMKM\_ROOT\>/scripts/ctml_writer.py* script. Note that this script differs from the *ctml\_writer.py* supplied with Cantera. 
+
+CTI and XML file formats are explained on Cantera website. Please read the [Cantera documentation](https://cantera.org/tutorials/input-files.html)  on the CTI and XML input file formats before reading further.
+
+### Coverage dependent **lateral interactions** between surface species
+One main addition to the CTI and XML formats done by us is to add 
+specification for coverage dependent lateral interactions. To specifiy that a surface
+has species with coverage dependent lateral interactions, in the CTI file, change the *interface* keyword to *interacting\_interface* and add *interactions="all"* in the arguments to *interacting\_interface*. 
+
+Following is an example surface phase definition required by OpenMKM 
+
+```python
+interacting_interface(name='TERRACE',
+                elements="H N Ru He",
+                species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
+                site_density=2.1671e-09,
+                phases="gas BULK",
+                reactions='all',
+                interactions='all',
+                initial_state=state(temperature=300.0, pressure=OneAtm))
+
+```
+
+The following is the original CTI defintion for the same phase without lateral interactions.
+
+```python
+interface(name='TERRACE',
+          elements="H N Ru He",
+          species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
+          site_density=2.1671e-09,
+          phases="gas BULK",
+          reactions='all',
+          initial_state=state(temperature=300.0, pressure=OneAtm))
+
+```
+
+Please note that *interacting\_interface* is superset of *interacting\_interface*. It means it is safe to use *interacting\_interface* for all surface phase whether lateral interactions are present or not. **At present, OpenMKM works only with surface phases defined with *interacting\_interface* keyword. **
+For phases without any lateral interactions use the following surface phase definition:
+
+```python
+interacting_interface(name='TERRACE',
+                      elements="H N Ru He",
+                      species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
+                      site_density=2.1671e-09,
+                      phases="gas BULK",
+                      reactions='all',
+                      initial_state=state(temperature=300.0, pressure=OneAtm))
+
+```
+
+Now to specify the lateral interaction, use the following code in the CTI file
+
 *CANTERA_ROOT/interfaces/cython/cantera/ck2cti.py*, which parses gas.inp, surf.inp and thermdat files
 to generate the Cantera input file in CTI format. The CTI file needs to converted again into XML file
-using *CANTERA_ROOT/interfaces/cython/cantera/ctml_writer.py*.
+using 
 For more information on the Cantera input file formats, refer to 
 [Cantera documentation on input file format](https://cantera.org/tutorials/input-files.html).
 
