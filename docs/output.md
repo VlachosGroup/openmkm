@@ -31,7 +31,7 @@ species in gas phase, followed by species in bulk phase and surface phases.
 species at the input temperature. These are calculated from the NASA
 polynomials specified in the input. 
 
-3. **Sform.out**: Lists the dimensionless formation entropies (S/R) of the
+3. **Sform.out**: Lists the dimensionless standard entropies (S/R) of the
 species. These are calculated from the NASA polynomials specified in the input. 
 
 ## Reaction data
