@@ -43,7 +43,7 @@ In the above snippet, the YAML data contains two level-1 keys (also called
 YAML nodes), *key1, key2*. *key1* has a single data value, *value1* assigned
 to it. On the other hand *key2* consists of nested compound data (which is
 again a dictionary) as value. The keys of nested dictionary can be thought of
-as level-2 keys. Intersting would be the value for *nested\_key2*, which is a
+as level-2 keys. Interesting would be the value for *nested\_key2*, which is a
 sequence (also called array) of two values, *array\_value1* and *array\_value2*. 
 
 YAML is a free format. So *key1 : value1* line could have been given below the
@@ -76,7 +76,7 @@ the phase definitions, this node is also used to specify the initial
 composition of the phases.
 
 4. **inlet_gas**: This node is required only for CSTR and PFR models. These
-models require a continous input of feed with a flow rate and composition,
+models require a continuous input of feed with a flow rate and composition,
 which can be defined by this node.
 
 Predefined templates are available for batch, CSTR, PFR, TPD and temperature 
@@ -89,7 +89,7 @@ keywords.
 
 
 ## Cantera XML Input File.
-The second argument to OpenMKM is the name of Cantera XML file specifiying the
+The second argument to OpenMKM is the name of Cantera XML file specifying the
 definitions of thermodynamics of species, kinetics of reactions, and phases,
 which can be thought as collection of species and reactions.
 
@@ -111,7 +111,7 @@ for coverage dependent lateral interactions. Coverage effects need to be
 incorporated into the xml file supplied to OpenMKM. Since it is easy to work
 with CTI files, users have the option of specifying coverage effects in CTI
 file and then convert the CTI file into XML file with the Python script
-[*ctml_writer.py*][ctml_writer]. To specifiy that a surface has species with
+[*ctml_writer.py*][ctml_writer]. To specify that a surface has species with
 coverage dependent lateral interactions, in the CTI file, change the
 *interface* keyword to *interacting\_interface* and add *interactions="all"*
 in the arguments to *interacting\_interface*. 
@@ -130,7 +130,7 @@ interacting_interface(name='TERRACE',
 
 ```
 
-The following is the original CTI defintion for the same phase without lateral
+The following is the original CTI definition for the same phase without lateral
 interactions.
 
 ```python
@@ -168,7 +168,7 @@ in the CTI file, which requires three keywords:
 - *interaction\_matrix*, -- a matrix denoting the lateral interaction
   strengths, and
 - *coverage\_thresholds*, -- coverage thresholds above which lateral
-  interactions modify Gibbs free energies of reactions.  
+  interactions modify Gibbs free energies of reactions.
 
 ```python
 lateral_interactions(
@@ -189,8 +189,8 @@ format. For more information, refer to [Cantera documentation][cantera_docs]
 on input file format.
 
 The Chemkin input files are not sometimes parsed by ck2cti.py script.
-The troublesome file is often the surf.inp file due to bulk phase defintion.
-Remove the bulk phase defintion in surf.inp and retry. If it works,
+The troublesome file is often the surf.inp file due to bulk phase definition.
+Remove the bulk phase definition in surf.inp and retry. If it works,
 add the missing bulk phase definition directly in CTI file using the 
 *stoichiometric\_solid* keyword. Example definition is given below.
 

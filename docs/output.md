@@ -15,7 +15,7 @@ constants, equilibrium constants, reaction enthalpies, etc.
 The data is printed into different output files to aid the user in sorting the
 generated data. The output files have *.out* extension. In these files, the
 data points corresponding to a single variable is presented in a single column
-and the columns are specarated by white space. Output files containing the
+and the columns are separated by white space. Output files containing the
 steady state data end with *_ss.out*. Similarly, output files containing the
 transient state data end with *_tr.out*. Elementary data such as species
 formation enthalpies and reaction rate constants do not contain *_ss* or *_tr*
@@ -40,15 +40,15 @@ species. These are calculated from the NASA polynomials specified in the input.
 
 2. **Hrxn.out**: Lists the dimensionless enthalpies (H/RT) of the reactions at
    the input temperature. These are calculated from the formation enthalpies and
-   the stoichometry coefficients of the species participating in the reactions. 
+   the stoichiometry coefficients of the species participating in the reactions. 
 
 3. **Srxn.out**: Lists the dimensionless entropies (S/R) of the reactions at
    the input temperature. These are calculated from the standard entropies and
-   the stoichometry coefficients of the species participating in the reactions. 
+   the stoichiometry coefficients of the species participating in the reactions. 
 
 4. **Grxn.out**: Lists the dimensionless Gibbs free energies (G/RT) of the
    reactions at the input temperature. These are calculated from the formation
-   enthalpies, entropies, and the stoichometry coefficients of the species
+   enthalpies, entropies, and the stoichiometry coefficients of the species
    participating in the reactions. 
 
 5. **kc.out**: Lists the equilibrium constants, $K$, of the reactions at the
@@ -68,13 +68,13 @@ species. These are calculated from the NASA polynomials specified in the input.
 These file specified below have either *_ss.out* or *_tr.out* extensions. For
 clarity, the extensions are omitted.
 
-1. **gas\_mole**:  Mole fractions of gas species.
+1. **gas\_mole**: Mole fractions of gas species.
 
-2. **gas\_mass**:  Mass fractions of gas species.
+2. **gas\_mass**: Mass fractions of gas species.
 
 3. **gas_msdot**: Production rates of the gas species on the catalyst surface
 
-4. **rctr\_state**:  Temperature (in K), pressure (in Pascals), density
+4. **rctr\_state**: Temperature (in K), pressure (in Pascals), density
    (in $$kg/m^3$$) and either specific internal energy or specific enthalpy
    depending on the type of reactor.
 

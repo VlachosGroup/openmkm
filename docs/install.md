@@ -9,11 +9,11 @@ steps that can be used to install dependencies and OpenMKM.
 
 ## Boost & Eigen
 Boost and Eigen are C++ template libraries and often are distributed with Linux.
-Refer to distro package manageer documentation on how to obtain them.
+Refer to distro package manager documentation on how to obtain them.
 
 ## SUNDIALS installation
 [SUNDIALS][sundials_page] is a numerical solver suite from Lawrence Livermore
-National Lab. OpenMKM is tested with SUNDIALS 3.1.1. For linux, SUNDIALS is
+National Lab. OpenMKM is tested with SUNDIALS 3.1.1. For Linux, SUNDIALS is
 often available from distro package managers. If the required version is not
 supplied with distro, one can [download SUNDIALS][sundials_download] and follow
 the supplied instructions to install. 
@@ -32,7 +32,7 @@ checkout openmkm
 ```
 Both Cantera and OpenMKM use *scons*, a Python based build tool that is
 functionally similar to *cmake*, for build purposes. The following command
-could be used to compile Cantera on linux machine.
+could be used to compile Cantera on Linux machines.
 ``` bash
 scons build python_package=full f90_interface=y doxygen_docs=yes \
 system_eigen=y system_sundials=y sundials_libdir=/usr/lib64 \

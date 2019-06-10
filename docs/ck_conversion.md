@@ -4,10 +4,10 @@ excellent guide on converting chemkin files to CTI and ultimately to XML format.
 However the script used for conversion can fail some times. Here are some steps
 you can take to overcome those issues.
 
-1. Try to use  *<OpenMKM_Root>/scripts/ck2htrct.py* in place of ck2cti.
-2. Read the error messages and remove the failing parts  and rerun.
+1. Try to use *<OpenMKM_Root>/scripts/ck2htrct.py* in place of ck2cti.
+2. Read the error messages and remove the failing parts and rerun.
    Add the missing parts manually. 
-3. Lateral interactions can be input eiter in CTI/XML file. Use CTI to specify
+3. Lateral interactions can be input either in CTI/XML file. Use CTI to specify
    the lateral interactions and use the supplied script
    [*<OpenMKM_Root>/scripts/ctmlwriter.py*][ctml_writer] to get the XML file.
 

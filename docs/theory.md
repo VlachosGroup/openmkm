@@ -4,7 +4,7 @@ layout: default
 # Background Theory
 Microkinetic modeling connects the elementary reaction kinetics to thermodynamic 
 quantities measurable at reactor scale such as temperature, pressure, species
-mass, etc. Here, theoretical underpinnings of microkinetic modeling such as the  
+mass, etc. Here, theoretical underpinnings of microkinetic modeling such as the
 governing equations of the reactor models are presented.
 
 ## Reactor Models and Governing Equations
@@ -20,7 +20,7 @@ presented below.
 A batch reactor can be thought of fixed sized tank which is filled with the
 reactants and left to evolve under well mixed conditions. The reacting fluid
 composition, temperature, and pressure change as a function of time, but at any
-point of time, due to the well mixed condition, are uniform through out the
+point of time, due to the well mixed condition, are uniform throughout the
 reactor.
 
 #### Mass Balance
@@ -56,7 +56,7 @@ supplied, and $$W$$ is the work done on the reactor. $$W$$ is 0 if the reactor
 volume is fixed, otherwise it is $$PdV$$.
 
 The heat flux, $$\frac{dQ}{dt}$$, supplied to the reactor through an outer wall 
-with an area, $$A_{wall}$$, and heat transfer cofficient, $$\hat{h}$$, from an
+with an area, $$A_{wall}$$, and heat transfer coefficient, $$\hat{h}$$, from an
 external heat source at temperature, $$T_{ext}$$, is given as 
 
 $$\frac{dQ}{dt} = \hat{h}A_{wall}(T_{ext} - T), $$
@@ -72,8 +72,8 @@ various definitions into the energy balance equation results in
 $$\rho c_v \frac{dT}{dt} = -\sum_k{e_k W_k (\dot{\omega_k} + \dot{s_k} \frac{A_{cat}}{V})} +  \hat{h}\frac{A_{wall}}{V}(T_{ext} - T).$$ 
 
 ### CSTR
-A CSTR can be thought of batch reactor with inlet and outlet that continously
-pump in and out the reactaning fluid. The reacting fluid is pumped in at a
+A CSTR can be thought of batch reactor with inlet and outlet that continuously
+pump in and out the reacting fluid. The reacting fluid is pumped in at a
 volumetric flow rate of $$r$$ and the reacting fluid is well mixed. This 
 results in the reacting fluid spending an average time, $$\tau$$ (called 
 residence time), inside the reactor, after which it get expelled from the 
@@ -82,7 +82,7 @@ terms of mass flow rate, $$\dot{m}_0$$, which is given as
 $$\dot{m}_0 = \rho_0 r$$. Similarly, flow rate, $$r$$ and residence time, 
 $$\tau$$ are related as $$\tau = V/r$$. At the beginning, the reacting fluid
 contains only reactants, but as time progresses, it contains both reactants,
-products, and reaction intermediates.  The reactor is typically operated at
+products, and reaction intermediates. The reactor is typically operated at
 steady state conditions, where the composition of the reacting fluid inside the 
 CSTR, which is typically different from the composition of the initial feed,
 does not change.
@@ -127,7 +127,7 @@ $$\frac{d(\rho u)}{d z} = \frac{A_{cat}}{V}\sum_k{\dot{s_k}W_k}.$$
 
 At steady state, the amount of mass adsorbed onto a catalyst surface has to be
 equal to the amount of desorbed from the catalyst surface. This results in a
-further simplication of 
+further simplification of 
 
 $$\frac{d(\rho u)}{d z} = 0.$$
 
