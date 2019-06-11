@@ -123,6 +123,5 @@ void print_0d_rctr_state(double z, Cantera::Reactor* rctr,
                           std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
                           std::ofstream& state_var_out);
 
-
 }
 #endif

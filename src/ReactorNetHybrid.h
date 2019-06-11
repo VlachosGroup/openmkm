@@ -34,6 +34,10 @@ public:
         m_final_time = tend;
     }
 
+    void setTolerances(double rtol, double atol);
+
+    //void reinitialize();
+
 protected:
     
     //! Initialize the reactor network. Called automatically the first time

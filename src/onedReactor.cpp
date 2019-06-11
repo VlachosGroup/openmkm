@@ -41,7 +41,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                     ofstream& gen_info)
 {
     //Define the reactor based on the input file
-    //auto rctr_node = tube_node["reactor"];
 
     // Read the reactor dimensions
     double rctr_xc_area = rctr_parser.getXCArea();
@@ -82,13 +81,14 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
 
     // Start the simulation
-    cout << "Solving for equilibirum surface coverages at PFR inlet" << endl;
+    gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
 
-        cout << "Equilibrium surface coverages on Surface: " <<  surf->name() << endl;
+        gen_info << "Equilibrium surface coverages on Surface: " 
+                 <<  surf->name() << endl;
         for (auto i = 0; i < surf->nSpecies(); i++)
             gen_info << surf->speciesSPName(i) << " coverage: " << cov[i] << endl;
     }
@@ -103,18 +103,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
     else if (mode == "tprofile") {
         pfr.setEnergy(0);
-        /*
-        map<double, double> T_profile;
-        auto tprofile_nd = rctr_node["TProfile"];
-        if (!tprofile_nd || tprofile_nd.IsNull() || !tprofile_nd.IsSequence()){
-            ;//TODO: Raise Error
-        }
-        for(YAML::const_iterator it = tprofile_nd.begin(); it != tprofile_nd.end(); ++it) {
-            T_profile.insert(pair<double, double>(it->first.as<double>(),
-                                                 it->second.as<double>()));
-        }
-        pfr.setTProfile(T_profile);
-        */
         pfr.setTProfile(rctr_parser.getTProfile());
     } 
     else {

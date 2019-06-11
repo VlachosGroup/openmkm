@@ -308,7 +308,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         gas_print_specie_header("t(s)", gas_tr_msdot_out);
 
         surf_tr_out 
-            << "Transient Surace Coverages"  << endl 
+            << "Transient Surface Coverages"  << endl 
             << setw(16) << left << "t(s)";
         for (const auto surf : surfaces) {
             for (const auto & sp_name : surf->speciesNames()) {
@@ -347,9 +347,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 rnet.advance(tm);
                 if (transient_log) {
                     print_0d_rctr_state(tm, rctr.get(), surf_phases, 
-                                     gas_tr_mole_out, gas_tr_mass_out, 
-                                     gas_tr_msdot_out, surf_tr_out, 
-                                     state_var_tr_out);
+                                        gas_tr_mole_out, gas_tr_mass_out, 
+                                        gas_tr_msdot_out, surf_tr_out, 
+                                        state_var_tr_out);
 
                 }
             }
