@@ -346,7 +346,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
             for (const auto & tm : times) {
                 rnet.advance(tm);
                 if (transient_log) {
-                    print_rctr_state(tm, rctr.get(), surf_phases, 
+                    print_0d_rctr_state(tm, rctr.get(), surf_phases, 
                                      gas_tr_mole_out, gas_tr_mass_out, 
                                      gas_tr_msdot_out, surf_tr_out, 
                                      state_var_tr_out);

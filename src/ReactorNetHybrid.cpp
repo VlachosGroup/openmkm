@@ -28,6 +28,7 @@ void ReactorNetHybrid::initialize()
     m_steady_state = false;
 }
 
+/*
 void ReactorNetHybrid::reinitialize()
 {
     if (m_init) {
@@ -40,6 +41,7 @@ void ReactorNetHybrid::reinitialize()
         initialize();
     }
 }
+*/
 
 void ReactorNetHybrid::nonlinSolverInitialize()
 {
@@ -53,6 +55,7 @@ void ReactorNetHybrid::nonlinSolverInitialize()
     m_steady_state = false;
 }
 
+/*
 void ReactorNetHybrid::setTolerances(double rtol, double atol)
 {
     ReactorNet::setTolerances(rtol, atol);
@@ -60,6 +63,7 @@ void ReactorNetHybrid::setTolerances(double rtol, double atol)
         m_ftol = atol;
     }
 }
+*/
 
 
 void ReactorNetHybrid::solve()
