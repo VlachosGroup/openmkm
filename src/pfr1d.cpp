@@ -297,9 +297,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double u = y[0];       // Flow rate
     const double r = y[1];       // Density
     const double p = y[2];       // Pressure
-    const double temp = energyEnabled() ? y[3] : getT(t);                    // Temperature
-    //double temp = energyEnabled() ? y[3] : m_T0;                    // Temperature
-    //double temp = m_T0;                    // Temperature
+    const double temp = energyEnabled() ? y[3] : getT(t);   // Temperature
     double RT = GasConstant * temp;
 
     const double dudz = ydot[0];
@@ -308,7 +306,6 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     double dtempdz = energyEnabled() ? ydot[3] : 0;
 
     m_gas->setMassFractions_NoNorm(y + m_neqs_extra);
-    //cout << "temp, "  << temp <<  " p: " << p << endl;
     m_gas->setState_TP(temp, p);
 
     auto loc = m_neqs_extra + m_nsp;
@@ -395,9 +392,10 @@ void PFR1d::setTProfile(map<double, double> T_profile)
 
     m_T_profile.resize(T_profile.size());
     m_T_profile_ind.resize(T_profile.size());
+    auto i = 0;
     for (const auto& dist_Tprof : T_profile) {
-        m_T_profile_ind.push_back(dist_Tprof.first);
-        m_T_profile.push_back(dist_Tprof.second);
+        m_T_profile_ind[i] = dist_Tprof.first;
+        m_T_profile[i++] = dist_Tprof.second;
     }
 }
 
@@ -409,13 +407,18 @@ double PFR1d::getT(double z)
 
     if (m_T_profile_iind >= 0 && z == m_T_profile_ind[m_T_profile_iind])
         return  m_T_profile[m_T_profile_iind];
-    if (m_T_profile_iind < m_T_profile_ind.size() &&
+    if (m_T_profile_iind < m_T_profile_ind.size() - 1  &&
         z == m_T_profile_ind[m_T_profile_iind + 1])
-        return  m_T_profile[m_T_profile_iind];
+        return  m_T_profile[m_T_profile_iind + 1];  
+    if (m_T_profile_iind == m_T_profile_ind.size() - 1 && 
+        z > m_T_profile_ind[m_T_profile_iind])
+        return m_T_profile[m_T_profile_iind];
 
-    if (z > m_T_profile_ind[m_T_profile_iind + 1]){
+    if (m_T_profile_iind < m_T_profile_ind.size() - 1 && 
+        z > m_T_profile_ind[m_T_profile_iind + 1]){
         m_T_profile_iind += 1;
     }
+ 
     double lz, lT, hz, hT;
     if (m_T_profile_iind < 0) {
         lz = 0;
@@ -426,8 +429,8 @@ double PFR1d::getT(double z)
     }
     hz = m_T_profile_ind[m_T_profile_iind + 1];
     hT = m_T_profile[m_T_profile_iind + 1];
-
-    return lT + (hT - lT) / (hz - lz) * (z - lz);
+    
+    return lT + (hT - lT) / (hz - lz) * (z - lz); 
 }
 
 double PFR1d::evalSurfaces() 
