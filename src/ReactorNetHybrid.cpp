@@ -49,6 +49,7 @@ void ReactorNetHybrid::nonlinSolverInitialize()
     
     m_nonlin_sol->setMaxStepSize(0.5); //TODO: Find a good value
     m_nonlin_sol->setMaxSteps(300);    //TODO: Find a good value
+    cout << "func tol " << m_ftol << endl;
     m_nonlin_sol->setTolerance(m_ftol);
     m_nonlin_sol->initialize(*this);
     m_nonlin_sol_init = true;
@@ -70,7 +71,9 @@ void ReactorNetHybrid::solve()
     cout << "Inside the hybrid solver" << endl;
     if (!m_steady_state) {
         // Advance the reactor with ode integrator first.
-        new_time = step();
+        //new_time = step();
+        new_time = 1;
+        advance(new_time);
         cout << "Integrator advanced to time " << new_time << endl;
         if (new_time >= m_final_time) { // Integrator advanced past desired end time
             cout << "Integrator time " << new_time 

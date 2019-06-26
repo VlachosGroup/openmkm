@@ -62,8 +62,15 @@ extern "C" {
      */
     static int kin_rhs(N_Vector y, N_Vector rhs, void* f_data)
     {
+        int rval, i, len;
         FuncEval* f = (FuncEval*) f_data;
-        return f->eval_nothrow(0, NV_DATA_S(y), NV_DATA_S(rhs));
+        rval = f->eval_nothrow(0, NV_DATA_S(y), NV_DATA_S(rhs));
+        len = NV_LENGTH_S(rhs);
+        for (i = 0; i < len; i++){
+            printf("ith rhs %d: %E\n", i, NV_Ith_S(rhs, i)); /* = NV_Ith_S(rhs, i) * 0.1;*/    // 0.1 is taken as \Delta T
+        }
+        printf("\n");
+        return rval;
     }
 
     //! Function called by KINSOL when an error is encountered instead of
@@ -86,7 +93,7 @@ KIN_Solver::KIN_Solver() :
     m_func(0),
     m_y(0),
     m_scale(0),
-    m_constraints(0),
+    //m_constraints(0),
     m_functol(0),
     m_type(DENSE+NOJAC),
     //m_itol(KIN_SS),
@@ -112,11 +119,6 @@ KIN_Solver::KIN_Solver() :
 KIN_Solver::~KIN_Solver()
 {
     if (m_kin_mem) {
-        /*
-        if (m_np > 0) {
-            CVodeSensFree(m_kin_mem);
-        }
-        */
         KINFree(&m_kin_mem);
     }
 
@@ -131,16 +133,6 @@ KIN_Solver::~KIN_Solver()
     if (m_scale) {
         N_VDestroy_Serial(m_scale);
     }
-    /*
-    if (m_abstol) {
-        N_VDestroy_Serial(m_abstol);
-    }
-    */
-    /*
-    if (m_yS) {
-        N_VDestroyVectorArray_Serial(m_yS, static_cast<sd_size_t>(m_np));
-    }
-    */
     if (m_constraints) {
         N_VDestroy_Serial(m_constraints);
     }
@@ -161,15 +153,6 @@ void KIN_Solver::setTolerance(double functol)
 {
     m_functol = functol;
 }
-
-/*
-void KIN_Solver::setTolerances(double reltol, double abstol)
-{
-    m_itol = KIN_SS;
-    m_reltol = reltol;
-    m_abstols = abstol;
-}
-*/
 
 void KIN_Solver::setProblemType(int probtype)
 {
@@ -277,22 +260,29 @@ void KIN_Solver::setConstraints(const int * const constraintFlags)
 void KIN_Solver::initialize(FuncEval& func)
 {
     m_neq = func.neq();
-    //m_t0 = t0;
-    //m_time = t0;
     m_func = &func;
     func.clearErrors();
 
     if (m_y) {
         N_VDestroy_Serial(m_y); // free solution vector if already allocated
     }
+    cout << "NEQ " << m_neq << endl;
     m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
-    N_VConst(0.0, m_y);      //TODO: Load this with initial values
+    //N_VConst(0.0, m_y);      
+    func.getState(NV_DATA_S(m_y));   // Initial guess
+    for (size_t i = 0; i < m_neq; i++){
+        cout << "i " << i << " y " << NV_Ith_S(m_y, i) << endl;
+    }
 
     if (m_scale) {
         N_VDestroy_Serial(m_scale); // free solution vector if already allocated
     }
     m_scale = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
-    N_VConst(1.0, m_scale);
+    //N_VConst(1.0, m_scale);
+    N_VInv(m_y, m_scale);
+    for (size_t i = 0; i < m_neq; i++){
+        cout << "i " << i << " scale " << NV_Ith_S(m_scale, i) << endl;
+    }
     // check abs tolerance array size
     /*
     if (m_itol == KIN_SV && m_nabs < m_neq) {
@@ -305,28 +295,31 @@ void KIN_Solver::initialize(FuncEval& func)
         N_VDestroy_Serial(m_constraints);
     }
     m_constraints = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
-    N_VConst(0.0, m_constraints);
-
-    func.getState(NV_DATA_S(m_y));
+    N_VConst(1.0, m_constraints);
 
     if (m_kin_mem) {
         KINFree(&m_kin_mem);
     }
-
     m_kin_mem = KINCreate();
-    if (!m_kin_mem) {
-        throw CanteraError("KIN_Solver::initialize",
-                           "KINCreate failed.");
-    }
+    if (!m_kin_mem) 
+        throw CanteraError("KIN_Solver::initialize", "KINCreate failed.");
 
-    int flag = KINInit(m_kin_mem, kin_rhs, m_y);
+    int flag = KINSetUserData(m_kin_mem, &func);
+    if (flag != KIN_SUCCESS) 
+        throw CanteraError("KIN_Solver::initialize", "KINSetUserData failed.");
+
+    flag = KINSetConstraints(m_kin_mem, m_constraints);
+    if (flag != KIN_SUCCESS) 
+        throw CanteraError("KIN_Solver::initialize", "KINSetConstraints failed.");
+
+    flag = KINInit(m_kin_mem, kin_rhs, m_y);
     if (flag != KIN_SUCCESS) {
         if (flag == KIN_MEM_FAIL) {
             throw CanteraError("KIN_Solver::initialize",
                                "Memory allocation failed.");
         } else if (flag == KIN_ILL_INPUT) {
             throw CanteraError("KIN_Solver::initialize",
-                               "Illegal value for CVodeInit input argument.");
+                               "Illegal value for KINInit input argument.");
         } else {
             throw CanteraError("KIN_Solver::initialize",
                                "KINInit failed.");
@@ -354,11 +347,6 @@ void KIN_Solver::initialize(FuncEval& func)
     }
     */
 
-    flag = KINSetUserData(m_kin_mem, &func);
-    if (flag != KIN_SUCCESS) {
-        throw CanteraError("KIN_Solver::initialize",
-                           "KINSetUserData failed.");
-    }
     /*
     if (func.nparams() > 0) {
         sensInit(t0, func);
@@ -375,6 +363,10 @@ void KIN_Solver::initialize(FuncEval& func)
 
 void KIN_Solver::applyOptions()
 {
+
+    cout << "Before calling KINSetFuncNormTol " << m_functol << endl;
+    KINSetFuncNormTol(m_kin_mem, m_functol);
+
     if (m_type == DENSE + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         #if CT_SUNDIALS_VERSION >= 30
@@ -447,13 +439,15 @@ void KIN_Solver::applyOptions()
         KINSetMaxOrd(m_kin_mem, m_maxord);
     }
     */
-    KINSetFuncNormTol(m_kin_mem, m_functol);
+    /*cout << "Number of KINSOL iters" << m_maxsteps << endl;
     if (m_maxsteps > 0) {
         KINSetNumMaxIters(m_kin_mem, m_maxsteps);
     }
+    cout << "max newton step " << m_hmax << endl;
     if (m_hmax > 0) {
         KINSetMaxNewtonStep(m_kin_mem, m_hmax);
     }
+    */
     /*
     if (m_hmin > 0) {
         KINSetMinStep(m_kin_mem, m_hmin);
@@ -470,8 +464,13 @@ int KIN_Solver::solve()
 {
     m_func->getState(NV_DATA_S(m_y));
 
-    int flag = KINSol(m_kin_mem, m_y, KIN_LINESEARCH, m_scale, m_scale);
+    //int flag = KINSol(m_kin_mem, m_y, KIN_LINESEARCH, m_scale, m_scale);
+    int flag = KINSol(m_kin_mem, m_y, KIN_NONE, m_scale, m_scale);
     // There is a high chance for this solver to fail. Just return success status
+    if (flag == KIN_INITIAL_GUESS_OK) {
+        cout << "initial guess within the tolerances" << endl;
+    }
+    cout << "kinsol flag " << flag << endl;
     if (flag == KIN_SUCCESS || KIN_INITIAL_GUESS_OK) 
         return 1;    
     else
