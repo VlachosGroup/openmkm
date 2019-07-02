@@ -365,7 +365,6 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
         vector<double> H_rt(m_nsp);
         m_gas->getEnthalpy_RT(H_rt.data());
         for (size_t i = 0; i < m_nsp; i++){
-            //h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr[i];
             h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv)  * H_rt[i];
         }
         //resid[3] += h_term * temp;
@@ -488,6 +487,54 @@ double PFR1d::getHeat(double Tint) const
     else 
         return 0;
    
+}
+
+int PFR1d::getJacobian(const doublereal t, const doublereal delta_t, 
+                       doublereal cj, const doublereal* const y,
+                       const doublereal* const ydot,
+                       doublereal* const* jacobianColPts)
+{
+    /* Variables 
+     * -------------
+     * 1-3 variables are u, r, p
+     * 4 could be T, if energybalance is enabled
+     * n_sp gas species
+     * \sum_i n_sp_surf_i surface species
+     *
+     * Residual function 
+     * ------------------
+     * 1-3 are 
+     * 4 related to energy balance, if energybalance is enabled
+     * n_sp gas species mass balances
+     * Rest are zero
+     */
+    const double u = y[0];       // Flow rate
+    const double r = y[1];       // Density
+    const double p = y[2];       // Pressure
+    const double temp = energyEnabled() ? y[3] : getT(t);   // Temperature
+    const double Wavg = m_gas->meanMolecularWeight();
+    vector<double> drdY (m_nsp);
+
+
+    auto drdT = -r/temp;
+    auto ntot_sp = neq_ - m_neqs_extra;
+     
+    double rWavg = r * Wavg;
+    for (size_t i = 0; i < m_nsp; i++){
+        drdY[i] = -rWavg / m_W[i];
+    }
+
+}
+
+int PFR1d::evalJacobianDP(const doublereal t, const doublereal delta_t, 
+                          doublereal cj, const doublereal* const y,
+                          const doublereal* const ydot,
+                          doublereal* const* jacobianColPts,
+                          doublereal* const resid)
+{
+    auto flag1 = evalResidNJ(t, delta_t, y, ydot, resid);
+    auto falg2 = getJacobian(t, delta_t, cj, y, ydot, jacobianColPts);
+    return flag1 || flag2; 
 }
 
 }

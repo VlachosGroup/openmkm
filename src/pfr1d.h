@@ -4,10 +4,10 @@
 
 // Provides a 1d plug-flow reactor model.
 
-// This file is part of hetero_ct
+// This file is part of OpenMKM
 
-#ifndef HTRCT_PFR_1D_H
-#define HTRCT_PFR_1D_H
+#ifndef OMKM_PFR_1D_H
+#define OMKM_PFR_1D_H
 
 #include <chrono>
 #include <functional>
@@ -102,14 +102,19 @@ public:
      *              of PFR
      * @param evalType
      */
-    virtual int evalResidNJ(const double t,
-                    const double delta_t,
-                    const double* const y,
-                    const double* const ydot,
-                    double* const resid,
+    virtual int evalResidNJ(const double t, const double delta_t, const double* const y,
+                    const double* const ydot, double* const resid,
                     const Cantera::ResidEval_Type_Enum evalType = Cantera::Base_ResidEval,
-                    const int id_x = -1,
-                    const double delta_x = 0.0);
+                    const int id_x = -1, const double delta_x = 0.0);
+
+    virtual int evalJacobianDP(const doublereal t, const doublereal delta_t, doublereal cj,
+                               const doublereal* const y, const doublereal* const ydot,
+                               doublereal* const* jacobianColPts,
+                               doublereal* const resid);
+
+    virtual int getJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
+                            const doublereal* const y, const doublereal* const ydot,
+                            doublereal* const* jacobianColPts);
 
     //! Evaluate the production rates of the species at the surfaces
     double evalSurfaces();
