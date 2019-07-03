@@ -17,8 +17,8 @@ void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file)
     int sp_indx = 1;
     for  (const auto phase: phases){
         for (size_t k = 0; k < phase->nSpecies(); k++) {
-            out.width(12); 
-            out << std::right << sp_indx++;
+            //out.width(12); 
+            //out << std::right << sp_indx++;
             out.width(16); 
             out << std::right << phase->speciesName(k) << endl;
         }   
@@ -67,8 +67,8 @@ void print_rxns(vector<Kinetics*> kinetic_mgrs, string output_file)
         size_t size = mgr->nReactions();
         if (size > 0) {
             for (size_t k = 0; k < size; k++) {
-                out.width(12);
-                out << std::left << rxn_indx++;
+                //out.width(12);
+                //out << std::left << rxn_indx++;
                 out.width(12);
                 out << std::left << mgr->reactionString(k) << endl;
             }
