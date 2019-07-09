@@ -4,10 +4,11 @@
 
 // Provides a 1d plug-flow reactor model.
 
-// This file is part of hetero_ct
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef HTRCT_PFR_1D_H
-#define HTRCT_PFR_1D_H
+#ifndef OMKM_PFR_1D_H
+#define OMKM_PFR_1D_H
 
 #include <chrono>
 #include <functional>

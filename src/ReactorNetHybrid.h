@@ -1,21 +1,21 @@
-//! @file ReactorNet.h
+//! @file ReactorNetHybrid.h
 
-// This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef CT_REACTORNETHYBRID_H
-#define CT_REACTORNETHYBRID_H
+#ifndef OMKM_REACTORNETHYBRID_H
+#define OMKM_REACTORNETHYBRID_H
 
 #include "cantera/zeroD/ReactorNet.h"
 #include "KIN_Solver.h"
 #include "NonLinearSolver.h"
 
-namespace Cantera
+namespace Cantera   // Cantera namespace used for convenience
 {
 
 //! A class representing a network of connected reactors.
 /*!
- *  This class is used to integrate the time-dependent governing equations for
+ *  This class is used to solve the steady state of governing equations for
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
  *  means, e.g. Wall, MassFlowController, Valve, PressureController.
  */

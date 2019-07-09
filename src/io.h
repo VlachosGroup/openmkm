@@ -2,10 +2,11 @@
  * @file io.h
  */
 
-// This file is part of Hetero_ct.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef HTRCT_IO_H
-#define HTRCT_IO_H
+#ifndef OMKM_IO_H
+#define OMKM_IO_H
 
 #include <vector>
 #include <string>

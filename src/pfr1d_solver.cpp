@@ -37,12 +37,14 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
         std::cerr << err.what() << std::endl;
     }
 
+    /*
     vector<int> constraints(pfr->nEquations());
     for (size_t i = 0; i < pfr->nEquations(); i++){
         constraints[i] = pfr->constraint(i);
         cout << i << " PFR1dSolver::init " << constraints[i] << endl;
     }
     setConstraints(constraints);
+    */
 
 }
 
@@ -71,9 +73,10 @@ void PFR1dSolver::setStopPosition(double tstop)
     m_solver->setStopTime(tstop);
 }
 
+/*
 void PFR1dSolver::setConstraints(const vector<int> constraints){
     m_solver->setConstraints(constraints.data());
-}
+}*/
 
 int PFR1dSolver::solve(double xout)
 { 

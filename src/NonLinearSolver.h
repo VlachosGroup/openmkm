@@ -6,16 +6,16 @@
  * @defgroup odeGroup ODE NonLinearSolvers
  */
 
-// This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef CT_NONLINEAR_SOLVER_H
-#define CT_NONLINEAR_SOLVER_H
+#ifndef OMKM_NONLINEAR_SOLVER_H
+#define OMKM_NONLINEAR_SOLVER_H
+
 #include "cantera/numerics/FuncEval.h"
-
 #include "cantera/base/global.h"
 
-namespace Cantera
+namespace Cantera   // Cantera namespace used for convenience.
 {
 
 /**

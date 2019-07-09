@@ -1,15 +1,16 @@
-/****************************************************************************
- * Solves the DAE numerical equations w.r.t z using IDAS
-***************************************************************************
-*/
+//! @file pfr1d_solver.h
 
-#ifndef HTRCT_SOLVER_1D_H
-#define HTRCT_SOLVER_1D_H
+// Solves the DAE numerical equations w.r.t z using IDAS
+
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
+
+#ifndef OMKM_SOLVER_1D_H
+#define OMKM_SOLVER_1D_H
 
 #include <vector>
-
-#include "pfr1d.h"
 #include "cantera/numerics/IDA_Solver.h"
+#include "pfr1d.h"
 
 namespace OpenMKM {
 
@@ -30,7 +31,7 @@ public:
 
     void setStopPosition(double tstop);
 
-    void setConstraints(const std::vector<int> constraints);
+    //void setConstraints(const std::vector<int> constraints);
 
     int solve(double xout);
 
@@ -102,8 +103,6 @@ protected:
 
     //! Relative DAE solver tolerance
     double m_rtol;
-
-
 }; 
 
 } 

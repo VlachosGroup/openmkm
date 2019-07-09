@@ -2,18 +2,18 @@
  *  @file KIN_Solver.h
  */
 
-// This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef CT_KINSOLVER_H
-#define CT_KINSOLVER_H
+#ifndef OMKM_KINSOLVER_H
+#define OMKM_KINSOLVER_H
 
 #include "NonLinearSolver.h"
 #include "cantera/base/ctexceptions.h"
 
 #include "sundials/sundials_nvector.h"
 
-namespace Cantera
+namespace Cantera     // Cantera namespace used for convenience
 {
 
 /**

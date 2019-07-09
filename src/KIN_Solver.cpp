@@ -1,7 +1,7 @@
 //! @file KIN_Solver.cpp
 
-// This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
 #include "cantera/numerics/NumUtil.h"
 #include "cantera/base/stringUtils.h"

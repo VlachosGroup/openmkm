@@ -5,7 +5,8 @@
  *   (also contains errorhandling module text - see \ref errorhandling).
  */
 
-// This file is part of HeteroCt. See License.txt in the top-level directory.
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
 #ifndef OMKM_CTEXCEPTIONS_H
 #define OMKM_CTEXCEPTIONS_H

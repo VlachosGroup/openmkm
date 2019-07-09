@@ -1,3 +1,8 @@
+//! @file ReactorParser.h
+
+// This file is part of OpenMKM. See License.txt in the top-level directory 
+// for license and copyright information.
+
 #ifndef OMKM_RCTR_PARSER_H
 #define OMKM_RCTR_PARSER_H
 
@@ -8,7 +13,6 @@
 
 #include "cantera/IdealGasMix.h"
 #include "cantera/InterfaceLatInt.h"
-//#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/SurfLatIntPhase.h"
 
@@ -18,9 +22,11 @@
 namespace OpenMKM 
 {
 
+/*
 YAML::Node getChildNode(YAML::Node& p_nd, 
                         std::string p_name, 
                         std::vector<std::string> rev_descendants);
+*/
 
 enum RctrType {
     BATCH,

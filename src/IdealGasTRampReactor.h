@@ -1,17 +1,17 @@
 //! @file IdealGasTRampReactor.h
 
-// This file is part of openMKM. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// This file is part of openMKM. See License.txt in the top-level directory 
+// for license and copyright information.
 
-#ifndef HCT_IDEALGASTRAMPREACTOR_H
-#define CT_IDEALGASTRAMPREACTOR_H
+#ifndef OMKM_IDEALGASTRAMPREACTOR_H
+#define OMKM_IDEALGASTRAMPREACTOR_H
 
 #include "cantera/zeroD/IdealGasReactor.h"
 
 namespace OpenMKM
 {
 
-/**
+/*!
  * Class IdealGasTRampReactor is a class for stirred reactors that is specifically
  * optimized for ideal gases and supports linear temperature scaling if chosen. 
  */
@@ -32,5 +32,4 @@ protected:
 };
 
 }
-
 #endif
