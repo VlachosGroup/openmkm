@@ -4,32 +4,38 @@ layout: default
 
 # OpenMKM Installation Guide
 
-OpenMKM requires Cantera, SUNDIALS, Eigen, and Boost libraries. Here are the
+## Dependencies
+OpenMKM requires Cantera, SUNDIALS, Eigen, and Boost libraries. Additionally it requres
+scons package builder. (Optional) 
+Anaconda to obtain the scons builder, doxygen for building Cantera documentation, git to obtain
+source code.  Here are the
 steps that can be used to install dependencies and OpenMKM.
 
-## Boost & Eigen
+### Boost & Eigen
 Boost and Eigen are C++ template libraries and often are distributed with Linux.
 Refer to distro package manager documentation on how to obtain them.
 
-## SUNDIALS installation
+### SUNDIALS installation
 [SUNDIALS][sundials_page] is a numerical solver suite from Lawrence Livermore
 National Lab. OpenMKM is tested with SUNDIALS 3.1.1. For Linux, SUNDIALS is
-often available from distro package managers. If the required version is not
-supplied with distro, one can [download SUNDIALS][sundials_download] and follow
+often available from distro package managers. Check if the version of the distro 
+supplied SUNDIALS matches with 3.1. If the required version is not
+supplied with distro, one can download v3.1.1 of [SUNDIALS][sundials_download] and follow
 the supplied instructions to install. 
 
-## Cantera installation
+### Cantera installation
 To install OpenMKM, Cantera needs to be built from source. Download the source
-code from Bharat's fork on GitHub. 
+code from Bharat's fork on GitHub. With git this can be accomplished by 
 ``` bash
 git clone https://github.com/mbkumar/cantera.git
 ```
-Checkout the *openmkm* branch which contains modifications to official version
-of Cantera to support coverage effects.
+and then checking out  the *openmkm* branch which contains modifications 
+to official version of Cantera to support coverage effects.
 ``` bash
 cd cantera
-checkout openmkm
+git checkout openmkm
 ```
+Alternatively, one could select the openmkm branch and down the source code as a zip file.
 Both Cantera and OpenMKM use *scons*, a Python based build tool that is
 functionally similar to *cmake*, for build purposes. The following command
 could be used to compile Cantera on Linux machines.
