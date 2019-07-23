@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     vector<Kinetics*> all_km {gas.get()};
 
     // Try to read the bulk node and if present read surface definitons as well
-    bool blk_phase_defined = rctr_parser.BulkPhaseDefined(phase_filename);
+    bool blk_phase_defined = rctr_parser.bulkPhaseDefined(phase_filename);
     vector<ThermoPhase*> gb_phases;
     if (blk_phase_defined) {
         auto bulk = rctr_parser.getBulkPhase(phase_filename);
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
         gb_phases.push_back(gas.get()); 
         gb_phases.push_back(bulk.get());
     }
-    bool surf_phases_defined = rctr_parser.SurfacePhasesDefined(phase_filename);
+    bool surf_phases_defined = rctr_parser.surfacePhasesDefined(phase_filename);
     vector<shared_ptr<InterfaceInteractions>> surf_phases;
     if (surf_phases_defined && blk_phase_defined) {
         surf_phases = rctr_parser.getSurfPhases(phase_filename, gb_phases);
@@ -95,5 +95,4 @@ int main(int argc, char* argv[])
     cout << "Program ran for " << duration.count() <<  " milliseconds" << endl;
     gen_info << "Program ran for " << duration.count() << " milliseconds" << endl;
 
-   
 }

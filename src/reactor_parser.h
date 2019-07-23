@@ -67,17 +67,19 @@ public:
     }
     
     // Check for phases and read them
-    bool GasPhaseDefined(std::string phase_filename);
+    bool gasPhaseDefined(std::string phase_filename);
+
+    std::string getGasPhaseComposition();
 
     std::shared_ptr<Cantera::IdealGasMix> getGasPhase(
             std::string phase_filename);
 
-    bool BulkPhaseDefined(std::string phase_filename);
+    bool bulkPhaseDefined(std::string phase_filename);
 
     std::shared_ptr<Cantera::StoichSubstance> getBulkPhase(
             std::string phase_filename);
 
-    bool SurfacePhasesDefined(std::string phase_filename);
+    bool surfacePhasesDefined(std::string phase_filename);
 
     std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> getSurfPhases(
             std::string phase_filename, 
@@ -147,18 +149,18 @@ public:
 
     //! Parametric study 
     bool parametric_study_enabled(){
-        return (T_parametric_study_enabled() || 
-                P_parametric_study_enabled() || 
-                mdot_parametric_study_enabled());
+        return (isT_multi_input() || 
+                isP_multi_input() || 
+                isMFR_multi_input());
     }
 
-    bool T_parametric_study_enabled(); 
-    bool P_parametric_study_enabled(); 
-    bool mdot_parametric_study_enabled(); 
+    bool isT_multi_input(); 
+    bool isP_multi_input(); 
+    bool isMFR_multi_input(); 
 
-    std::vector<double> T_parameter_samples();
-    std::vector<double> P_parameter_samples();
-    std::vector<double> mdot_parameter_samples();
+    std::vector<double> Ts();
+    std::vector<double> Ps();
+    std::vector<double> MFRs();
 
     /*
     bool validate() { // TODO: Implement for one shot error checking
@@ -178,6 +180,7 @@ private:
     YAML::Node m_inlet_nd;
     double m_T;         // Temperature
     double m_P;         // Pressure
+    std::string m_X;         // Gas Composition
 };
 
 }
