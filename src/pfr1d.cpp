@@ -3,11 +3,14 @@
 
 // This file is part of Hetero_ct. 
 // Source is adapted from CanteraPFR codebase.
+//#include <boost/math/interpolators/barycentric_rational_interpolation.hpp>
+#include <boost/range/adaptors.hpp>
 
 #include "pfr1d.h"
 
 using namespace std;
 using namespace Cantera;
+
 
 namespace OpenMKM 
 {
@@ -383,6 +386,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     return 0;
 }
 
+/*
 void PFR1d::setTProfile(map<double, double> T_profile)
 {
     if (T_profile.begin()->first > 0)
@@ -431,6 +435,65 @@ double PFR1d::getT(double z)
     hT = m_T_profile[m_T_profile_iind + 1];
     
     return lT + (hT - lT) / (hz - lz) * (z - lz); 
+}
+*/
+
+/* Even this complexity is not needed 
+void PFR1d::setTProfile(const map<double, double>& T_profile)
+{
+    // The profile given as map in the input is stored two 
+    // vectors for boost library interpolators 
+    // Clear the existing profile
+    if (m_T_profile_ind.size())
+        m_T_profile_ind.clear();
+    if (m_T_profile.size())
+        m_T_profile.clear();
+
+    // If T @ z=0 is not given, use inlet T
+    if (T_profile.begin()->first > 0){
+        m_T_profile_ind.push_back(0);
+        m_T_profile.push_back(m_T0);
+    }
+    for (const auto& dist_Tprof : T_profile) {
+        m_T_profile_ind.push_back(dist_Tprof.first);
+        m_T_profile.push_back(dist_Tprof.second);
+    }
+
+    m_T_interp = make_shared<boost::math::barycentric_rational<double>>(m_T_profile_ind, m_T_profile, m_T_profile.size());
+}
+*/
+
+void PFR1d::setTProfile(const map<double, double>& T_profile)
+{
+    /*
+    // The profile given as map in the input is temporarily stored into two 
+    // vectors for boost library interpolators 
+    // Clear the existing profile
+    vector<double> Ts, Zs;
+
+    // If T @ z=0 is not given, use inlet T
+    if (T_profile.begin()->first > 0){
+        Zs.push_back(0);
+        Ts.push_back(m_T0);
+    }
+    for (const auto& dist_Tprof : T_profile) {
+        Zs.push_back(dist_Tprof.first);
+        Ts.push_back(dist_Tprof.second);
+    }
+    */
+    auto Zs = boost::adaptors::keys(T_profile);
+    auto Ts = boost::adaptors::values(T_profile);
+
+    //if (m_T_interp != nullptr){
+    //    m_T_interp = nullptr;
+        m_T_interp = make_shared<boost::math::barycentric_rational<double>>(
+                Zs.begin(), Zs.end(), Ts.begin());
+    //}
+}
+
+double PFR1d::getT(double z)
+{
+    return m_T_interp->operator()(z);
 }
 
 double PFR1d::evalSurfaces() 

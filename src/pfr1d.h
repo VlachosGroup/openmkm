@@ -19,6 +19,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <memory>
+
+#include <boost/math/interpolators/barycentric_rational.hpp>
 
 #include "cantera/IdealGasMix.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -81,6 +84,7 @@ public:
     ~PFR1d()
     {
         Cantera::appdelete();
+        m_T_interp = nullptr;
     }
 
     void reinit();
@@ -195,7 +199,7 @@ public:
     //! If the first z is 0.0, then T has to be equal to m_T0 at inlet.
     //! The code doesn't do the check and if the condition is not hold,
     //! the behavior is undefined.
-    void setTProfile(std::map<double, double> T_profile);
+    void setTProfile(const std::map<double, double>& T_profile);
 
     //! Applicable only for cases where energy equation is not solved.
     double getT(double z);
@@ -305,6 +309,8 @@ protected:
 
     //! Inlet pressure
     double m_P0 = 0;
+
+    std::shared_ptr<boost::math::barycentric_rational<double>> m_T_interp;
 
 }; 
 
