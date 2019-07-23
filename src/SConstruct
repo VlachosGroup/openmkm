@@ -3,9 +3,10 @@ env = Environment(CPPPATH=["/usr/include/eigen3",
                            "/home/mbkumar/Research/Software/cantera/include", 
                            #"/home/mbkumar/Research/Software/cantera/ext/eigen",
                            ],
-                  CCFLAGS=["-std=c++0x", "-Wall", "-Wno-inline", 
+                  CCFLAGS=["-std=c++11", "-Wall", "-Wno-inline", 
+                           "-g",
                            "-fprofile-arcs", "-ftest-coverage", "-pthread"],
-                  LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread"])
+                  LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread", "-g"])
 
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
            "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", #"hctexceptions.cpp", 
@@ -15,6 +16,7 @@ sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp",
 
 env.Program(target="omkm", source=sources, 
             LIBS=["cantera", "sundials_cvodes", "sundials_ida", 
-                  "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp"],
+                  "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp", 
+                  "boost_filesystem", "boost_system"],
             LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", 
                      "/usr/local/lib"])

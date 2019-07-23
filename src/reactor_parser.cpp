@@ -51,6 +51,18 @@ bool IsChildNodeAvailable(Node& p_nd, vector<string> rev_descendants)
     }
 }
 
+void operator >> (const Node& node, vector_fp& vec)
+{
+    /*auto v_iter = vec.begin();
+    for (size_t i = 0; i < node.size(); i++, v_iter++){
+        *v_iter = strSItoDbl(node[i].as<string>());
+    }
+    */
+    for (size_t i = 0; i < node.size(); i++){
+        vec.push_back(strSItoDbl(node[i].as<string>()));
+    }
+}
+
 void ReactorParser::read_mandatory_nodes()
 {
     m_rctr_nd = getChildNode(m_tube_nd, "tube", 
@@ -74,11 +86,10 @@ void ReactorParser::read_mandatory_nodes()
     m_P = strSItoDbl(P_nd.as<string>());
 }
 
-bool ReactorParser::GasPhaseDefined(string phase_filename)
+bool ReactorParser::gasPhaseDefined(string phase_filename)
 {
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"name", "gas"});
 }
-
 
 shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
 {
@@ -89,12 +100,22 @@ shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
 
     auto gas_X_nd = getChildNode(m_phase_nd, "tube.phases", 
                                  vector<string>{"initial_state", "gas"});
-    auto gas_X = gas_X_nd.as<string>();
-    gas->setState_TPX(m_T, m_P, gas_X);
+    m_X = gas_X_nd.as<string>();
+    gas->setState_TPX(m_T, m_P, m_X);
     return gas;
 }
 
-bool ReactorParser::BulkPhaseDefined(string phase_filename)
+string ReactorParser::getGasPhaseComposition()
+{
+    if (!m_X.size()){
+        auto gas_X_nd = getChildNode(m_phase_nd, "tube.phases", 
+                                     vector<string>{"initial_state", "gas"});
+        m_X = gas_X_nd.as<string>();
+    }
+    return m_X;
+}
+
+bool ReactorParser::bulkPhaseDefined(string phase_filename)
 {
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"name", "bulk"});
 }
@@ -109,7 +130,7 @@ shared_ptr<StoichSubstance> ReactorParser::getBulkPhase(string phase_filename)
     return blk;
 }
 
-bool ReactorParser::SurfacePhasesDefined(string phase_filename)
+bool ReactorParser::surfacePhasesDefined(string phase_filename)
 {
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"surfaces"});
 }
@@ -446,33 +467,69 @@ bool ReactorParser::RPA()
 }
 
 // Parametric study related
-bool ReactorParser::T_parametric_study_enabled() 
+bool ReactorParser::isT_multi_input() 
 {
-    vector<string> kids {"temperature", "parametric_study"};
+    vector<string> kids {"temperature", "multi_input"};
     return IsChildNodeAvailable(m_simul_nd, kids);
 }
 
-bool ReactorParser::P_parametric_study_enabled() 
+bool ReactorParser::isP_multi_input() 
 {
-    vector<string> kids {"pressure", "parametric_study"};
+    vector<string> kids {"pressure", "multi_input"};
     return IsChildNodeAvailable(m_simul_nd, kids);
 }
 
-bool ReactorParser::mdot_parametric_study_enabled() 
+bool ReactorParser::isMFR_multi_input() 
 {
-    vector<string> flowrate_kids {"flow_rate", "parametric_study"};
-    auto check_fr = IsChildNodeAvailable(m_simul_nd, flowrate_kids);
-    vector<string> massflowrate_kids {"mass_flow_rate", "parametric_study"};
+    vector<string> massflowrate_kids {"mass_flow_rate", "multi_input"};
     auto check_mfr = IsChildNodeAvailable(m_simul_nd, massflowrate_kids);
-    vector<string> residtime_kids {"residence_time", "parametric_study"};
-    auto check_rt = IsChildNodeAvailable(m_simul_nd, residtime_kids);
-    return (check_fr || check_mfr || check_rt);
+    return check_mfr;
 }
+
 /*
 bool validate() { // TODO: Implement for one shot error checking
     return false;
 }
 */
+
+std::vector<double> ReactorParser::Ts()
+{
+    vector_fp Ts;
+    if (isT_multi_input()){
+        vector<string> kids {"temperature", "multi_input"};
+        auto parameter_T_nd = getChildNode(m_simul_nd, "simulation", kids);
+        parameter_T_nd >> Ts;
+    }
+    else {
+        Ts.push_back(m_T);
+    }
+    return Ts;
+}
+
+std::vector<double> ReactorParser::Ps()
+{
+    vector_fp Ps;
+    if (isP_multi_input()){
+        vector<string> kids {"pressure", "multi_input"};
+        auto parameter_P_nd = getChildNode(m_simul_nd, "simulation", kids);
+        parameter_P_nd >> Ps;
+    }
+    else {
+        Ps.push_back(m_P);
+    }
+    return Ps;
+}
+
+std::vector<double> ReactorParser::MFRs()
+{
+    vector_fp fr;
+    if(isMFR_multi_input()){
+        vector<string> flowrate_kids {"mass_flow_rate", "multi_input"};
+        auto parameter_fr_nd = getChildNode(m_simul_nd, "simulation", flowrate_kids);
+        parameter_fr_nd >> fr;
+    }
+    return fr;
+}
 
 }
 
