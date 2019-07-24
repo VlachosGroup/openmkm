@@ -5,7 +5,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/filesystem.hpp>
 #include <yaml-cpp/yaml.h>
+
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ct_defs.h"
 #include "cantera/IdealGasMix.h"
@@ -31,6 +33,7 @@
 
 using namespace std;
 using namespace Cantera;
+namespace fs = boost::filesystem;
 
 namespace OpenMKM 
 {
@@ -55,13 +58,12 @@ void run_1d_reactor(ReactorParser& rctr_parser,
              << "Only one of the variables is arbitrarily used" << endl;
     }
     double velocity{0};
-    if (fr_defined) {
-        auto flow_rate = rctr_parser.getFlowRate();
-        velocity = flow_rate / rctr_xc_area;
-    }
-    else if (mfr_defined) {
+    if (mfr_defined) {
         auto mfr = rctr_parser.getMassFlowRate();
         auto flow_rate = mfr / gas->density();
+        velocity = flow_rate / rctr_xc_area;
+    } else if (fr_defined) {
+        auto flow_rate = rctr_parser.getFlowRate();
         velocity = flow_rate / rctr_xc_area;
     } else if (rt_defined) {
         auto rt = rctr_parser.getResidenceTime();
@@ -80,9 +82,19 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         surf_ph.push_back(surf.get());
     }
 
+    // Before simulation save the initial coverages of surface species for reuse
+    //vector<vector<double>> surf_init_covs;
+    vector<double> cov;
+    for (const auto surf: surfaces) {
+        cov.resize(surf->nSpecies());
+        surf->getCoverages(cov.data());
+        //surf_init_covs.push_back(cov);
+    }
+
     // Start the simulation
     gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
+        cout << "Density " << surf->density() << endl;
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
@@ -128,7 +140,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
     */
 
-    PFR1dSolver pfr_solver {&pfr};
+    PFR1dSolver pfr_solver {make_shared<PFR1d>(pfr)};
 
     //auto simul_node = tube_node["simulation"];
     if (rctr_parser.tolerancesDefined()){
@@ -147,63 +159,114 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     if (rctr_parser.initStepDefined()){
         simul_init_step = rctr_parser.getInitStep();
     }
+    auto rpa_flag = rctr_parser.RPA();
     vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
 
-    ofstream gas_mole_out("gas_mole_ss.out");
-    ofstream gas_mass_out("gas_mass_ss.out");
-    ofstream gas_msdot_out("gas_msdot_ss.out");
-    ofstream surf_cov_out("surf_cov_ss.out");
-    ofstream state_var_out("rctr_state_ss.out");
-    ofstream rates_out("rates_ss.out", ios::out);
+    
+    vector<double> T_params = rctr_parser.Ts();
+    vector<double> P_params = rctr_parser.Ps();
+    vector<double> fr_params = rctr_parser.FRs();
+    if (!fr_params.size()){
+        auto fr = velocity * rctr_xc_area;
+        fr_params.push_back(fr);
+    }
 
-    gas_mole_out.precision(6);
-    gas_mass_out.precision(6);
-    gas_msdot_out.precision(6);
-    surf_cov_out.precision(6);
-    state_var_out.precision(6);
-    rates_out.precision(6);
+    auto get_vel = [&](double fr) -> double {
+        return fr / rctr_xc_area;
+    };
 
-    auto rpa_flag = rctr_parser.RPA();
+    auto surf_init_covs = rctr_parser.getSurfPhaseCompositions();
+    fs::path curr_dir = ".";
+    for (const auto& T : T_params){
+        for (const auto& P : P_params){
+            for (const auto& fr : fr_params){
+                pfr.setVelocity(get_vel(fr));
+                string gas_comp = rctr_parser.getGasPhaseComposition();
+                gas->setState_TPX(T, P, gas_comp);
+                size_t i = 0;
+                for (const auto surf : surfaces) {
+                    surf->setState_TP(T, P);
+                    
+                    cout << "Initial Surface Coverages: " << i << endl;
+                    for (auto cov : surf_init_covs[i])
+                        cout << cov << " ";
+                    cout << endl;
+                    cout << "Density " << surf->density() << endl;
+                    //surf->setCoveragesByName(surf_init_covs[i++]);
+                    surf->solvePseudoSteadyStateProblem();
+                }
+                pfr.reinit();
+                pfr_solver.reinit();
 
-    for (const auto& z : zvals) {
-        pfr_solver.solve(z);
-        print_pfr_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
-                             gas_msdot_out, surf_cov_out, state_var_out);
-        if (rpa_flag) {
-            string rpa_file_name = "rates_z-";
-            rpa_file_name += to_string(z);
-            rpa_file_name += ".out";
-            ofstream rates_out (rpa_file_name, ios::out); // Masks the name
-            print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
-                                rates_out);
-            rates_out.precision(6);
+                string new_dir = "T-"  + to_string(T) + ",P-" + to_string(P)
+                                       + ",fr-" + to_string(fr);
+                fs::path out_dir = curr_dir;
+                if (T_params.size() > 1 || P_params.size() > 1 || fr_params.size() > 1){
+                    out_dir /= new_dir;
+                    create_directory(out_dir);
+                } 
 
-            auto rxn_index = 0;
-            print_rxn_rates(gas.get(), rxn_index, rates_out);
-            rxn_index += gas->nReactions();
-            for (auto surf : surfaces) {
-                print_rxn_rates(surf.get(), rxn_index, rates_out);
-                rxn_index += surf->nReactions();
+                ofstream gas_mole_out((out_dir / "gas_mole_ss.out").string(), ios::out);
+                ofstream gas_mass_out((out_dir / "gas_mass_ss.out").string(), ios::out);
+                ofstream gas_msdot_out((out_dir / "gas_msdot_ss.out").string(), ios::out);
+                ofstream surf_cov_out((out_dir / "surf_cov_ss.out").string(), ios::out);
+                ofstream state_var_out((out_dir / "rctr_state_ss.out").string(), ios::out);
+                ofstream rates_out((out_dir / "rates_ss.out").string(), ios::out);
+
+                gas_mole_out.precision(6);
+                gas_mass_out.precision(6);
+                gas_msdot_out.precision(6);
+                surf_cov_out.precision(6);
+                state_var_out.precision(6);
+                rates_out.precision(6);
+
+                for (const auto& z : zvals) {
+                    pfr_solver.solve(z);
+                    print_pfr_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
+                                         gas_msdot_out, surf_cov_out, state_var_out);
+                    if (rpa_flag) {
+                        string rpa_file_name = "rates_z-";
+                        rpa_file_name += to_string(z);
+                        rpa_file_name += ".out";
+                        ofstream rates_out ((out_dir / rpa_file_name).string(), ios::out); // Masks the name
+                        print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                                            rates_out);
+                        rates_out.precision(6);
+
+                        auto rxn_index = 0;
+                        print_rxn_rates(gas.get(), rxn_index, rates_out);
+                        rxn_index += gas->nReactions();
+                        for (auto surf : surfaces) {
+                            print_rxn_rates(surf.get(), rxn_index, rates_out);
+                            rxn_index += surf->nReactions();
+                        }
+                        rates_out.close();
+                    }
+                }
+
+                pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
+                pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
+                pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
+
+                // Print final rpa data
+                rates_out.precision(6);
+                auto rxn_index = 0;
+                print_rxn_rates(gas.get(), rxn_index, rates_out);
+                rxn_index += gas->nReactions();
+                for (auto surf : surfaces) {
+                    print_rxn_rates(surf.get(), rxn_index, rates_out);
+                    rxn_index += surf->nReactions();
+                }
+
+                gas_mole_out.close();
+                gas_mass_out.close();
+                gas_msdot_out.close();
+                surf_cov_out.close();
+                state_var_out.close();
+                rates_out.close();
             }
         }
     }
-
-    
-    pfr_solver.writeStateData("1d_pfr_state.out");
-    pfr_solver.writeGasData("1d_pfr_gas.out");
-    pfr_solver.writeSurfaceData("1d_pfr_surface.out");
-
-    // Print final rpa data
-    rates_out.precision(6);
-    auto rxn_index = 0;
-    print_rxn_rates(gas.get(), rxn_index, rates_out);
-    rxn_index += gas->nReactions();
-    for (auto surf : surfaces) {
-        print_rxn_rates(surf.get(), rxn_index, rates_out);
-        rxn_index += surf->nReactions();
-    }
-
-
 }
 
 }

@@ -53,11 +53,6 @@ bool IsChildNodeAvailable(Node& p_nd, vector<string> rev_descendants)
 
 void operator >> (const Node& node, vector_fp& vec)
 {
-    /*auto v_iter = vec.begin();
-    for (size_t i = 0; i < node.size(); i++, v_iter++){
-        *v_iter = strSItoDbl(node[i].as<string>());
-    }
-    */
     for (size_t i = 0; i < node.size(); i++){
         vec.push_back(strSItoDbl(node[i].as<string>()));
     }
@@ -98,21 +93,19 @@ shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
     auto gas_phase_name = gas_name_nd.as<string>();
     auto gas = make_shared<IdealGasMix>(phase_filename, gas_phase_name);
 
-    auto gas_X_nd = getChildNode(m_phase_nd, "tube.phases", 
-                                 vector<string>{"initial_state", "gas"});
-    m_X = gas_X_nd.as<string>();
-    gas->setState_TPX(m_T, m_P, m_X);
+    m_gas_X = getGasPhaseComposition();
+    gas->setState_TPX(m_T, m_P, m_gas_X);
     return gas;
 }
 
 string ReactorParser::getGasPhaseComposition()
 {
-    if (!m_X.size()){
+    if (!m_gas_X.size()){
         auto gas_X_nd = getChildNode(m_phase_nd, "tube.phases", 
                                      vector<string>{"initial_state", "gas"});
-        m_X = gas_X_nd.as<string>();
+        m_gas_X = gas_X_nd.as<string>();
     }
-    return m_X;
+    return m_gas_X;
 }
 
 bool ReactorParser::bulkPhaseDefined(string phase_filename)
@@ -154,6 +147,7 @@ vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
         auto surf_init_state = surf_nd["initial_state"].as<string>();
         surf->setState_TP(m_T, m_P);
         surf->setCoveragesByName(surf_init_state);
+        m_surf_X.push_back(surf_init_state);
         surf_phases.push_back(surf);
         surf_phases1.push_back(surf.get());
     }
@@ -161,6 +155,12 @@ vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
 
     return surf_phases;
 }
+
+vector<string> ReactorParser::getSurfPhaseCompositions()
+{
+    return m_surf_X; 
+}
+
 
 // Get Reactor Type
 RctrType ReactorParser::getReactorType()
@@ -479,9 +479,9 @@ bool ReactorParser::isP_multi_input()
     return IsChildNodeAvailable(m_simul_nd, kids);
 }
 
-bool ReactorParser::isMFR_multi_input() 
+bool ReactorParser::isFR_multi_input() 
 {
-    vector<string> massflowrate_kids {"mass_flow_rate", "multi_input"};
+    vector<string> massflowrate_kids {"flow_rate", "multi_input"};
     auto check_mfr = IsChildNodeAvailable(m_simul_nd, massflowrate_kids);
     return check_mfr;
 }
@@ -520,11 +520,11 @@ std::vector<double> ReactorParser::Ps()
     return Ps;
 }
 
-std::vector<double> ReactorParser::MFRs()
+std::vector<double> ReactorParser::FRs()
 {
     vector_fp fr;
-    if(isMFR_multi_input()){
-        vector<string> flowrate_kids {"mass_flow_rate", "multi_input"};
+    if(isFR_multi_input()){
+        vector<string> flowrate_kids {"flow_rate", "multi_input"};
         auto parameter_fr_nd = getChildNode(m_simul_nd, "simulation", flowrate_kids);
         parameter_fr_nd >> fr;
     }

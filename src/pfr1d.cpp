@@ -17,10 +17,11 @@ namespace OpenMKM
 
 PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
              vector<SurfPhase*> surf_phases, double area, double cat_abyv,
-             double inlet_gas_flowrate) 
+             double inlet_gas_velocity) 
    : ResidJacEval{}, m_gas(gas), m_surf_kins(surf_kins), 
      m_surf_phases(surf_phases), m_Ac(area), m_cat_abyv(cat_abyv), 
-     m_u0(inlet_gas_flowrate), m_heat(false), m_energy(0)
+     m_u0(inlet_gas_velocity), m_heat(false), m_energy(0), 
+     m_T_interp(nullptr)
 {
    
     suppress_thermo_warnings(SUPPRESS_WARNINGS);
@@ -57,7 +58,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
 
     //m_var.resize(neq_ - m_neqs_extra);
     //m_var = m_gas->speciesNames();
-    m_var.resize(neq_);
+    //m_var.resize(neq_);
     m_var.clear();
     m_var.push_back("Velocity(m/s)");
     m_var.push_back("Density");
@@ -107,7 +108,7 @@ void PFR1d::reinit()
     m_sdot.resize(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
 
-    m_var.resize(neq_);
+    //m_var.resize(neq_);
     m_var.clear();
     m_var.push_back("Velocity(m/s)");
     m_var.push_back("Density");
@@ -282,7 +283,6 @@ int PFR1d::getInitialConditions(const double t0,
 
     }
     
-
     Eigen::VectorXd x = A.fullPivLu().solve(b);
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
     for (size_t i = 0; i < neq_; i++)
@@ -493,7 +493,11 @@ void PFR1d::setTProfile(const map<double, double>& T_profile)
 
 double PFR1d::getT(double z)
 {
-    return m_T_interp->operator()(z);
+    if (m_T_interp == nullptr){
+        return m_T0;
+    } else{
+        return m_T_interp->operator()(z);
+    }
 }
 
 double PFR1d::evalSurfaces() 

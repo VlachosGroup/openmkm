@@ -73,13 +73,18 @@ public:
      *                    or InterfaceInteractions classes. Supply the same 
      *                    objects used for surf_kins. Supply them as 
      *                    vector<SurfPhase*>.
+     * @param pfr_xc_area PFR Cross section area
+     * @param cat_abyv    Catalyst area given w.r.t. pfr volume
+     * @param gas_velocity  Velocity of the gas entering the reactor
+     *                    Convert flow rates, residence times and mass flow rates
+     *                    into velocity using the reactor size and density
      */
     PFR1d(Cantera::IdealGasMix *gas, 
           std::vector<Cantera::InterfaceKinetics*> surf_kins,       
           std::vector<Cantera::SurfPhase*> surf_phases,
-          double pfr_crosssection_area,
+          double pfr_xc_area,
           double cat_abyv, 
-          double inlet_gas_flowrate);
+          double gas_flowrate);
 
     ~PFR1d()
     {
@@ -117,6 +122,7 @@ public:
                     const double delta_x = 0.0);
 
     //! Evaluate the production rates of the species at the surfaces
+    //! Returns the total mass of species produced at surfaces
     double evalSurfaces();
 
     unsigned getSpeciesIndex(std::string name) const
@@ -124,8 +130,10 @@ public:
         return m_gas->kineticsSpeciesIndex(name);
     }
 
+    //! Setup the constraints for each of the governing the numerical solver
     void setConstraints();
 
+    //! Get the internal energy per unit mass of the fluid in the reactor
     double getIntEnergyMass() const
     {
         return m_gas->intEnergy_mass();
@@ -165,15 +173,32 @@ public:
         return surf_var;
     }
 
+    //! Set the fluid (gas) flowrate 
+    //! The code internally uses velocity as state variable
     void setFlowRate(double flow_rate) 
     {
-        m_u0 = flow_rate;
+        if (!m_Ac){
+            auto velocity = flow_rate / m_Ac;
+            m_u0 = velocity;
+        }
+        else {
+            throw Cantera::CanteraError("PFR1d::setFlowRate",
+                               "Reactor cross section not defined.");
+        }
+    }
+
+    //! Set the fluid (gas) velocity 
+    void setVelocity(double velocity) 
+    {
+        m_u0 = velocity;
     }
 
     void getSurfaceInitialConditions(double* y);
 
     void getSurfaceProductionRates(double* y);
 
+    //! Enable energy balance condition to be solved
+    //! To be used with adiabatic and heat transfer modes
     void setEnergy(int eflag) 
     {
         if (eflag > 0) {
@@ -185,23 +210,44 @@ public:
         }
     }
 
+    //! Checks whether energy balance condition is enabled
     bool energyEnabled() const 
     {
         return m_energy;
     }
 
+    //! Setup heat transfer from external source. 
+    //! which is transferring heat through 
+    //! wall_abyv and heat transfer coefficient htc
+    /*!
+     * @param htc   Heat transfer coefficient of the conducting wall 
+     * @param Text  Temperature of exteranl heat source
+     * @param wall_abyv Area of the condicting wall with 
+     */
     void setHeatTransfer(double htc, double Text, double wall_abyv);
 
+    //! Compute the amount of heat transferred from all external heat sources. 
+    /*!
+     * @param Tint  Temperature of the reactor 
+     */
     double getHeat(double Tint) const;
 
     //! User supplied T profile in the PFR.
     //! The profile is supplied as map of distance and temperature values.
-    //! If the first z is 0.0, then T has to be equal to m_T0 at inlet.
-    //! The code doesn't do the check and if the condition is not hold,
-    //! the behavior is undefined.
+    /*!
+     * If the first z is 0.0, then T has to be equal to m_T0 at inlet.
+     * The code doesn't do the check and if the condition is not hold,
+     * the behavior is undefined.
+     * @param T_profile Temperature profile of the PFR as a function of 
+     *                  distance from inlet
+     */
     void setTProfile(const std::map<double, double>& T_profile);
 
+    //! Return the temperature of the reactor at distance z from inlet.
     //! Applicable only for cases where energy equation is not solved.
+    /*!
+     * @param z: Distance from inlet (in m)
+     */
     double getT(double z);
 
     Cantera::thermo_t& contents() 
@@ -274,7 +320,7 @@ protected:
     //! Solve Energy Equation
     bool m_energy;
 
-    //! Inlet flow rate
+    //! Inlet gas velocity
     double m_u0 = 0.0;
 
     //! Inlet temperature
@@ -287,13 +333,19 @@ protected:
     // of m_T_profile[m_T_profile_iind] and m_T_profile[m_T_profile_iind+1].
     // If m_T_profile_ind[0] > 0.0, then m_T_profile_iind=-1 and T is given as
     // linear interpolation of m_T0 and m_T_profile[0]
+    //! Not used anymore. Will be deleted in future release
     std::vector<double> m_T_profile;
 
     //! Index of Tprofile in terms of distance
+    //! Not used anymore. Will be deleted in future release
     std::vector<double> m_T_profile_ind;
     
     //! Current index of Tprofile_ind
+    //! Not used anymore. Will be deleted in future release
     int m_T_profile_iind;
+
+    //! Barycentric interpolator to interpolate temperatures for T profile 
+    std::shared_ptr<boost::math::barycentric_rational<double>> m_T_interp;
 
     //! External Heat supplied 
     bool m_heat;
@@ -310,7 +362,6 @@ protected:
     //! Inlet pressure
     double m_P0 = 0;
 
-    std::shared_ptr<boost::math::barycentric_rational<double>> m_T_interp;
 
 }; 
 
