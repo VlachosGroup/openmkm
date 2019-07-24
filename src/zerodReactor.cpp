@@ -232,37 +232,37 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     // Steady state condition makes sense For CSTR and PFR_0D 
     vector<double> T_params = rctr_parser.Ts();
     vector<double> P_params = rctr_parser.Ps();
-    vector<double> mfr_params = rctr_parser.MFRs();
-    if (!mfr_params.size()){
+    vector<double> fr_params = rctr_parser.FRs();
+    if (!fr_params.size()){
         if (rctr_type != BATCH) {
             auto mfr = inlet_mfc->massFlowRate();
-            mfr_params.push_back(mfr);
+            fr_params.push_back(mfr/gas->density());
         }
         else {
-            mfr_params.push_back(0.0);
+            fr_params.push_back(0.0);
         }
     }
 
     fs::path curr_dir = ".";
     for (const auto& T : T_params){
         for (const auto& P : P_params){
-            for (const auto& mfr : mfr_params){
+            for (const auto& fr : fr_params){
                 // Set the gas state TPX and sync the appropriate reactors
                 auto X = rctr_parser.getGasPhaseComposition();
                 gas->setState_TPX(T, P, X);
                 if (rctr_type != BATCH){
                     in_rsrv->syncState();
                     exhst->syncState();
-                    inlet_mfc->setMassFlowRate(mfr);
+                    inlet_mfc->setMassFlowRate(fr * gas->density());
                 }
                 rctr->syncState();
                 rnet.setInitialTime(0);
                 rnet.reinitialize();
 
                 string new_dir = "T-"  + to_string(T) + ",P-" + to_string(P) 
-                                       + ",mfr-" + to_string(mfr);
+                                       + ",fr-" + to_string(fr);
                 fs::path out_dir = curr_dir;
-                if (T_params.size() > 1 || P_params.size() > 1 || mfr_params.size() > 1){
+                if (T_params.size() > 1 || P_params.size() > 1 || fr_params.size() > 1){
                     out_dir /= new_dir;
                     create_directory(out_dir);
                 }

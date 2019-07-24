@@ -85,6 +85,8 @@ public:
             std::string phase_filename, 
             std::vector<Cantera::ThermoPhase*> gb_phases);
 
+    std::vector<std::string> getSurfPhaseCompositions();
+
     //! Get Reactor Type
     RctrType getReactorType();
 
@@ -151,16 +153,16 @@ public:
     bool parametric_study_enabled(){
         return (isT_multi_input() || 
                 isP_multi_input() || 
-                isMFR_multi_input());
+                isFR_multi_input());
     }
 
     bool isT_multi_input(); 
     bool isP_multi_input(); 
-    bool isMFR_multi_input(); 
+    bool isFR_multi_input(); 
 
     std::vector<double> Ts();
     std::vector<double> Ps();
-    std::vector<double> MFRs();
+    std::vector<double> FRs();
 
     /*
     bool validate() { // TODO: Implement for one shot error checking
@@ -180,7 +182,8 @@ private:
     YAML::Node m_inlet_nd;
     double m_T;         // Temperature
     double m_P;         // Pressure
-    std::string m_X;         // Gas Composition
+    std::string m_gas_X;         // Gas Composition
+    std::vector<std::string> m_surf_X;    // Surfaces Compositions
 };
 
 }

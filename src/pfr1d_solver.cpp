@@ -13,7 +13,8 @@ using namespace std;
 namespace OpenMKM 
 {
 
-PFR1dSolver::PFR1dSolver(PFR1d* pfr)
+PFR1dSolver::PFR1dSolver(shared_ptr<PFR1d> pfr) : 
+    m_solver(nullptr), m_ss_started(false)
 {
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
@@ -22,21 +23,7 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
     m_var_state = pfr->stateVariableNames();
     m_var_surf = pfr->surfaceVariableNames();
 
-    m_ss_state.precision(6);
-    m_ss_gas.precision(6);
-    m_ss_surf.precision(6);
-    try
-    {
-        m_solver = new IDA_Solver {*pfr};
-        m_solver->setJacobianType(0);
-        m_solver->setDenseLinearSolver();
-        m_solver->init(0.0);
-    }
-    catch (Cantera::CanteraError& err)
-    {
-        std::cerr << err.what() << std::endl;
-    }
-
+    m_pfr = pfr;
     /*
     vector<int> constraints(pfr->nEquations());
     for (size_t i = 0; i < pfr->nEquations(); i++){
@@ -48,6 +35,49 @@ PFR1dSolver::PFR1dSolver(PFR1d* pfr)
 
 }
 
+void PFR1dSolver::init()
+{
+    try
+    {
+        m_solver = new IDA_Solver {*m_pfr};
+        m_solver->setJacobianType(0);
+        m_solver->setDenseLinearSolver();
+        applyOptions();
+        m_solver->init(0.0);
+    }
+    catch (Cantera::CanteraError& err)
+    {
+        std::cerr << err.what() << std::endl;
+    }
+    m_ss_gas = stringstream();
+    m_ss_surf = stringstream();
+    m_ss_state = stringstream();
+    m_ss_state.precision(6);
+    m_ss_gas.precision(6);
+    m_ss_surf.precision(6);
+    m_ss_started = false;
+}
+
+void PFR1dSolver::reinit()
+{
+    if (m_solver != nullptr){
+        delete m_solver;
+    }
+    init();
+}
+
+void PFR1dSolver::applyOptions()
+{
+    if (m_rtol) // atol and rtol are supplied in pair
+        m_solver->setTolerances(m_rtol, m_atol);
+    if (m_maxSteps)
+        m_solver->setMaxNumSteps(m_maxSteps);
+    if (m_h0)
+        m_solver->setInitialStepSize(m_h0);
+    if (m_tStop)
+        m_solver->setStopTime(m_tStop);
+}
+
 PFR1dSolver::~PFR1dSolver()
 {
     if (m_solver != nullptr) delete m_solver;
@@ -55,22 +85,27 @@ PFR1dSolver::~PFR1dSolver()
 
 void PFR1dSolver::setTolerances(double rtol, double atol)
 {
-    m_solver->setTolerances(rtol, atol);
+    //m_solver->setTolerances(rtol, atol);
+    m_rtol = rtol;
+    m_atol = atol;
 }
 
-void PFR1dSolver::setMaxNumSteps(unsigned maxsteps)
+void PFR1dSolver::setMaxNumSteps(unsigned maxSteps)
 {
-    m_solver->setMaxNumSteps(maxsteps);
+    //m_solver->setMaxNumSteps(maxsteps);
+    m_maxSteps = maxSteps;
 }
 
 void PFR1dSolver::setInitialStepSize(double h0)
 {
-    m_solver->setInitialStepSize(h0);
+    m_h0 = h0;
+    //m_solver->setInitialStepSize(h0);
 }
 
-void PFR1dSolver::setStopPosition(double tstop)
+void PFR1dSolver::setStopPosition(double tStop)
 {
-    m_solver->setStopTime(tstop);
+    //m_solver->setStopTime(tstop);
+    m_tStop = tStop;
 }
 
 /*
@@ -104,7 +139,6 @@ int PFR1dSolver::solve(double xout)
             m_ss_surf << sep << m_solver->solution(i + nstate + ngas);
         }
         m_ss_surf << std::endl;
-
     };
 
     if (!m_ss_started)
