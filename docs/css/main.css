@@ -75,10 +75,12 @@ ul.posts li {
 */
 .logo {
   text-align: center;
+  background-color: rgb(255, 255, 255);
 }
 
 .logo img {
   width: 100%;
+  background-color: rgb(255, 255, 255);
 }
 
 /* When you mouse over the navigation links, change their color */
