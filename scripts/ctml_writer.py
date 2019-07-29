@@ -2656,7 +2656,7 @@ class interacting_interface(phase):
         if self._intrxns != 'none':
             self._buildintrxns(ph)
         e = ph.child("thermo")
-        e['model'] = 'InteractingSurface'
+        e['model'] = 'SurfaceCoverage'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
         k = ph.addChild("kinetics")
         k['model'] = self._kin
