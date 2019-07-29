@@ -64,6 +64,23 @@ ul.posts li {
   display: block;
 }
 
+/* Style the logo */
+
+/*
+.sidenav logo {
+  font-size: 35px;
+  font-weight: bold;
+  transition: 0.4s;
+}
+*/
+.logo {
+  text-align: center;
+}
+
+.logo img {
+  width: 100%;
+}
+
 /* When you mouse over the navigation links, change their color */
 .sidenav a:hover {
   color: #f1f1f1;
