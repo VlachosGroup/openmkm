@@ -60,7 +60,7 @@ A few points on the above Cantera compilation command:
 
 ## OpenMKM installation
 
-1. Download OpenMKM from https://vlachosgroup.gihub.com/openmkm.
+1. Download OpenMKM from https://vlachosgroup.github.com/openmkm.
 
 2. Go to OpenMKM_ROOT/src folder, where OpenMKM_ROOT is the top level directory
    of OpenMKM package, and edit SConstruct file to specify the dependencies.
