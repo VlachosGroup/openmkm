@@ -1,0 +1,43 @@
+reactor:
+    type: "pfr"
+    area: "1.0 cm2"
+    length: "0.1 cm"
+    mode: "tprofile"
+    temperature:  873
+    TProfile: 
+        0 : 873
+        "0.01 cm" : 903
+        "0.02 cm" : 933
+        "0.03 cm" : 953
+        "0.04 cm" : 973
+        "0.05 cm" : 983
+        "0.06 cm" : 993
+        "0.07 cm" : 1013
+        "0.08 cm" : 1023
+        "0.09 cm" : 1033
+        "0.10 cm" : 1043
+    pressure:  "1 atm"
+    cat_abyv: "200 /cm"
+    #wall_abyv: "20 /cm"
+    #htc: "2000 kW/m2"
+    #Text: 1200
+
+inlet_gas:
+    flow_rate: "10 cm3/s"
+
+simulation:
+    end_time: 50
+    solver:
+        atol: 1e-8
+        rtol: 1e-8
+    transient: no
+
+phases:
+    gas:
+        name: gas
+        initial_state: "CH3CH3:0.07,N2:0.93"
+    bulk: 
+        name: bulk
+    surfaces:
+        - name: terrace
+          initial_state: "PT(S):1"
