@@ -100,12 +100,12 @@ void print_omkm_header(std::ostream& out);
 /**
  * Utility function to print reaction rates
  */
-void print_rxn_rates(Cantera::Kinetics* kin, int rxn_index, std::ofstream& out);
+void print_rxn_rates(Cantera::Kinetics* kin, std::ofstream& out);
 
 /**
  * Utility function to print header before printing reaction rates
  */
-void print_rxn_rates_hdr(std::string hdr, std::ofstream& out);
+void print_rxn_rates_hdr(std::ofstream& out);
 
 /**
  * Utility function to print (1d) PFR reactor state at given distance from inlet

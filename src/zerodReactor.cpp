@@ -318,8 +318,6 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
                     state_var_print_hdr(state_var_out, "Steady State Reactor State");
 
-                    print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
-                                        rates_out);
 
                     
                     // Print the inlet state
@@ -406,28 +404,22 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         rpa_file_name += to_string((i+0.5)*rctr_vol);
                         rpa_file_name += ".out";
                         ofstream rates_out ((out_dir/rpa_file_name).string(), ios::out); // Masks the name
-                        print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
-                                            rates_out);
+                        print_rxn_rates_hdr(rates_out);
 
                         rates_out.precision(6);
 
-                        auto rxn_index = 1;
-                        print_rxn_rates(gas.get(), rxn_index, rates_out);
-                        rxn_index += gas->nReactions();
+                        print_rxn_rates(gas.get(), rates_out);
                         for (auto surf : surfaces) {
-                            print_rxn_rates(surf.get(), rxn_index, rates_out);
-                            rxn_index += surf->nReactions();
+                            print_rxn_rates(surf.get(), rates_out);
                         }
                     }
                 }
                 // Print final rpa data
+                print_rxn_rates_hdr(rates_out);
                 rates_out.precision(6);
-                auto rxn_index = 1;
-                print_rxn_rates(gas.get(), rxn_index, rates_out);
-                rxn_index += gas->nReactions();
+                print_rxn_rates(gas.get(), rates_out);
                 for (auto surf : surfaces) {
-                    print_rxn_rates(surf.get(), rxn_index, rates_out);
-                    rxn_index += surf->nReactions();
+                    print_rxn_rates(surf.get(), rates_out);
                 }
 
             }

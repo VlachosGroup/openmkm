@@ -3,6 +3,7 @@
 #include <iomanip>
 
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "io.h"
 
 using namespace std;
@@ -10,18 +11,83 @@ using namespace Cantera;
 
 namespace OpenMKM
 {
+
+//! Prints the data to conform to species input of reaction path 
+//! visualisation code, RenView
 void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
 {
     vector<string> species; 
     ofstream out (output_file);
     int sp_indx = 1;
+
+    // Get all the elements in the system
+    auto add_element = [] (string el, vector<string>& elements) {
+        auto it = find(elements.begin(), elements.end(), el);
+        if (it == elements.end()){
+            elements.push_back(el);
+        }
+    };
+
+    auto expandedComposition = [] (const compositionMap& species_comp, 
+                                    const vector<string>& elements) {
+        vector<double> compositions;
+        for (const auto& el : elements) {
+            auto it = species_comp.find(el);
+            if (it == species_comp.end()) {
+                compositions.push_back(0.0);
+            } else {
+                compositions.push_back(it->second);
+            }
+        }
+        return compositions;
+    };
+
+    vector<string> allElements; 
     for  (const auto phase: phases){
+        for (const auto& el : phase->elementNames()){
+            add_element(el, allElements);
+        }
+    }
+
+    // Print the header
+    out << setw(16) << left << "Species_name" 
+        << setw(10) << left << "Phase" 
+        << setw(16) << left << "Surf_cov";
+    for (const auto& el : allElements) 
+        out << setw(4) <<  el;
+    out << endl;
+
+    vector_fp coverages;
+    for  (auto phase: phases){
+        // Get the phase type
+        auto phase_type = phase->type();
+        if (phase_type == "StoichSubstance")
+            phase_type = "Bulk";
+        if (phase_type == "IdealGas")
+            phase_type = "Gas";
+        if (phase_type == "SurfCoverage" || phase_type == "Surf")
+            phase_type = "Surface";
+        if (phase_type == "Surface") {
+            coverages.resize(phase->nSpecies());
+            dynamic_pointer_cast<SurfPhase>(phase)->getCoverages(coverages.data());
+        }
+
+        //out.width(16); 
         for (size_t k = 0; k < phase->nSpecies(); k++) {
-            //out.width(12); 
-            //out << std::right << sp_indx++;
-            out.width(16); 
-            out << std::right << phase->speciesName(k) << endl;
-        }   
+            auto species = phase->species(k);
+            out << setw(16) << left << species->name 
+                << setw(10) << left  << phase_type;
+            if (phase_type == "Surface"){
+                out << setw(16) << coverages[k];
+            } else {
+                out << setw(16) << 0.0;
+            }
+            vector<double> comps = expandedComposition(species->composition, 
+                                                       allElements);
+            for (const auto& comp : comps)
+                out << setw(4) << comp;
+            out << endl;
+        } 
     }   
 }
 void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string output_file) 
@@ -221,18 +287,19 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
 
 void print_omkm_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
-        << "OpenMKM: version 0.1.0\n" 
+        << "OpenMKM: version 0.3.0\n" 
         << "-----------------------------------------------------------\n\n" 
-        << "OpenMKM is a multiphysics and multiscale software aimed at" << std::endl
-        << "modelng chemical kinetics for heterogeneous catalysis." << std::endl
-        << "OpenMKM is open source and is developed at Delaware Energy" << std::endl
-        << "Institute, Unitversity of Delaware.\n\n\n"; 
+        << "OpenMKM is a multiphysics, multiscale, and open source software " << std::endl
+        << "aimed at modelng chemical kinetics. It can run pure gas phase " << std::endl 
+        << "as well as surface mechanisms for heterogeneous catalysis." << std::endl
+        << "OpenMKM is developed at Delaware Energy Institute, Unitversity" << std::endl 
+        << "of Delaware. The development of OpenMKM is funded by RAPID.\n\n\n"; 
 }
 
 /**
  * Utility function to print reaction rates
  */
-void print_rxn_rates(Kinetics* kin, int rxn_start_index, ofstream& out)
+void print_rxn_rates(Kinetics* kin, ofstream& out)
 {
     vector<double> fwd_rts;
     vector<double> rev_rts;
@@ -247,7 +314,7 @@ void print_rxn_rates(Kinetics* kin, int rxn_start_index, ofstream& out)
         kin->getNetRatesOfProgress(net_rts.data());
         for (size_t i = 0; i < nRxns; i++) {
             auto pe = fwd_rts[i]/(fwd_rts[i] + rev_rts[i]);
-            out << setw(16) << rxn_start_index + i << scientific
+            out << scientific
                 << setw(16) << left << fwd_rts[i]
                 << setw(16) << left << rev_rts[i]
                 << setw(16) << left << net_rts[i]
@@ -260,10 +327,10 @@ void print_rxn_rates(Kinetics* kin, int rxn_start_index, ofstream& out)
 /**
  * Utility function to print header before printing reaction rates
  */
-void print_rxn_rates_hdr(string hdr, ofstream& out)
+void print_rxn_rates_hdr(ofstream& out)
 {
-    out << hdr << endl
-        << setw(16) << left << "Reaction No."
+    out //<< hdr << endl
+        //<< setw(16) << left << "Reaction No."
         << setw(16) << left << "Fwd Rate"
         << setw(16) << left << "Rev Rate"
         << setw(16) << left << "Net Rate"

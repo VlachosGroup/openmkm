@@ -229,16 +229,13 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                         rpa_file_name += to_string(z);
                         rpa_file_name += ".out";
                         ofstream rates_out ((out_dir / rpa_file_name).string(), ios::out); // Masks the name
-                        print_rxn_rates_hdr("Rates (mol/s) and Partial Equilibrium Analysis:",
+                        print_rxn_rates_hdr(//"Rates (mol/s) and Partial Equilibrium Analysis:",
                                             rates_out);
                         rates_out.precision(6);
 
-                        auto rxn_index = 0;
-                        print_rxn_rates(gas.get(), rxn_index, rates_out);
-                        rxn_index += gas->nReactions();
+                        print_rxn_rates(gas.get(), rates_out);
                         for (auto surf : surfaces) {
-                            print_rxn_rates(surf.get(), rxn_index, rates_out);
-                            rxn_index += surf->nReactions();
+                            print_rxn_rates(surf.get(), rates_out);
                         }
                         rates_out.close();
                     }
@@ -250,12 +247,9 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
                 // Print final rpa data
                 rates_out.precision(6);
-                auto rxn_index = 0;
-                print_rxn_rates(gas.get(), rxn_index, rates_out);
-                rxn_index += gas->nReactions();
+                print_rxn_rates(gas.get(), rates_out);
                 for (auto surf : surfaces) {
-                    print_rxn_rates(surf.get(), rxn_index, rates_out);
-                    rxn_index += surf->nReactions();
+                    print_rxn_rates(surf.get(), rates_out);
                 }
 
                 gas_mole_out.close();

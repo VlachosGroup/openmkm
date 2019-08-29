@@ -26,8 +26,11 @@ int main(int argc, char* argv[])
     print_omkm_header(gen_info);
     print_omkm_header(cout);
     if (argc < 3) {
-        // TODO: Throw error
-        ;
+        string err_str("Insufficient number of arguments.\n");
+        err_str += "OpenMKM requires one YAML file specifying simulation parameters\n";
+        err_str += "as first argument and one XML file containing thermodynamic \n";
+        err_str += "definitions in Cantera format as second argument.\n";
+        throw Cantera::CanteraError("main", err_str);
     };
 
     auto start_t = high_resolution_clock::now();
@@ -63,7 +66,6 @@ int main(int argc, char* argv[])
     /* Print the species thermodynamic info */
     print_formation_enthalpy(all_phases, "Hform.out");
     print_formation_entropy(all_phases, "Sform.out");
-    print_species(all_phases, "species.out");
 
     /* Print the reaction thermodynamic info */
     size_t n_rxns = 0;
@@ -89,6 +91,7 @@ int main(int argc, char* argv[])
     else if (rctr_type == PFR) { // 1d reactor
         run_1d_reactor(rctr_parser, gas, surf_phases, gen_info);
     }
+    print_species(all_phases, "species.out");
  
     auto end_t = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(end_t - start_t);
