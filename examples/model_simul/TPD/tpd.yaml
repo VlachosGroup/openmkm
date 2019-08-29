@@ -17,7 +17,7 @@ simulation:
         rtol: 1e-12          
     transient: true    # Mandatory node
     stepping: "regular" # If transient is true or for 'tpd' mode, user controlled step enabled.  
-    step_size: 5e-2     # Time advancement for each step. In case of logarithmic stepping, step size 
+    init_step: 5e-2     # Time advancement for each step. In case of logarithmic stepping, step size 
 
 phases:                     
     gas: 

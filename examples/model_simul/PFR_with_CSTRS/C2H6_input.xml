@@ -43,7 +43,7 @@
       <temperature units="K">873.0</temperature>
       <pressure units="Pa">101325.0</pressure>
     </state>
-    <thermo model="Surface">
+    <thermo model="SurfaceCoverage">
       <site_density units="mol/cm2">2.485e-09</site_density>
     </thermo>
     <kinetics model="Interface"/>
