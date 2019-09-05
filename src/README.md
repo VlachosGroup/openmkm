@@ -3,7 +3,7 @@
 The following pre-requisites are necessary to build OpenMKM from source:
 
   - Boost 1.67.0 or newer
-  - The modified [https://github.com/mbkumar/cantera.git][Cantera library] (*openmkm* branch)
+  - The modified [Cantera library](https://github.com/mbkumar/cantera.git) (*openmkm* branch)
 
 The Cantera library has many dependencies itself:  eigen, sundials, and fmt to name a few.  While it is permissible to build each of those pre-requisites separately, the Cantera build system can also download each of them into the source tree and embed the necessary features from each in the Cantera libraries.  The build procedure outlined in this document for Cantera uses that paradigm to keep Cantera as self-contained as possible.
 
@@ -176,7 +176,7 @@ There are a number of CMake variables that control the build:
 | `USE_EXTERNAL_YAML_CPP` | `FALSE` | Set to TRUE if your system has a copy of the yaml-cpp library present |
 | `YAML_CPP_PREFIX` | | The directory in which yaml-cpp is installed (if `USE_EXTERNAL_YAML_CPP` is `TRUE`) |
 
-If `USE_EXTERNAL_YAML_CPP` is `FALSE`, CMake will pull the latest yaml-cpp source from [https://github.com/jbeder/yaml-cpp.git][github] and build it as part of the OpenMKM project (similar to Cantera's building eigen, sundials, and fmt itself).
+If `USE_EXTERNAL_YAML_CPP` is `FALSE`, CMake will pull the latest yaml-cpp source from [github](https://github.com/jbeder/yaml-cpp.git) and build it as part of the OpenMKM project (similar to Cantera's building eigen, sundials, and fmt itself).
 
 Starting from a clean shell, the build setup proceeds as follows:
 
