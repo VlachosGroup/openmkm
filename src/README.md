@@ -191,8 +191,8 @@ Adding package `cantera/20190903:gcc9` to your environment
 Adding package `cmake/3.15.3` to your environment
 
 $ cd ${WORKDIR}/sw
-$ mkdir cantera
-$ cd cantera
+$ mkdir openmkm
+$ cd openmkm
 $ git clone https://github.com/VlachosGroup/openmkm.git src
 $ cd src
 $ mkdir build
