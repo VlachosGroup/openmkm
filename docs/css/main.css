@@ -1,5 +1,5 @@
 body {
-    margin: 250px auto;
+    margin: 150px 250px auto auto;
     width: 70%;
 }
 nav ul, footer ul {
@@ -55,13 +55,15 @@ ul.posts li {
   padding-top: 40px;
 }
 
+/*
 .container
 {
   padding-right: 15px;
   padding-left: 15px;
   margin-right: auto;
-  margin-left: 50px; /* Same as the width of the sidebar */
+  margin-left: 50px; 
 }
+*/
 
 /* The navigation menu links */
 .sidenav a {
