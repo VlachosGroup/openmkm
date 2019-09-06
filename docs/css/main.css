@@ -60,7 +60,7 @@ ul.posts li {
   padding-right: 15px;
   padding-left: 15px;
   margin-right: auto;
-  margin-left: 250px; /* Same as the width of the sidebar */
+  margin-left: 50px; /* Same as the width of the sidebar */
 }
 
 /* The navigation menu links */
