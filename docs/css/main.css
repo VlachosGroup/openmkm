@@ -55,6 +55,14 @@ ul.posts li {
   padding-top: 40px;
 }
 
+.container
+{
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: 250px; /* Same as the width of the sidebar */
+}
+
 /* The navigation menu links */
 .sidenav a {
   padding: 6px 8px 6px 16px;
