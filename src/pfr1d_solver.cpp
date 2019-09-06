@@ -49,9 +49,9 @@ void PFR1dSolver::init()
     {
         std::cerr << err.what() << std::endl;
     }
-    m_ss_gas = stringstream();
-    m_ss_surf = stringstream();
-    m_ss_state = stringstream();
+    m_ss_gas.str(std::string());
+    m_ss_surf.str(std::string());
+    m_ss_state.str(std::string());
     m_ss_state.precision(6);
     m_ss_gas.precision(6);
     m_ss_surf.precision(6);
