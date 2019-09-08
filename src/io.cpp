@@ -12,6 +12,30 @@ using namespace Cantera;
 namespace OpenMKM
 {
 
+// Prints the number of species in the mechanism
+void print_species_number(vector<shared_ptr<ThermoPhase>> phases) 
+{
+    int total_no_species = 0;
+    for  (const auto phase: phases){
+        total_no_species += phase->nSpecies();
+    }
+    cout << "Total # of species: " << total_no_species << endl;
+
+    int total_surf_species = 0;
+    for  (const auto phase: phases){
+        auto phase_type = phase->type();
+        if (phase_type == "IdealGas") {
+            cout << "Total # of  gas phase species: " << phase->nSpecies() 
+                 << endl;
+        }
+        if (phase_type == "SurfCoverage" || phase_type == "Surf"){
+            total_surf_species += phase->nSpecies();
+        }
+    }
+    cout << "Total # of surface species: " << total_surf_species << endl;
+
+}
+
 //! Prints the data to conform to species input of reaction path 
 //! visualisation code, RenView
 void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file) 

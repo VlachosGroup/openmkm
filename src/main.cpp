@@ -20,6 +20,14 @@ using namespace std::chrono;
 using namespace Cantera;
 using namespace OpenMKM;
 
+map<RctrType, std::string> RctrTypeString  = { 
+    {BATCH, "Batch Reactor"}, 
+    {CSTR, "Continous Stirred Tank Reactor (CSTR)"}, 
+    {PFR_0D, "PFR as series of CSTRs"}, 
+    {PFR, "Plug Flow Reactor (PFR)"}
+};
+
+
 int main(int argc, char* argv[]) 
 {
     ofstream gen_info ("general_info.out", ios::out);
@@ -64,6 +72,8 @@ int main(int argc, char* argv[])
     }
 
     /* Print the species thermodynamic info */
+    print_species_number(all_phases);
+
     print_formation_enthalpy(all_phases, "Hform.out");
     print_formation_entropy(all_phases, "Sform.out");
 
@@ -84,6 +94,7 @@ int main(int argc, char* argv[])
 
 
     auto rctr_type = rctr_parser.getReactorType();
+    cout << "Type of reactor: " << RctrTypeString[rctr_type] << endl;
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
         run_0d_reactor(rctr_parser, gas, surf_phases, gen_info);
 

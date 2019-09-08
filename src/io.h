@@ -24,6 +24,12 @@
 
 namespace OpenMKM
 {
+
+/**
+ * Utility function to print the species numbers in the given phases
+ */
+void print_species_number(std::vector<std::shared_ptr<Cantera::ThermoPhase>> phases);
+
 /**
  * Utility function to print all species in the given phases
  */
