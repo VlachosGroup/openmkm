@@ -9,7 +9,7 @@
 #   - kinsol (if Cantera not built with bundled sundials)
 #   - yaml-cpp (or using embedded internal build from source)
 #
-CMAKE_MINIMUM_REQUIRED (VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.11)
 PROJECT (OpenMKM VERSION 0.25.0 LANGUAGES CXX)
 SET (CMAKE_CXX_STANDARD 11)
 
@@ -63,22 +63,51 @@ ENDIF ()
 #
 SET(KINSOL_PREFIX "" CACHE PATH "kinsol is installed under this directory")
 FIND_PATH(kinsol_INCLUDE_DIRS "kinsol/kinsol.h" HINTS "${KINSOL_PREFIX}/include")
+MESSAGE("KINSOL_PREFIX=${KINSOL_PREFIX}")
+MESSAGE("kinsol_INCLUDE_DIRS=${kinsol_INCLUDE_DIRS}")
 IF ( NOT kinsol_INCLUDE_DIRS )
     #
     # See if we can find kinsol as part of Cantera:
     #
     FIND_PATH(kinsol_INCLUDE_DIRS "kinsol/kinsol.h" HINTS "${CANTERA_PREFIX}/include/cantera/ext")
+    MESSAGE("KINSOL_INCLUDE_DIRS=${KINSOL_INCLUDE_DIRS}")
     IF ( NOT kinsol_INCLUDE_DIRS )
         MESSAGE(FATAL_ERROR "Could not find the sundials header files")
     ENDIF ()
     SET(KINSOL_SKIP_LIBRARY TRUE CACHE BOOL "do not look for kinsol libraries (assume they are part of Cantera)")
 ENDIF ()
 IF ( NOT KINSOL_SKIP_LIBRARY )
-    FIND_LIBRARY(kinsol_LIBRARIES "kinsol" HINTS "${KINSOL_PREFIX}/lib" "${KINSOL_PREFIX}/lib64" ENV LD_LIBRARY_PATH)
+    FIND_LIBRARY(kinsol_LIBRARIES "kinsol" "sundials_kinsol" HINTS "${KINSOL_PREFIX}/lib" "${KINSOL_PREFIX}/lib64" ENV LD_LIBRARY_PATH)
     IF ( NOT kinsol_LIBRARIES )
         MESSAGE(FATAL_ERROR "Could not find the kinsol library")
     ENDIF ()
 ENDIF ()
+
+#
+# Locate the Eigen library:
+#
+SET(EIGEN_PREFIX "" CACHE PATH "Eigen is installed under this directory")
+FIND_PATH(eigen_INCLUDE_DIRS "Eigen/Eigen" HINTS "${EIGEN_PREFIX}")
+IF ( NOT eigen_INCLUDE_DIRS )
+    #
+    # See if we can find eigen as part of Cantera:
+    #
+    FIND_PATH(eigen_INCLUDE_DIRS "Eigen/Eigen" HINTS "${CANTERA_PREFIX}/include/cantera/ext")
+    IF ( NOT eigen_INCLUDE_DIRS )
+        MESSAGE(FATAL_ERROR "Could not find the eigen header files")
+    ENDIF ()
+    SET(EIGEN_SKIP_LIBRARY TRUE CACHE BOOL "do not look for eigen libraries (assume they are part of Cantera)")
+ENDIF ()
+IF ( NOT EIGEN_SKIP_LIBRARY )
+    FIND_LIBRARY(eigen_LIBRARIES
+            NAMES "eigen_cvcodes" "eigen_ida" "eigen_kinsol" "eigen_nvecserial"
+            HINTS "${EIGEN_PREFIX}/lib" "${EIGEN_PREFIX}/lib64" ENV LD_LIBRARY_PATH
+        )
+    IF ( NOT eigen_LIBRARIES )
+        MESSAGE(FATAL_ERROR "Could not find the eigen library")
+    ENDIF ()
+ENDIF ()
+
 
 #
 # Locate the Boost libraries:
@@ -105,6 +134,10 @@ IF ( USE_EXTERNAL_YAML_CPP )
         MESSAGE(FATAL_ERROR "Could not find the yaml-cpp library")
     ENDIF ()
 ELSE ()
+    #execute_process(COMMAND git submodule update --init -- yaml-cpp 
+    #                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    #SET(yaml_cpp_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include
+    #CACHE PATH "yaml-cpp include directory")
     ADD_SUBDIRECTORY(yaml-cpp)
 ENDIF ()
 
@@ -145,6 +178,7 @@ TARGET_INCLUDE_DIRECTORIES(omkm PUBLIC
         ${Cantera_INCLUDE_DIRS}
         ${sundials_INCLUDE_DIRS}
         ${kinsol_INCLUDE_DIRS}
+        ${eigen_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
         ${yaml_cpp_INCLUDE_DIRS}
     )
