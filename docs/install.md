@@ -31,11 +31,11 @@ sudo zypper in cmake scons"
 To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. Conan package manger has many prebuilt binaries compatible with OS and compiler versions. If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
 
 ### Installing and configuring conan
-conan can be installed simply by running 
+Conan can be installed simply by running 
 ```bash 
 pip install conan
 ```
-However, you may want to use anaconda virtual environment to install conan to not pollute your system python. 
+However, you may want to use anaconda virtual environment to install conan wihtout pollute your system python. 
 
 After conan is installed, configure it by running 
 ```bash
