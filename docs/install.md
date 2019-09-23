@@ -27,6 +27,11 @@ sudo zypper in -t pattern devel_basis"
 sudo zypper in cmake scons"
 ```
 
+After installing the packages, check the version of gcc installed.
+```bash
+gcc --version
+```
+
 ## Using conan package manager (The Easy Way)
 To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. Conan package manger has many prebuilt binaries compatible with OS and compiler versions. If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
 
@@ -40,9 +45,12 @@ However, you may want to use anaconda virtual environment to install conan wihto
 After conan is installed, configure it by running 
 ```bash
 conan profile new default --detect 
+```
+If you are using gcc compiler suite, and its version is >= 5.1 (from the output of gcc --version command), run
+```bash
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
-Run the second command, only if your compiler is GCC and its version is >= 5.1.
+Run the second command, only if your compiler is GCC 
 
 Configure the conan remotes
 ```bash
