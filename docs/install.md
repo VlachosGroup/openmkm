@@ -5,12 +5,78 @@ layout: default
 # OpenMKM Installation Guide
 
 ## Dependencies
-OpenMKM requires Cantera, SUNDIALS, Eigen, and Boost libraries. Additionally it requres
-scons package builder. (Optional) 
-Anaconda to obtain the scons builder, doxygen for building Cantera documentation, git to obtain
-source code.  Here are the
+OpenMKM source code depends on Cantera, SUNDIALS, Eigen, yaml-cpp, and Boost libraries. Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux machines), git, scons, and cmake software packages.
+ Here are the
 steps that can be used to install dependencies and OpenMKM.
 
+## Basics
+First install gcc, git, scons, and cmake using OS package managers. For Ubuntu, run
+```bash
+sudo apt-get install build-essential git-all cmake scons
+```
+
+For Fedora, run
+```bash
+sudo dnf groupinstall "Development Tools"
+sudo dnf install git-all cmake scons
+```
+
+For OpenSUSE, run
+```bash
+sudo zypper in -t pattern devel_basis"
+sudo zypper in cmake scons"
+```
+
+## Using conan package manager (The Easy Way)
+To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. Conan package manger has many prebuilt binaries compatible with OS and compiler versions. If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
+
+### Installing and configuring conan
+conan can be installed simply by running 
+```bash 
+pip install conan
+```
+However, you may want to use anaconda virtual environment to install conan to not pollute your system python. 
+
+After conan is installed, configure it by running 
+```bash
+conan profile new default --detect 
+conan profile update settings.compiler.libcxx=libstdc++11 default
+```
+Run the second command, only if your compiler is GCC and its version is >= 5.1.
+
+Configure the conan remotes
+```bash
+conan remote add vklab https://api.bintray.com/conan/dei/vklab 
+```
+Here vklab is the name given to the remote specified in the url. The name is arbitrary and you can use any name you like. Running 
+```bash
+conan remote list 
+```
+should now show
+```bash
+conan-center: https://conan.bintray.com [Verify SSL: True]
+vklab: https://api.bintray.com/conan/dei/vklab [Verify SSL: True]
+```
+
+To install OpenMKM, first create a directory and change the working directory to the newly created directory.
+```bash
+mkdir openmkm; cd openmkm
+```
+Now install OpenMKM by running
+```bash
+conan install openmkm/0.3@dei/vklab -g virturalenv --build missing
+```
+Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
+```bash
+source activate.sh
+```
+Now typing 
+```bash
+which omkm
+```
+should show the location of OpenMKM executable. Notice the long path of the openmkm executable. The root location of OpenMKM is one folder above the executable location. 
+
+## Manual compiling
 ### Boost & Eigen
 Boost and Eigen are C++ template libraries and often are distributed with Linux.
 Refer to distro package manager documentation on how to obtain them.
