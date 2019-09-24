@@ -40,7 +40,7 @@ Conan can be installed simply by running
 ```bash 
 pip install conan
 ```
-However, you may want to use anaconda virtual environment to install conan wihtout pollute your system python. 
+However, you may want to use anaconda virtual environment to install conan without polluting your system python. 
 
 After conan is installed, configure it by running 
 ```bash
@@ -50,7 +50,6 @@ If you are using gcc compiler suite, and its version is >= 5.1 (from the output 
 ```bash
 conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
-Run the second command, only if your compiler is GCC 
 
 Configure the conan remotes
 ```bash
