@@ -71,7 +71,7 @@ mkdir openmkm; cd openmkm
 ```
 Now install OpenMKM by running
 ```bash
-conan install openmkm/0.3@dei/vklab -g virturalenv --build missing
+conan install openmkm/0.3@dei/vklab -g virtualenv --build missing
 ```
 Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
 ```bash
