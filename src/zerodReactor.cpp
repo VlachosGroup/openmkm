@@ -267,13 +267,18 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     create_directory(out_dir);
                 }
 
-                ofstream gas_ss_mole_out ((out_dir /"gas_mole_ss.out").string(), ios::out);
-                ofstream gas_ss_mass_out ((out_dir/"gas_mass_ss.out").string(), ios::out);
-                ofstream gas_ss_msdot_out ((out_dir/"gas_msdot_ss.out").string(), ios::out);
-                ofstream surf_ss_out ((out_dir/"surf_cov_ss.out").string(), ios::out);
-                ofstream state_var_out ((out_dir/"rctr_state_ss.out").string(), ios::out);
-                ofstream rates_out ((out_dir/"rates_ss.out").string(), ios::out);
+                ofstream gas_ss_mole_out ((out_dir / "gas_mole_ss.out").string(), ios::out);
+                ofstream gas_ss_mass_out ((out_dir / "gas_mass_ss.out").string(), ios::out);
+                ofstream gas_ss_msdot_out ((out_dir / "gas_msdot_ss.out").string(), ios::out);
+                ofstream surf_ss_out ((out_dir / "surf_cov_ss.out").string(), ios::out);
+                ofstream state_var_ss_out ((out_dir / "rctr_state_ss.out").string(), ios::out);
+                ofstream rates_out ((out_dir / "rates_ss.out").string(), ios::out);
 
+                gas_ss_mole_out << "Gas Mole fractions at Steady State\n";
+                gas_ss_mass_out << "Gas Mass fractions at Steady State\n";
+                gas_ss_msdot_out << "Surface Production Rates of  Gas Species at Steady State\n";
+                surf_ss_out << "Surace Coverages at Steady State\n"; 
+                state_var_ss_out << "Steady State Reactor State\n";
                 
                 // Reaction path analysis (RPA) data, consisting of rates of progress.
                 // By default these values are written for simulation end time (PFR or CSTR)
@@ -281,10 +286,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 // of PFR
                 auto rpa_flag = rctr_parser.RPA();
 
-                auto state_var_print_hdr = [](ostream& out, const string hdr) -> void
+                auto state_var_print_hdr = [](ostream& out, const string ind0) -> void
                 {
-                    out << hdr << endl
-                        << setw(16) << left << "z(m)"
+                    out << setw(16) << left << ind0 //"z(m)"
                         << setw(16) << left << "Temperature(K)" 
                         << setw(16) << left << "Pressure(Pa)" 
                         << setw(16) << left << "Density(kg/m3)" 
@@ -292,22 +296,32 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         << endl;
                 };
 
-                if (rctr_type != BATCH) {
-                    gas_ss_mole_out 
-                        << "Gas Mole fractions at Steady State "  << endl;
+                auto surf_print_hdr = [&](ostream& out, const string ind0) -> void
+                {
+                    out << setw(16) << left << ind0;
+                    for (const auto surf : surfaces) {
+                        for (const auto & sp_name : surf->speciesNames()) {
+                            out << setw(16) << left << sp_name;
+                        }
+                    }
+                    out << endl;
+                };
+
+                if (rctr_type == PFR_0D) {
                     gas_print_specie_header("z(m)", gas_ss_mole_out);
-
-                    gas_ss_mass_out 
-                        << "Gas Mass fractions at Steady State "  << endl;
                     gas_print_specie_header("z(m)", gas_ss_mass_out);
-
-                    gas_ss_msdot_out 
-                        << "Surface Production Rates of  Gas Species at Steady State "  
-                        << endl;
                     gas_print_specie_header("z(m)", gas_ss_msdot_out);
-
+                    surf_print_hdr(surf_ss_out, "z(m)");
+                    state_var_print_hdr(state_var_ss_out, "z(m)");
+                } else {
+                    gas_print_specie_header("t(s)", gas_ss_mole_out);
+                    gas_print_specie_header("t(s)", gas_ss_mass_out);
+                    gas_print_specie_header("t(s)", gas_ss_msdot_out);
+                    surf_print_hdr(surf_ss_out, "t(s)");
+                    state_var_print_hdr(state_var_ss_out, "t(s)");
+                }
+                    /*
                     surf_ss_out 
-                        << "Surace Coverages at Steady State: "  << endl 
                         << setw(16) << left << "z(m)";
                     for (const auto surf : surfaces) {
                         for (const auto & sp_name : surf->speciesNames()) {
@@ -315,16 +329,17 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         }
                     }
                     surf_ss_out << endl;
+                    */
 
-                    state_var_print_hdr(state_var_out, "Steady State Reactor State");
 
 
                     
                     // Print the inlet state
                     //rnet.reinitialize();
+                if (rctr_type != BATCH) {
                     print_0d_rctr_state(0, rctr.get(), surf_phases, gas_ss_mole_out, 
                                         gas_ss_mass_out, gas_ss_msdot_out, surf_ss_out, 
-                                        state_var_out);
+                                        state_var_ss_out);
                 }
 
                 // Transient state makes sense For BATCH and CSTR 
@@ -395,9 +410,17 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     }
                     rctr->restoreState();
 
-                    print_0d_rctr_state((i+0.5)*rctr_vol, rctr.get(), surf_phases, 
+                    double ind_val;
+                    if (rctr_type == PFR_0D) {
+                        ind_val = (i+0.5)*rctr_vol;
+                    }
+                    else {
+                        ind_val = times.back();
+                    }
+                        
+                    print_0d_rctr_state(ind_val, rctr.get(), surf_phases, 
                                         gas_ss_mole_out, gas_ss_mass_out, 
-                                        gas_ss_msdot_out, surf_ss_out, state_var_out);
+                                        gas_ss_msdot_out, surf_ss_out, state_var_ss_out);
 
                     if (rpa_flag) {
                         string rpa_file_name = "rates_z-";
