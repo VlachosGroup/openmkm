@@ -249,6 +249,7 @@ _speciesnames = []
 _phases = []
 _reactions = []
 _interactions = []
+_beps = []
 _atw = {}
 _enames = {}
 
@@ -378,6 +379,11 @@ def write(outName=None):
     i['id'] = 'interaction_data'
     for interaction in _interactions:
         interaction.build(i)
+
+    b = x.addChild('bepData')
+    b['id'] = 'bep_data'
+    for bep in _beps:
+        bep.build(b)
 
     if outName == 'STDOUT':
         x.write(sys.stdout)
@@ -1206,6 +1212,14 @@ class reaction(object):
         return (math.pow(_length[_ulen], -self.ldim) *
                 math.pow(_moles[_umol], -self.mdim) / _time[_utime])
 
+    @property
+    def id(self):
+        if self._id:
+            id = self._id
+        else:
+            id = '%04i' % self._num
+        return id
+
     def build(self, p):
         if self._id:
             id = self._id
@@ -1843,6 +1857,178 @@ class lateral_interactions(object):
                 lateral_interaction(" ".join([species1, species2]), 
                                     interaction_matrix[i][j],
                                     coverage_thresholds[j])
+
+class bep(object):
+    """
+    A Bell-Evans-Polyanni relation to dynamically estimate reaction
+    activation energies from the reaction enthalpy using a linear function. 
+    It writes to XML file as 3 parameter BEP model (Slope, intercept, 
+    reaction direction) plus the reactions associated with the BEP.
+    """
+    def __init__(self,
+                 slope,
+                 intercept,
+                 direction,
+                 cleavage_reactions = [],
+                 synthesis_reactions = [],
+                 id = ''):
+        """
+        :param slope:
+            Slope (alpha) of the BEP relation
+        :param intercept:
+            Intercept (beta) of the BEP relation
+        :param direction:
+            Direction used to define the BEP for a given reaction family.
+            Could be either of cleavage, synthesis. 
+        :param cleavage_reactions
+            Give the list of the cleavage type reactions associated with
+            this BEP. Reactions ids are printed to XML file 
+            Example: 
+               >>> r = reaction(...)
+               >>> clvg_rxns = []
+               >>> clvg_rxns.append(r)
+               >>> bep(slp, intrcpt, drxn, clvg_rxns,...)
+        :param synthesis_reactions
+            Give the list of the synthesis type reactions associated with
+            this BEP. 
+        :param id:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            BEP in the file.
+        """
+        self._id = id
+        self._alpha = slope
+        self._beta = intercept
+        self._num = len(_beps) + 1
+        if (direction == "cleavage" or direction == "synthesis"):
+            self._direction = direction
+        else:
+            raise ValueError(
+                    "Error in CTML defintion \n" + \
+                    "BEP id: {}".format(self._id) + \
+                    "BEP direction should be either of cleavage or synthesis")
+        self._clv_rxns = cleavage_reactions
+        self._syn_rxns = synthesis_reactions
+
+        _beps.append(self)
+
+        
+    def unit_factor(self):
+        """
+        Conversion factor from given rate constant units to the MKS (+kmol)
+        used internally by Cantera, taking into account the reaction order.
+        """
+        return (math.pow(_length[_ulen], -self.ldim) *
+                math.pow(_moles[_umol], -self.mdim) / _time[_utime])
+
+    @property
+    def id(self):
+        if self._id:
+            id = self._id
+        else:
+            id = '%04i' % self._num
+        return id;
+
+    def build(self, p):
+        p.addComment("   bep " + self.id + "    ")
+        b = p.addChild('bep')
+        b['id'] = self.id
+        #b['alpha'] = self._alpha
+        #b['beta'] = self._beta
+        b.addChild('alpha', repr(self._alpha))
+        addFloat(b, 'beta', self._beta, fmt='%f', defunits=_ue)
+        b.addChild('direction', self._direction)
+
+        clv_rx = b.addChild('cleavage_reactions')
+        # Reaction definitions are considered local. If not local,
+        # complicated processing done as in phase has to be adapted
+        #sp = i.addChild('reactionArray', self._reactions)
+        #sp['datasrc'] = '#species_data'
+
+        if isinstance(self._clv_rxns, str):
+            self._clv_rxns = [self._clv_rxns] 
+        self._clv_rx = []
+
+        for r in self._clv_rxns:
+            icolon = r.find(':')
+            if icolon > 0: 
+                #datasrc, rnum = r.split(':')
+                datasrc = r[:icolon].strip()
+                rnum = r[icolon+1:]
+                self._clv_rx.append((datasrc+'.xml', rnum))
+            else:
+                rnum = r
+                self._clv_rx.append(('', rnum))
+
+        for r in self._clv_rx:
+            datasrc = r[0] 
+            ra = clv_rx.addChild('reactionArray')
+            ra['datasrc'] = datasrc+'#reaction_data'
+
+            rtoks = r[1].split()
+            if rtoks[0] != 'all':
+                i = ra.addChild('include')
+                i['min'] = rtoks[0]
+                if len(rtoks) > 2 and (rtoks[1] == 'to' or rtoks[1] == '-'):
+                    i['max'] = rtoks[2]
+                else:
+                    i['max'] = rtoks[0]
+
+        syn_rx = b.addChild('synthesis_reactions')
+        # Reaction definitions are considered local. If not local,
+        # complicated processing done as in phase has to be adapted
+        #sp = i.addChild('reactionArray', self._reactions)
+        #sp['datasrc'] = '#species_data'
+
+        if isinstance(self._syn_rxns, str):
+            self._syn_rxns = [self._syn_rxns] 
+        self._syn_rx = []
+
+        for r in self._syn_rxns:
+            icolon = r.find(':')
+            if icolon > 0: 
+                #datasrc, rnum = r.split(':')
+                datasrc = r[:icolon].strip()
+                rnum = r[icolon+1:]
+                self._syn_rx.append((datasrc+'.xml', rnum))
+            else:
+                rnum = r
+                self._syn_rx.append(('', rnum))
+
+        for r in self._syn_rx:
+            datasrc = r[0] 
+            ra = syn_rx.addChild('reactionArray')
+            ra['datasrc'] = datasrc+'#reaction_data'
+
+            rtoks = r[1].split()
+            if rtoks[0] != 'all':
+                i = ra.addChild('include')
+                i['min'] = rtoks[0]
+                if len(rtoks) > 2 and (rtoks[1] == 'to' or rtoks[1] == '-'):
+                    i['max'] = rtoks[2]
+                else:
+                    i['max'] = rtoks[0]
+
+
+        """
+        cleavage_rxn_str = ''
+        for rxn in self._cleavage_reactions:
+            cleavage_rxn_str += '%s ' % rxn
+        str_n = i.addChild("stringArray", cleavage_rxn_str)
+        str_n["name"] = "cleavage_reactions"
+
+        if isinstance(self._synth_rxns, str):
+            self._synth_rxns = [self._snth_rxns] 
+        synthesis_rxn_str = ''
+        for rxn in self._snthesis_reactions:
+            synthesis_rxn_str += '%s ' % rxn.id
+        str_n = i.addChild("stringArray", synthesis_rxn_str)
+        str_n["name"] = "synthesis_reactions"
+        """
+
+        return b
+
+
 
 #-------------------
 
@@ -2579,6 +2765,7 @@ class interacting_interface(phase):
                  note = '',
                  reactions = 'none',
                  interactions = 'none',
+                 beps = 'none',
                  site_density = 0.0,
                  phases = [],
                  kinetics = 'Interface',
@@ -2605,13 +2792,15 @@ class interacting_interface(phase):
                        reactions, initial_state, options)
         self._pure = 0
         self._intrxns = interactions
+        self._beps = beps
         self._kin = kinetics
         self._tr = transport
         self._phases = phases
         self._sitedens = site_density
         self._irx = []
+        self._BEPs = []
 
-    def _buildintrxns(self, p):
+    def _build_intrxns(self, p):
 
         if isinstance(self._intrxns, str):
             self._intrxns = [self._intrxns]
@@ -2649,12 +2838,36 @@ class interacting_interface(phase):
                 else:
                     i['max'] = irtoks[0]
 
+    def _build_beps(self, p):
+        if isinstance(self._beps, str):
+            self._beps = [self._beps]
+
+        # for each bep string, check whether or not the beps
+        # are imported or defined locally. If imported, the string
+        # contains a colon (:)
+        for bep in self._beps:
+            icolon = bep.find(':')
+            if icolon > 0:
+                #datasrc, rnum = r.split(':')
+                datasrc = bep[:icolon].strip()
+                bepnum = bep[icolon+1:]
+                self._BEPs.append((datasrc+'.xml', bepnum))
+            else:
+                bepnum = bep
+                self._BEPs.append(('', bepnum))
+
+        for bep in self._BEPs:
+            datasrc, names = bep
+            bepa = p.addChild('bepArray', names)
+            bepa['datasrc'] = datasrc+'#bep_data'
 
     def build(self, p):
         ph = phase.build(self, p)
 
         if self._intrxns != 'none':
-            self._buildintrxns(ph)
+            self._build_intrxns(ph)
+        if self._beps != 'none':
+            self._build_beps(ph)
         e = ph.child("thermo")
         e['model'] = 'SurfaceCoverage'
         addFloat(e, 'site_density', self._sitedens, defunits = _umol+'/'+_ulen+'2')
