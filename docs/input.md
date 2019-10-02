@@ -106,8 +106,9 @@ before reading further.
 
 ### Coverage dependent **lateral interactions** between surface species
 
-One main addition to the CTI and XML formats done by us is to add specification
-for coverage dependent lateral interactions. Coverage effects need to be
+One main addition to the CTI and XML formats done in OpenMKM is to 
+add specification for coverage dependent lateral interactions. Coverage 
+effects need to be
 incorporated into the xml file supplied to OpenMKM. Since it is easy to work
 with CTI files, users have the option of specifying coverage effects in CTI
 file and then convert the CTI file into XML file with the Python script
@@ -145,7 +146,7 @@ interface(name='TERRACE',
 ```
 
 Please note that *interacting\_interface* is superset of
-*interacting\_interface*. It means it is safe to use *interacting\_interface*
+*interface*. It means it is safe to use *interacting\_interface*
 for all surface phase whether lateral interactions are present or not.
 *At present, OpenMKM works only with surface phases defined with*
 *interacting\_interface keyword.* For phases without any lateral interactions
@@ -179,6 +180,58 @@ lateral_interactions(
                           [-20.762,   -7.8400, -11.1115,  -9.1681, -21.5412],
                           [-48.7823, -18.4208, -26.1074, -21.5412, -50.6129]],
     coverage_thresholds = [0, 0, 0, 0, 0])
+```
+
+### Specifying Bell-Evans-Polanyi  (BEP) relationships
+Another addition to the CTI and XML formats done in OpenMKM is to 
+add specification for BEP relationships. To specify BEP relationships, use
+*bep* keyword in the CTI, which takes three mandatory arguments and 
+additional optional arguments.
+- *slope*, -- slope of the BEP linear relationship 
+- *intercept*, -- intercept of the BEP relationship 
+- *direction*, -- Direction of the BEP. Supported values are *cleavage* and
+  *synthesis*. 
+- *id*, -- Optional argument to distinguish the BEP relationship. 
+  If no value is given, a numerical 4 digit integer starting with *0001* is used
+  to distinguish the BEP relationships
+- *cleavage_reactions*, -- List of reaction ids that are of cleavage type 
+- *synthsis_reactions*, -- List of reaction ids that are of synthesis type 
+
+Below are couple of ways to define BEPs in the CTI format
+
+```python
+bep(
+    0.66, (32.37, 'kcal/mol'), 'cleavage', id='C-C', 
+    cleavage_reactions = ["0001 to 0002", "0004", "0006", "0010"])
+
+bep(
+    id='C-H',
+    slope=1.02,
+    intercept=(24.44, 'kcal/mol'),
+    direction='cleavage',
+    cleavage_reactions=["0003", "0005", "0007 to 0009", "0013 to 0017"],
+    synthesis_reactions=[])
+```
+It can be observed that when arguments are given as *keyword=value*, order of 
+arguments is not important, otherwise order of the arguments has to be maintained.
+
+BEPs are added to the phase defintion using the BEP names defined with the *id*
+argument. Within the phase definition, they are specified with *beps* keyword.
+A sample phase defintion which includes BEPs is given below.
+
+```python
+interacting_interface(name='TERRACE',
+                elements="H C O N Pt",
+                species="""CH2CH3(S)  CH3(S)     H(S)       CH2(S)
+                           CHCH3(S)   CH2CH2(S)  CH(S)      CCH3(S)
+                           CHCH2(S)   C(S)       CCH2(S)    CHCH(S)
+                           CCH(S)     CC(S)      CH4(S)     PT(S)""",
+                site_density=2.485e-09,
+                phases="gas BULK",
+                reactions='all',
+                beps="C-C C-H",
+                initial_state=state(temperature=300.0, coverages="PT(S):1")) 
+
 ```
 
 ### Chemkin Users 
