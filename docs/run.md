@@ -6,7 +6,7 @@ layout: default
 When OpenMKM is installed and compiled by following the [instructions](install),
 the *omkm* executable is generated. On Linux add the *omkm* executable directory to the
 system path if it is not in the system path.  On Windows, click on *StartMenu->OpenMKM->"OpenMKM CmdLine"* 
-opens a new command line prompt with OpenMKM installation folder added to the system path. 
+to open a new command line prompt with OpenMKM installation folder added to the system path. 
 The *omkm* executable requires two input files, which are
 specified as arguments in the command line. The first argument is the name of
 yaml file specifying the reactor model parameters, and the second argument
