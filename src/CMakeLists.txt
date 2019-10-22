@@ -186,7 +186,8 @@ TARGET_LINK_LIBRARIES(omkm
         ${Cantera_LIBRARIES}
         ${sundials_LIBRARIES}
         ${kinsol_LIBRARIES}
-        ${Boost_LIBRARIES}
+        #${Boost_LIBRARIES}
+        Boost::filesystem Boost::system
         ${yaml_cpp_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )
@@ -194,4 +195,6 @@ TARGET_LINK_LIBRARIES(omkm
 #
 # What does "make install" do?
 #
-INSTALL(TARGETS omkm DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS omkm 
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT applications)
