@@ -4,6 +4,21 @@ layout: default
 
 # OpenMKM Installation Guide
 
+## Windows
+On Windows machines, GUI OpenMKM installer is available. 
+After installing the OpenMKM, open the "Start Menu", browse to OpenMKM, and click on "OpenMKM CmdLine". 
+This will open a new command line windows with OpenMKM added to the path. To test, type and run "omkm" in the command line 
+which should print description about OpenMKM. 
+
+To test further, open the "Start Menu", browse to OpenMKM, and click on *Examples*. This will open a new explorer window containing folder *examples*.
+Switch to *examples\model_simul* and copy the *batch* folder to some directory lets say *C:\Users\<your_user_name>\tmp*. Switch to 
+*C:\Users\<your_user_name>\tmp\batch* in the previously opened command line prompt and run 
+```bash
+omkm batch.yaml grimech30.xml
+```
+which should create lot of new files.
+
+
 ## Dependencies
 OpenMKM source code depends on Cantera, SUNDIALS, Eigen, yaml-cpp, and Boost libraries. Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux machines), git, scons, and cmake software packages.
  Here are the
