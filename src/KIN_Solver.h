@@ -82,8 +82,8 @@ public:
     virtual void setConstraints(const int * const flags);
     */
 
-    //! Get the stats from KINSOL after solve
-    virtual void stats();
+    //! Print the stats from KINSOL after solve
+    virtual void print_stats();
 
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called

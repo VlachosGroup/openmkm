@@ -202,8 +202,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     cout << "Size of time vector " << times.size() << endl;
     
     // Setup simulation 
-    //ReactorNet rnet; 
-    ReactorNetHybrid rnet; 
+    ReactorNet rnet; 
+    //ReactorNetHybrid rnet; 
     rnet.addReactor(*rctr);
 
     // Pass any user defined numerical options to the solver
@@ -391,12 +391,13 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     rnet.reinitialize();
                     rnet.setMaxTimeStep(1e-1);
 
+                    /*
                     if (times.size() == 1) { 
                         cout << "Solving with steady state solver" << endl;
                         rnet.setIntegratorEndTime(times[0]);
                         rnet.solve();
                     }
-                    else {
+                    else*/ {
                         for (const auto & tm : times) {
                             rnet.advance(tm);
                             if (transient_log) {

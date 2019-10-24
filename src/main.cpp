@@ -70,6 +70,8 @@ int main(int argc, char* argv[])
             all_km.push_back(surf_phase.get());
         }
     }
+    cout << "Total # of phases: " << all_phases.size() << endl;
+    cout << "Surface phase defined? " << surf_phases_defined << endl;
 
     /* Print the species thermodynamic info */
     print_species_number(all_phases);

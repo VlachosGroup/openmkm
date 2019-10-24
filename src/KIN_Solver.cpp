@@ -523,7 +523,7 @@ string KIN_Solver::getErrorInfo(int N)
 */
 
 // Get stats from KINSOL
-void KIN_Solver::stats() 
+void KIN_Solver::print_stats() 
 {
     long int nwork;
     KINGetNumFuncEvals(m_kin_mem, &nwork);

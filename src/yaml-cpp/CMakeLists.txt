@@ -2,14 +2,14 @@
 # Rather than bundling the code, we fetch it from github.
 #
 
-INCLUDE(FetchContent)
+include(FetchContent)
 
-FETCHCONTENT_DECLARE(
+FetchContent_DECLARE(
 	yaml_cpp
 	GIT_REPOSITORY	https://github.com/jbeder/yaml-cpp.git
 )
 
-FETCHCONTENT_GETPROPERTIES(yaml_cpp)
+FetchContent_GetProperties(yaml_cpp)
 IF (NOT yaml_cpp_POPULATED)
 	FETCHCONTENT_POPULATE(yaml_cpp)
 

@@ -191,7 +191,7 @@ public:
         warn("setBandwidth");
     }
 
-    virtual void stats() {
+    virtual void print_stats() {
         warn("stats");
     }
 

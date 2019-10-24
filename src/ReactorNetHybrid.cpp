@@ -67,11 +67,11 @@ void ReactorNetHybrid::setTolerances(double rtol, double atol)
 void ReactorNetHybrid::solve()
 {
     double new_time;
-    cout << "Inside the hybrid solver" << endl;
+    //cout << "Inside the hybrid solver" << endl;
     if (!m_steady_state) {
         // Advance the reactor with ode integrator first.
         new_time = step();
-        cout << "Integrator advanced to time " << new_time << endl;
+        //cout << "Integrator advanced to time " << new_time << endl;
         if (new_time >= m_final_time) { // Integrator advanced past desired end time
             cout << "Integrator time " << new_time 
                  << " advanced past desired end time "  << m_final_time 
@@ -92,8 +92,8 @@ void ReactorNetHybrid::solve()
     int ss_fail_count = 0;
     while (!nls_conv_status) {
         nls_conv_status = m_nonlin_sol->solve();
-        cerr << "Nonlinear solver convergence status " <<  nls_conv_status << endl;
-        m_nonlin_sol->stats();
+        //cerr << "Nonlinear solver convergence status " <<  nls_conv_status << endl;
+        //m_nonlin_sol->print_stats();
         if (!nls_conv_status) {
             ss_fail_count += 1;
             new_time = step();
@@ -106,7 +106,7 @@ void ReactorNetHybrid::solve()
             }
         }
     }
-    cout << "steady state solver failed " << ss_fail_count << " times" << endl;
+    //cout << "steady state solver failed " << ss_fail_count << " times" << endl;
     m_steady_state = true;
     updateState(m_nonlin_sol->solution());
 
