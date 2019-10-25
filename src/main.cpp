@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <chrono>
 
@@ -34,11 +35,14 @@ int main(int argc, char* argv[])
     print_omkm_header(gen_info);
     print_omkm_header(cout);
     if (argc < 3) {
-        string err_str("Insufficient number of arguments.\n");
+        string err_str("ERROR!!!!\n---------\nInsufficient number of arguments.\n");
         err_str += "OpenMKM requires one YAML file specifying simulation parameters\n";
         err_str += "as first argument and one XML file containing thermodynamic \n";
-        err_str += "definitions in Cantera format as second argument.\n";
-        throw Cantera::CanteraError("main", err_str);
+        err_str += "definitions in Cantera format as second argument.\n---------\n";
+        //throw Cantera::CanteraError("main", err_str);
+        cerr << err_str;
+        cout << "Exiting the program due to insufficient number of arguments" << endl;
+        return 1;
     };
 
     auto start_t = high_resolution_clock::now();
@@ -71,7 +75,7 @@ int main(int argc, char* argv[])
         }
     }
     cout << "Total # of phases: " << all_phases.size() << endl;
-    cout << "Surface phase defined? " << surf_phases_defined << endl;
+    cout << "Surface phase defined? " << boolalpha << surf_phases_defined << endl;
 
     /* Print the species thermodynamic info */
     print_species_number(all_phases);
