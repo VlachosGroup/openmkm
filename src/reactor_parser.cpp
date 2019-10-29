@@ -259,6 +259,36 @@ double ReactorParser::getCatalystAbyV()
     return strSItoDbl(cat_abyv_nd.as<string>());
 }
 
+//! Output Format
+OutputFormat ReactorParser::printFormat()
+{
+    /*   The following code may result in error if enums have a default value of 0
+    if (m_output_format == OutputFormat::DAT || m_output_format == OutputFormat::CSV)
+        return m_output_format;
+    */
+
+    auto kids = vector<string>{"output_format"};
+    if(!IsChildNodeAvailable(m_simul_nd, kids)){
+        m_output_format = OutputFormat::DAT;          // Default is DAT
+        return m_output_format;
+    }
+    auto print_format_nd = getChildNode(m_simul_nd, "simulation", kids);
+    auto print_format = print_format_nd.as<string>();
+    switch(toupper(print_format[0])){
+        case 'C':
+            m_output_format = OutputFormat::CSV;
+            break;
+        case 'D':
+            m_output_format = OutputFormat::DAT;
+            break;
+        default:
+            cout << "WARNING: Invalid output format given: Valid options are CSV or DAT. Choosing default DAT" << endl;
+            m_output_format = OutputFormat::DAT;
+    }
+
+    return m_output_format;
+}
+
 //! Get Reactor Operational Modes
 //! The implemented modes are 
 //! "isothermal" -- isothermal operation, 

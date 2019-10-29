@@ -5,12 +5,21 @@
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "io.h"
+#include "reactor_parser.h"
 
 using namespace std;
 using namespace Cantera;
 
 namespace OpenMKM
 {
+
+static OutputFormat data_format;
+
+void setOutputFormat(OutputFormat output_type)
+{
+    data_format = output_type;
+}
+
 
 // Prints the number of species in the mechanism
 void print_species_number(vector<shared_ptr<ThermoPhase>> phases) 
@@ -198,9 +207,9 @@ void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
             mgr->getDeltaSSEntropy(sRxn.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12);
-                out << std::left << sRxn[k]/GasConstant ;
+                out << scientific << std::left << sRxn[k]/GasConstant ;
                 out.width(12);
-                out << std::left << mgr->reactionString(k) << endl;
+                out << scientific << std::left << mgr->reactionString(k) << endl;
             }
         }
     }
@@ -219,7 +228,7 @@ void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
             mgr->getEquilibriumConstants(kc.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12);
-                out << std::left << kc[k];
+                out << scientific << std::left << kc[k];
                 out.width(12);
                 out << std::left << mgr->reactionString(k) << endl;
             }
@@ -240,7 +249,7 @@ void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,
             mgr->getDeltaSSGibbs(muRxn.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12); 
-                out << std::left << muRxn[k]/(GasConstant*T) ;
+                out << scientific << std::left << muRxn[k]/(GasConstant*T) ;
                 out.width(12); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
@@ -261,7 +270,7 @@ void print_rxn_kc(vector<Kinetics*> kinetic_mgrs, string output_file)
             mgr->getEquilibriumConstants(kc.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12); 
-                out << std::left << kc[k];
+                out << scientific << std::left << kc[k];
                 out.width(12); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
@@ -281,7 +290,7 @@ void print_rxn_kf(vector<Kinetics*> kinetic_mgrs, string output_file)
             mgr->getFwdRateConstants(kf.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12); 
-                out << std::left << kf[k];
+                out << scientific << std::left << kf[k];
                 out.width(12); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
@@ -301,7 +310,7 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
             mgr->getRevRateConstants(kr.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(12); 
-                out << std::left << kr[k];
+                out << scientific << std::left << kr[k];
                 out.width(12); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
@@ -313,10 +322,10 @@ void print_omkm_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
         << "OpenMKM: version 0.3.0\n" 
         << "-----------------------------------------------------------\n\n" 
-        << "OpenMKM is a multiphysics, multiscale, and open source software " << std::endl
-        << "aimed at modelng chemical kinetics. It can run pure gas phase " << std::endl 
-        << "as well as surface mechanisms for heterogeneous catalysis." << std::endl
-        << "OpenMKM is developed at Delaware Energy Institute, Unitversity" << std::endl 
+        << "OpenMKM is a multiphysics, multiscale, and open source software \n"
+        << "aimed at modelng chemical kinetics. It can run pure gas phase \n"
+        << "as well as surface mechanisms for heterogeneous catalysis.\n"
+        << "OpenMKM is developed at Delaware Energy Institute, University\n"
         << "of Delaware. The development of OpenMKM is funded by RAPID.\n\n\n"; 
 }
 
@@ -375,18 +384,34 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
 
     vector<double> work(rctr->contents().nSpecies());
 
-    state_var_out << setw(16) << left  << z
-                  << setw(16) << left  << rctr->contents().temperature()
-                  << setw(16) << left  << rctr->contents().pressure()
-                  << setw(16) << left  << rctr->contents().density()
-                  //<< setw(16) << left  << rctr->intEnergy_mass()
-                  << endl;
+    state_var_out << scientific;
+    if (data_format == OutputFormat::CSV) {
+        state_var_out << z << ","
+                      << rctr->contents().temperature() << ","
+                      << rctr->contents().pressure() << ","
+                      << rctr->contents().density() 
+                      << endl;
+    } else {
+        state_var_out << setw(16) << left  << z
+                      << setw(16) << left  << rctr->contents().temperature()
+                      << setw(16) << left  << rctr->contents().pressure()
+                      << setw(16) << left  << rctr->contents().density()
+                      << endl;
+    }
 
     auto gas_var_print = [&work, &z](ostream& out) -> void
     {
-        out << setw(16) << left << z;
-        for (auto k = 0; k < work.size(); k++) {
-            out << setw(16) << left << work[k];
+        out << scientific;
+        if (data_format == OutputFormat::CSV) {
+            out << z;
+            for (size_t k = 0; k < work.size(); k++) {
+                out << "," << work[k];
+            }
+        } else {
+            out << setw(16) << left << z;
+            for (size_t k = 0; k < work.size(); k++) {
+                out << setw(16) << left << work[k];
+            }
         }
         out << endl;
     };
@@ -399,14 +424,25 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
 
     rctr->getSurfaceProductionRates(work.data());
     gas_var_print(gas_msdot_out);
-
-
-    surf_cov_out << setw(16) << left << z;
-    for (auto j = 0;  j <  surfaces.size(); j++) {
-        work.resize(surfaces[j]->nSpecies());
-        rctr->surface(j)->getCoverages(work.data());
-        for (auto k = 0; k < work.size(); k++) {
-            surf_cov_out << setw(16) << left << work[k];
+    
+    surf_cov_out << scientific;
+    if (data_format == OutputFormat::CSV) {
+        surf_cov_out << z;
+        for (size_t j = 0;  j <  surfaces.size(); j++) {
+            work.resize(surfaces[j]->nSpecies());
+            rctr->surface(j)->getCoverages(work.data());
+            for (size_t k = 0; k < work.size(); k++) {
+                surf_cov_out << "," << work[k];
+            }
+        }
+    } else {
+        surf_cov_out << setw(16) << left << z;
+        for (size_t j = 0;  j <  surfaces.size(); j++) {
+            work.resize(surfaces[j]->nSpecies());
+            rctr->surface(j)->getCoverages(work.data());
+            for (size_t k = 0; k < work.size(); k++) {
+                surf_cov_out << setw(16) << left << work[k];
+            }
         }
     }
     surf_cov_out << endl;
@@ -420,19 +456,37 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
 
     vector<double> work(rctr->contents().nSpecies());
 
-    state_var_out << setw(16) << left  << z
-                  << setw(16) << left  << rctr->temperature()
-                  << setw(16) << left  << rctr->pressure() 
-                  << setw(16) << left  << rctr->density() 
-                  << setw(16) << left  << rctr->intEnergy_mass() 
-                  << endl;
+    state_var_out << scientific;
+    if (data_format == OutputFormat::CSV) {
+        state_var_out << z << ","
+                      << rctr->temperature() << ","
+                      << rctr->pressure()  << ","
+                      << rctr->density()  << ","
+                      << rctr->intEnergy_mass() 
+                      << endl;
+    }  else { //if (data_format == OutputFormat::DAT) {
+        state_var_out << setw(16) << left  << z
+                      << setw(16) << left  << rctr->temperature()
+                      << setw(16) << left  << rctr->pressure() 
+                      << setw(16) << left  << rctr->density() 
+                      << setw(16) << left  << rctr->intEnergy_mass() 
+                      << endl;
+    } 
 
     auto gas_var_print = [&work, &z](ostream& out) -> void
     {
-        out << setw(16) << left << z;
-        for (auto k = 0; k < work.size(); k++) {
-            out << setw(16) << left << work[k];
-        }
+        out << scientific;
+        if (data_format == OutputFormat::CSV) {
+            out << z;
+            for (size_t k = 0; k < work.size(); k++) {
+                out << "," << work[k];
+            }
+        } else { //if (data_format == OutputFormat::DAT) {
+            out << setw(16) << left << z;
+            for (size_t k = 0; k < work.size(); k++) {
+                out << setw(16) << left << work[k];
+            }
+        } 
         out << endl;
     };
 
@@ -445,12 +499,24 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
     rctr->getSurfaceProductionRates(work.data());
     gas_var_print(gas_msdot_out);
 
-    surf_cov_out << setw(16) << left << z;
-    for (auto j = 0;  j <  surfaces.size(); j++) {
-        work.resize(surfaces[j]->nSpecies());
-        rctr->surface(j)->getCoverages(work.data());    
-        for (auto k = 0; k < work.size(); k++) {
-            surf_cov_out << setw(16) << left << work[k];
+    surf_cov_out << scientific;
+    if (data_format == OutputFormat::CSV) {
+        surf_cov_out << z;
+        for (size_t j = 0;  j <  surfaces.size(); j++) {
+            work.resize(surfaces[j]->nSpecies());
+            rctr->surface(j)->getCoverages(work.data());    
+            for (size_t k = 0; k < work.size(); k++) {
+                surf_cov_out << "," << work[k];
+            }
+        }
+    } else { //if (data_format == OutputFormat::DAT) {
+        surf_cov_out << setw(16) << left << z;
+        for (size_t j = 0;  j <  surfaces.size(); j++) {
+            work.resize(surfaces[j]->nSpecies());
+            rctr->surface(j)->getCoverages(work.data());    
+            for (size_t k = 0; k < work.size(); k++) {
+                surf_cov_out << setw(16) << left << work[k];
+            }
         }
     }
     surf_cov_out << endl;

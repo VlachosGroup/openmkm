@@ -175,6 +175,10 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         return fr / rctr_xc_area;
     };
 
+    // Set the output type
+    OutputFormat data_format = rctr_parser.printFormat();
+    setOutputFormat(data_format);
+
     auto surf_init_covs = rctr_parser.getSurfPhaseCompositions();
     fs::path curr_dir = ".";
     for (const auto& T : T_params){
@@ -206,11 +210,18 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                     create_directory(out_dir);
                 } 
 
-                ofstream gas_mole_out((out_dir / "gas_mole_ss.out").string(), ios::out);
-                ofstream gas_mass_out((out_dir / "gas_mass_ss.out").string(), ios::out);
-                ofstream gas_msdot_out((out_dir / "gas_msdot_ss.out").string(), ios::out);
-                ofstream surf_cov_out((out_dir / "surf_cov_ss.out").string(), ios::out);
-                ofstream state_var_out((out_dir / "rctr_state_ss.out").string(), ios::out);
+                string file_ext;
+                if (data_format == OutputFormat::CSV) {
+                    file_ext = "csv";
+                } else {
+                    file_ext = "dat";
+                }
+
+                ofstream gas_mole_out((out_dir / ("gas_mole_ss." + file_ext)).string(), ios::out);
+                ofstream gas_mass_out((out_dir / ("gas_mass_ss." + file_ext)).string(), ios::out);
+                ofstream gas_msdot_out((out_dir / ("gas_msdot_ss." + file_ext)).string(), ios::out);
+                ofstream surf_cov_out((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
+                ofstream state_var_out((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
                 ofstream rates_out((out_dir / "rates_ss.out").string(), ios::out);
 
                 gas_mole_out.precision(6);
