@@ -20,7 +20,7 @@ INCLUDE(GNUInstallDirs)
 #
 # Locate the Cantera library:
 #
-SET(CANTERA_PREFIX "" CACHE PATH "Cantera is installed under this directory")
+SET(CANTERA_PREFIX "" CACHE PATH "Cantera is installed under this directory")# PARENT_SCOPE)
 FIND_PATH(Cantera_INCLUDE_DIRS "cantera/Interface.h" HINTS "${CANTERA_PREFIX}/include")
 IF ( NOT Cantera_INCLUDE_DIRS )
     MESSAGE(FATAL_ERROR "Could not find the Cantera headers")
