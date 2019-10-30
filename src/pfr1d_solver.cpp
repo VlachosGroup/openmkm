@@ -126,7 +126,7 @@ int PFR1dSolver::solve(double xout)
         m_ss_state << scientific << x;;
         m_ss_gas << scientific << x;
         m_ss_surf << scientific << x;
-        cout << x << endl;
+        //cout << x << endl;
         for (unsigned i = 0; i != nstate; ++i) {
             m_ss_state << sep << m_solver->solution(i);
         }

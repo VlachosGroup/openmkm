@@ -59,7 +59,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     //Define the reactor based on the input file
     auto rctr = make_shared<IdealGasTRampReactor>();
     rctr->insert(*gas);
-    gen_info_out << "reactor density " << rctr->density() << endl;
+    gen_info_out << "Reactor density " << rctr->density() << endl;
 
     // Read the reactor dimensions
     double rctr_vol = rctr_parser.getVolume();
@@ -159,6 +159,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
     // Read the reactor mode and set corresponding parameters
     string mode = rctr_parser.getMode();
+    cout << "Reactor temperature mode: " << mode << endl;
+    gen_info_out << "Reactor Temperature mode: "  << mode << endl;
 
     // heat_rsrv and wall are nominally defined.
     // They are used if heat transfer is required.

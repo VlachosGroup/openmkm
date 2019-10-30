@@ -27,27 +27,27 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     suppress_thermo_warnings(SUPPRESS_WARNINGS);
 
     cout << boolalpha
-             << "\nIntegrating PFR"
-             << "\nUsing Sundials : " << CT_SUNDIALS_VERSION
-             << "\nUsing LAPACK   : " << bool(CT_SUNDIALS_USE_LAPACK)
-             << endl;
+         //<< setw(16) << "\nReactor Model:  " << "PFR"
+         << setw(16) << "\nUsing Sundials? " << CT_SUNDIALS_VERSION
+         << setw(16) << "\nUsing LAPACK?   " << bool(CT_SUNDIALS_USE_LAPACK)
+         << endl;
 
     m_rho_ref = m_gas->density();
 
-    cout << "energy enabled? " << energyEnabled() << endl;
+    cout << boolalpha << setw(16) << "Energy enabled? " << energyEnabled() << endl;
     m_nsp = m_gas->nSpecies();
     if (energyEnabled()) 
         m_neqs_extra = 4;
     else
         m_neqs_extra = 3;
-    cout << "m_neqs_extra: " << m_neqs_extra << endl;
+    //cout << "m_neqs_extra: " << m_neqs_extra << endl;
 
     neq_ = m_nsp + m_neqs_extra;
-    cout << "neq " << neq_ << endl;
+    //cout << "neq " << neq_ << endl;
     for (const auto s_ph : m_surf_phases) {
         neq_ += s_ph->nSpecies();
     }
-    cout << "neq " << neq_ << endl;
+    //cout << "neq " << neq_ << endl;
 
     m_W.resize(m_nsp);
     m_gas->getMolecularWeights(m_W.data());
@@ -78,7 +78,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
 
     m_T0 = gas->temperature();
     m_P0 = gas->pressure();
-    cout << "get heat: " << getHeat(m_T0) << endl;
+    cout << setw(16) << "External heat supplied: " << getHeat(m_T0) << endl;
 }   
 
 void PFR1d::reinit()
@@ -86,20 +86,20 @@ void PFR1d::reinit()
 
     m_rho_ref = m_gas->density();
 
-    cout << "energy enabled? " << energyEnabled() << endl;
+    cout << boolalpha << "Energy enabled? " << energyEnabled() << endl;
     m_nsp = m_gas->nSpecies();
     if (energyEnabled())
         m_neqs_extra = 4;
     else
         m_neqs_extra = 3;
-    cout << "m_neqs_extra: " << m_neqs_extra << endl;
+    //cout << "m_neqs_extra: " << m_neqs_extra << endl;
 
     neq_ = m_nsp + m_neqs_extra;
-    cout << "neq " << neq_ << endl;
+    //cout << "neq " << neq_ << endl;
     for (const auto s_ph : m_surf_phases) {
         neq_ += s_ph->nSpecies();
     }
-    cout << "neq " << neq_ << endl;
+    //cout << "neq " << neq_ << endl;
 
     m_W.resize(m_nsp);
     m_gas->getMolecularWeights(m_W.data());
@@ -133,6 +133,7 @@ void PFR1d::reinit()
 
 void PFR1d::setConstraints()
 {
+    cout << boolalpha << "Constraints Enabled: " << true << endl;
     constrain(0, c_GT_ZERO);
     constrain(1, c_GT_ZERO);
     constrain(2, c_GT_ZERO);
@@ -172,19 +173,21 @@ int PFR1d::getInitialConditions(const double t0,
     y[0] = m_u0;
     y[1] = rho0;
     y[2] = m_P0;
+    /*
     cout << 0 << " y " << y[0] << endl
          << 1 << " y " << y[1] << endl
-         << 2 << " y " << y[2] << endl;
+         << 2 << " y " << y[2] << endl;*/
     int gas_start_loc;
     if (energyEnabled()) {
         y[3] = m_T0;
-        cout << 3 << " y " << y[3] << endl;
+        //cout << 3 << " y " << y[3] << endl;
     }
 
     m_gas->getMassFractions(y + m_neqs_extra);
+    /*
     for (size_t i = 0; i < m_nsp; i++){
         cout << i << " y " << y[i + m_neqs_extra] << endl;
-    }
+    }*/
 
     auto loc = m_nsp + m_neqs_extra;
     for (const auto s_ph : m_surf_phases) {
@@ -238,7 +241,7 @@ int PFR1d::getInitialConditions(const double t0,
         A(3,1) = 0;            // rho'
         A(3,2) = 0;            // p'
         A(3,3) = rho0 * m_u0 * cp;// * GasConstant;            // T'
-        cout << "A(3,3) " << A(3, 3) << endl;
+        //cout << "A(3,3) " << A(3, 3) << endl;
 
         vector<double> H_rt(m_nsp);
         m_gas->getEnthalpy_RT(H_rt.data());
@@ -246,25 +249,26 @@ int PFR1d::getInitialConditions(const double t0,
         for (size_t i = 0; i < m_nsp; i++){
             //b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr_k[i];
             b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) *  H_rt[i];
-            cout << i << " msdot " << m_sdot[i] << endl
+            /*cout << i << " msdot " << m_sdot[i] << endl
                  //<< i << " m_W " << m_W[i] << endl
                  << i << " H_rt " <<  H_rt[i] << endl;
             cout << "Running b(3) " << b(3) << endl;
             cout << m_cat_abyv << endl;
+            */
         }
 
-        cout << "b(3) before multiplication : " << b(3) << endl;
+        //cout << "b(3) before multiplication : " << b(3) << endl;
         //b(3) *= m_T0;
         b(3) *= RT;
-        cout << "b(3) after multiplication : " << b(3) << endl;
+        //cout << "b(3) after multiplication : " << b(3) << endl;
         b(3) += getHeat(m_T0);///GasConstant;
-        cout << "get heat: " << getHeat(m_T0) << endl;
-        cout << "b(3): " << b(3) << endl;
+        //cout << "get heat: " << getHeat(m_T0) << endl;
+        //cout << "b(3): " << b(3) << endl;
     }
 
 
     b(0) = m_cat_abyv * mdot_surf;          // RHS continuity
-    cout << "b(0): " << b(0) << endl;
+    //cout << "b(0): " << b(0) << endl;
     b(1) = 0;                               // RHS momentum
     b(2) = 0;                               // RHS state
     //if (energyEnabled()){
@@ -273,20 +277,21 @@ int PFR1d::getInitialConditions(const double t0,
     // Gas phase species
     for (unsigned k = m_neqs_extra; k < m_nsp + m_neqs_extra; ++k)
     {
-        cout << " y[k] " << y[k] << endl;
+        //cout << " y[k] " << y[k] << endl;
         auto i = k - m_neqs_extra;
         // For species equations.
         A(k, k) = rho0 * m_u0;
         b(k) = (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] -
                y[k] * mdot_surf * m_cat_abyv;
-        cout << k << " b(k) " << b(k) << endl; 
+        //cout << k << " b(k) " << b(k) << endl; 
 
     }
     
     Eigen::VectorXd x = A.fullPivLu().solve(b);
     Eigen::VectorXd::Map(ydot, x.rows()) = x;
+    /*
     for (size_t i = 0; i < neq_; i++)
-        cout << "i " << i << " ydot[i] " << ydot[i] << endl;
+        cout << "i " << i << " ydot[i] " << ydot[i] << endl;*/
 
     return 0;
 }

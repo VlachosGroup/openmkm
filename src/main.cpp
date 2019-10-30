@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 
 
     auto rctr_type = rctr_parser.getReactorType();
-    cout << "Type of reactor: " << RctrTypeString[rctr_type] << endl;
+    cout << "Reactor Model: " << RctrTypeString[rctr_type] << endl;
     if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
         run_0d_reactor(rctr_parser, gas, surf_phases, gen_info);
 

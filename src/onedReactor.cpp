@@ -74,6 +74,12 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     if(rctr_parser.catalystAreaDefined()) {
         cat_abyv = rctr_parser.getCatalystAbyV();
     }
+    cout << "Catalyst loading (Area/Volume): " << cat_abyv << endl;
+    if (cat_abyv == 0.0 && surfaces.size() > 0) {
+        cout << "WARNING!!!\nCatalyst loading is zero.\n"
+             << "Ignoring the surface phases given in the YAML file\n"
+             << "--------------\n";
+    }
 
     vector<InterfaceKinetics*> ikin;
     vector<SurfPhase*> surf_ph;
@@ -94,7 +100,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     // Start the simulation
     gen_info << "Solving for equilibirum surface coverages at PFR inlet" << endl;
     for (const auto surf: surfaces) {
-        cout << "Density " << surf->density() << endl;
+        cout << "Surface Site Density " << surf->density() << endl;
         surf->solvePseudoSteadyStateProblem();
         vector<double> cov(surf->nSpecies());
         surf->getCoverages(cov.data());
@@ -109,7 +115,8 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     
     //string mode = rctr_node["mode"].as<string>();
     string mode = rctr_parser.getMode();
-    cout << "mode " << mode << endl;
+    cout << "Reactor temperature mode: " << mode << endl;
+    gen_info << "Reactor temperature mode: "  << mode << endl;
     if (mode == "isothermal") {
         pfr.setEnergy(0);
     }
@@ -128,7 +135,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         pfr.reinit();
     }
     pfr.setConstraints();
-    gen_info << "Reactor operating mode: "  << mode << endl;
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
     
     /*
