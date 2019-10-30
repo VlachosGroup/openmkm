@@ -35,6 +35,11 @@ enum RctrType {
     PFR
 };
 
+enum OutputFormat {
+    DAT,
+    CSV
+};
+
 class ReactorParser {
 public:
     ReactorParser() :
@@ -164,6 +169,8 @@ public:
     std::vector<double> Ps();
     std::vector<double> FRs();
 
+    OutputFormat printFormat();
+
     /*
     bool validate() { // TODO: Implement for one shot error checking
         return true;
@@ -184,6 +191,7 @@ private:
     double m_P;         // Pressure
     std::string m_gas_X;         // Gas Composition
     std::vector<std::string> m_surf_X;    // Surfaces Compositions
+    OutputFormat m_output_format;
 };
 
 }

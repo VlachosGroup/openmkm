@@ -20,10 +20,17 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/Reactor.h"
 
+
 #include "pfr1d.h"
+#include "reactor_parser.h"
 
 namespace OpenMKM
 {
+
+/**
+ * Global utility function to specify the data format. The input options are DAT or CSV.
+ */
+void setOutputFormat(OutputFormat output_type);
 
 /**
  * Utility function to print the species numbers in the given phases
