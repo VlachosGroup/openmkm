@@ -186,9 +186,9 @@ void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string out
             hrxn.resize(size);
             mgr->getDeltaEnthalpy(hrxn.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12);
-                out << std::left << hrxn[k]/(GasConstant*T) ;
-                out.width(12);
+                out.width(16);
+                out << scientific << std::left << hrxn[k]/(GasConstant*T) ;
+                out.width(16);
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -206,9 +206,9 @@ void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
             sRxn.resize(size);
             mgr->getDeltaSSEntropy(sRxn.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12);
+                out.width(16);
                 out << scientific << std::left << sRxn[k]/GasConstant ;
-                out.width(12);
+                out.width(16);
                 out << scientific << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -227,9 +227,9 @@ void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
             kc.resize(size);
             mgr->getEquilibriumConstants(kc.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12);
+                out.width(16);
                 out << scientific << std::left << kc[k];
-                out.width(12);
+                out.width(16);
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -248,9 +248,9 @@ void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,
             muRxn.resize(size);
             mgr->getDeltaSSGibbs(muRxn.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12); 
+                out.width(16); 
                 out << scientific << std::left << muRxn[k]/(GasConstant*T) ;
-                out.width(12); 
+                out.width(16); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -269,9 +269,9 @@ void print_rxn_kc(vector<Kinetics*> kinetic_mgrs, string output_file)
             kc.resize(size);
             mgr->getEquilibriumConstants(kc.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12); 
+                out.width(16); 
                 out << scientific << std::left << kc[k];
-                out.width(12); 
+                out.width(16); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -289,9 +289,9 @@ void print_rxn_kf(vector<Kinetics*> kinetic_mgrs, string output_file)
             kf.resize(size);
             mgr->getFwdRateConstants(kf.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12); 
+                out.width(16); 
                 out << scientific << std::left << kf[k];
-                out.width(12); 
+                out.width(16); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }
@@ -309,9 +309,9 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
             kr.resize(size);
             mgr->getRevRateConstants(kr.data());
             for (size_t k = 0; k < size; k++) {
-                out.width(12); 
+                out.width(16); 
                 out << scientific << std::left << kr[k];
-                out.width(12); 
+                out.width(16); 
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }

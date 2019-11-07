@@ -19,6 +19,7 @@ simulation:
         atol: 1e-8
         rtol: 1e-8
     transient: no
+    output_format: CSV
 
 phases:
     gas:

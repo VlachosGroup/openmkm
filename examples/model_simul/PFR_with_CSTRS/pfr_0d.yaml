@@ -1,7 +1,7 @@
 reactor:                
     type: "pfr_0d"
     volume: "0.1 cm3"
-    nodes: 1000
+    nodes: 100
     mode: isothermal  
     temperature:  873   
     pressure:  "1 atm"  
@@ -11,11 +11,12 @@ inlet_gas:
     flow_rate: "10 cm3/s" 
 
 simulation:
-    end_time: 100
+    end_time: 50
     solver:
         atol: 1e-10         
         rtol: 1e-8          
     transient: no
+    output_format: csv
 
 phases:                     
     gas: 
