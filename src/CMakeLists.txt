@@ -10,7 +10,7 @@
 #   - yaml-cpp (or using embedded internal build from source)
 #
 CMAKE_MINIMUM_REQUIRED (VERSION 3.11)
-PROJECT (OpenMKM VERSION 0.25.0 LANGUAGES CXX)
+PROJECT (OpenMKM VERSION 0.40.0 LANGUAGES CXX)
 SET (CMAKE_CXX_STANDARD 11)
 
 # Must use GNUInstallDirs to install libraries into correct
