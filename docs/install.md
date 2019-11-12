@@ -38,8 +38,8 @@ sudo dnf install git-all cmake scons
 
 For OpenSUSE, run
 ```bash
-sudo zypper in -t pattern devel_basis"
-sudo zypper in cmake scons"
+sudo zypper in -t pattern devel_basis
+sudo zypper in cmake scons
 ```
 
 After installing the packages, check the version of gcc installed.
@@ -86,7 +86,7 @@ mkdir openmkm; cd openmkm
 ```
 Now install OpenMKM by running
 ```bash
-conan install openmkm/0.3@dei/vklab -g virtualenv --build missing
+conan install openmkm/0.4@dei/vklab -g virtualenv --build missing
 ```
 Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
 ```bash
