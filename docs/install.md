@@ -131,7 +131,7 @@ Both Cantera and OpenMKM use *scons*, a Python based build tool that is
 functionally similar to *cmake*, for build purposes. The following command
 could be used to compile Cantera on Linux machines, where SUNDIALS is pre-installed.
 ``` bash
-scons build python_package=n f90_interface=n doxygen_docs=n \
+scons build optimize=False python_package=n f90_interface=n doxygen_docs=n \
 system_eigen=y system_sundials=y sundials_libdir=/usr/lib64 \
 python_cmd=~/anaconda3/envs/<env_name>/bin/python \
 python_prefix=~/anaconda3/envs/<env_name>/lib/python3.7/site-packages \
@@ -153,7 +153,7 @@ A few points on the above Cantera compilation command:
 
 Another way of installation is to install SUNDIALS and Eigen while installing cantera.
 ``` bash
-scons build python_package=n f90_interface=n doxygen_docs=n \
+scons build optimize=False python_package=n f90_interface=n doxygen_docs=n \
 system_eigen=n system_sundials=n \
 python_cmd=~/anaconda3/envs/<env_name>/bin/python \
 python_prefix=~/anaconda3/envs/<env_name>/lib/python3.7/site-packages 
