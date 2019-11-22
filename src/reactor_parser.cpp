@@ -390,7 +390,7 @@ double ReactorParser::getSolverInitStepSize()
 {
     auto initstep_nd = getChildNode(m_simul_nd, "tube.simulation",
                                     vector<string>{"init_step_size", "solver"});
-    return initstep_nd.as<double>();
+    return strSItoDbl(initstep_nd.as<string>());
 }
 
 //! Checks if maximum no of steps taken by solver is defined
@@ -448,7 +448,7 @@ double ReactorParser::getInitStep()
 {
     auto initstep_nd = getChildNode(m_simul_nd, "tube.simulation",
                                     vector<string>{"init_step"});
-    return initstep_nd.as<double>();
+    return strSItoDbl(initstep_nd.as<string>());
 }
 
 //! Parses the flag to enable transient output 

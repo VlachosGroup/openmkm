@@ -33,21 +33,18 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
          << endl;
 
     m_rho_ref = m_gas->density();
-
     cout << boolalpha << setw(16) << "Energy enabled? " << energyEnabled() << endl;
     m_nsp = m_gas->nSpecies();
     if (energyEnabled()) 
         m_neqs_extra = 4;
     else
         m_neqs_extra = 3;
-    //cout << "m_neqs_extra: " << m_neqs_extra << endl;
 
     neq_ = m_nsp + m_neqs_extra;
     //cout << "neq " << neq_ << endl;
     for (const auto s_ph : m_surf_phases) {
         neq_ += s_ph->nSpecies();
     }
-    //cout << "neq " << neq_ << endl;
 
     m_W.resize(m_nsp);
     m_gas->getMolecularWeights(m_W.data());
