@@ -3118,6 +3118,19 @@ class Lindemann(object):
 validate()
 
 def convert(filename=None, outName=None, text=None):
+    # Clear global variables
+    global _elements, _species, _speciesnames, _phases, _reactions, \
+           _interactions, _beps, _atw, _enames
+    _elements = []
+    _species = []
+    _speciesnames = []
+    _phases = []
+    _reactions = []
+    _interactions = []
+    _beps = []
+    _atw = {}
+    _enames = {}
+
     import os
     if filename is not None:
         filename = os.path.expanduser(filename)
