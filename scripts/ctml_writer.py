@@ -1765,14 +1765,6 @@ class lateral_interaction(object):
 
         _interactions.append(self)
 
-    def unit_factor(self):
-        """
-        Conversion factor from given rate constant units to the MKS (+kmol)
-        used internally by Cantera, taking into account the reaction order.
-        """
-        return (math.pow(_length[_ulen], -self.ldim) *
-                math.pow(_moles[_umol], -self.mdim) / _time[_utime])
-
     def build(self, p):
         if self._id:
             id = self._id
@@ -1794,6 +1786,8 @@ class lateral_interaction(object):
             str_str += '%17.9E, ' % strength
         str_n = i.addChild("floatArray", str_str)
         str_n["name"] = "strength"
+        strength_units = _uenergy+'/'+_umol
+        str_n["units"] = strength_units
 
         cov_str = ''
         for cov_thr in self._coverage_thresholds:
