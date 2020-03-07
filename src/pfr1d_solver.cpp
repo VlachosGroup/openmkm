@@ -14,7 +14,8 @@ namespace OpenMKM
 {
 
 PFR1dSolver::PFR1dSolver(shared_ptr<PFR1d> pfr) : 
-    m_solver(nullptr), m_ss_started(false)
+    m_solver(nullptr), m_ss_started(false),
+    m_atol(0), m_rtol(0), m_atolsens(0), m_rtolsens(0)
 {
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
@@ -76,6 +77,8 @@ void PFR1dSolver::applyOptions()
         m_solver->setInitialStepSize(m_h0);
     if (m_tStop)
         m_solver->setStopTime(m_tStop);
+    if (m_rtolsens)
+        m_solver->setSensitivityTolerances(m_rtolsens, m_atolsens);
 }
 
 PFR1dSolver::~PFR1dSolver()
@@ -85,21 +88,24 @@ PFR1dSolver::~PFR1dSolver()
 
 void PFR1dSolver::setTolerances(double rtol, double atol)
 {
-    //m_solver->setTolerances(rtol, atol);
     m_rtol = rtol;
     m_atol = atol;
 }
 
+void PFR1dSolver::setSensitivityTolerances(double rtol, double atol)
+{
+    m_rtolsens = rtol;
+    m_atolsens = atol;
+}
+
 void PFR1dSolver::setMaxNumSteps(unsigned maxSteps)
 {
-    //m_solver->setMaxNumSteps(maxsteps);
     m_maxSteps = maxSteps;
 }
 
 void PFR1dSolver::setInitialStepSize(double h0)
 {
     m_h0 = h0;
-    //m_solver->setInitialStepSize(h0);
 }
 
 void PFR1dSolver::setStopPosition(double tStop)

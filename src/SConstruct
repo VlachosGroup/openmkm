@@ -15,7 +15,7 @@ sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp",
            ]
 
 env.Program(target="omkm", source=sources, 
-            LIBS=["cantera", "sundials_cvodes", "sundials_ida", 
+            LIBS=["cantera", "sundials_cvodes", "sundials_idas", 
                   "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp", 
                   "boost_filesystem", "boost_system"],
             LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", 

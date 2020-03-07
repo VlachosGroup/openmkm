@@ -145,13 +145,16 @@ public:
     double getInitStep();
     std::string steppingType();
     double getEndTime();
+    bool RPA();
 
     // Simulation flags for TPD
     double getTPDTempRamp();
     double getTPDEndTemp();
 
-    bool RPA();
-
+    // Sensitivity Analysis
+    bool SAEnabled();
+    double get_satol();
+    double get_srtol();
 
 
     //! Parametric study 

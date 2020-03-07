@@ -28,6 +28,8 @@ public:
     
     void setTolerances(double rtol, double atol);
 
+    void setSensitivityTolerances(double rtol, double atol);
+
     void setMaxNumSteps(unsigned maxsteps);
 
     void setMaxTimeStep(double maxtimestep);
@@ -44,12 +46,24 @@ public:
         return m_z;
     }
 
+    //! Relative tolerance
     double rtol(){
         return m_rtol;
     }
 
+    //! Absolute tolerance
     double atol(){
         return m_atol;
+    }
+
+    //! Relative sensitivity tolerance
+    doublereal rtolSensitivity() const {
+        return m_rtolsens;
+    }
+
+    //! Absolute sensitivity tolerance
+    doublereal atolSensitivity() const {
+        return m_atolsens;
     }
 
     double solution(unsigned num) const;
@@ -110,6 +124,12 @@ protected:
 
     //! Relative DAE solver tolerance
     double m_rtol;
+
+    //! Absolute DAE solver tolerance for sensitivity
+    double m_atolsens;
+
+    //! Relative DAE solver tolerance for sensitivity
+    double m_rtolsens;
 
     //! Initial Step Size
     double m_h0;
