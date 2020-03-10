@@ -155,6 +155,7 @@ public:
     bool SAEnabled();
     double get_satol();
     double get_srtol();
+    std::vector<std::string> getSAReactions();
 
 
     //! Parametric study 

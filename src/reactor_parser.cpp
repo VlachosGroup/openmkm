@@ -561,5 +561,43 @@ std::vector<double> ReactorParser::FRs()
     return fr;
 }
 
+// Parsing sensitivity related variables
+bool ReactorParser::SAEnabled()
+{
+    vector<string> kids {"sensitivity"};
+    return IsChildNodeAvailable(m_simul_nd, kids);
 }
 
+double ReactorParser::get_srtol()
+{
+
+    vector<string> kids {"rtol", "sensitivity"};
+    if (!IsChildNodeAvailable(m_simul_nd, kids)){
+        return 0.0;
+    }
+    auto rtol_nd = getChildNode(m_simul_nd, "tube.simulation", kids);
+    return rtol_nd.as<double>();
+}
+
+double ReactorParser::get_satol()
+{
+    vector<string> kids {"atol", "sensitivity"};
+    if (!IsChildNodeAvailable(m_simul_nd, kids)){
+        return 0.0;
+    }
+    auto atol_nd = getChildNode(m_simul_nd, "tube.simulation", kids);
+    return atol_nd.as<double>();
+}
+
+vector<string> ReactorParser::getSAReactions()
+{
+    vector<string> rxn_ids;
+    vector<string> kids {"reactions", "sensitivity"};
+    auto SArxn_nd = getChildNode(m_simul_nd, "simulation", kids);
+    for(YAML::const_iterator it = SArxn_nd.begin(); it != SArxn_nd.end(); ++it) {
+        rxn_ids.push_back(it->as<string>());
+    }
+    return rxn_ids;
+}
+
+}
