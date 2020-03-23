@@ -89,7 +89,7 @@ public:
     ~PFR1d()
     {
         Cantera::appdelete();
-        m_T_interp = nullptr;
+        //m_T_interp = nullptr;
     }
 
     void reinit();
