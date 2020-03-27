@@ -23,6 +23,7 @@
 
 #include <boost/math/interpolators/barycentric_rational.hpp>
 
+#include "cantera/zeroD/ReactorBase.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -58,6 +59,12 @@ static inline double sccmTocmps(doublereal sccm)
  * state of PFR at the inlet is used to propagate the state as a function of z by
  * solving differential algebraic governing equations of the PFR.
  */
+
+//TODO: Clean up PFR implementation to correspond to that of the
+//TODO: zeroD reactors. Implement a Reactor Surface model 
+//TODO: corresponding to zeroD 
+//TODO: reactor surface model for the PFR. Current PFR doesn't 
+//TODO: exhibit modularity well.
 class PFR1d : public Cantera::ResidJacEval
 {
 public:
@@ -274,12 +281,26 @@ public:
         return m_surf_phases[n];
     }
 
+    //! Number of sensitivity parameters associated with this reactor
+    //! (including walls)
+    virtual size_t nSensParams();
+
+    //! Add a sensitivity parameter associated with the reaction number *rxn*
+    //! (in the homogeneous phase).
+    virtual void addSensitivityReaction(std::string rxn_id);
+
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* (in the homogeneous phase)
+    //virtual void addSensitivitySpeciesEnthalpy(size_t k);
+
 protected:
     //! Pointer to the gas phase object.
     Cantera::IdealGasMix *m_gas = nullptr;
 
     //! Surface kinetics objects
     std::vector<Cantera::InterfaceKinetics*> m_surf_kins;
+
+    virtual void addSensitivityReaction(size_t kin_ind, size_t rxn_id);
 
     //! Surface phases objects.
     //! Both surface kinetics and phases have to refer
@@ -362,7 +383,17 @@ protected:
     //! Inlet pressure
     double m_P0 = 0;
 
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    virtual void applySensitivity(double* params);
+    //! Reset the reaction rate multipliers
+    virtual void resetSensitivity(double* params);
 
+    //! Data associated each sensitivity parameter
+    std::vector<Cantera::SensitivityParameter> m_sensParams;
+
+    //! Names corresponding to each sensitivity parameter
+    std::vector<std::string> m_paramNames;
 }; 
 
 } 

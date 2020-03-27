@@ -136,7 +136,17 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
     pfr.setConstraints();
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
-    
+
+    /* Read the sensitivity coefficients */
+    bool sens_on = rctr_parser.SAEnabled();
+    if (sens_on){
+        // Read the equations and enable them
+        vector<string> rxnids = rctr_parser.getSAReactions();
+        for (const auto& id : rxnids) {
+            pfr.addSensitivityReaction(id);
+        }
+    }
+
     /*
     vector<double> ydot(25);
     vector<double> y(25);
@@ -168,7 +178,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     auto rpa_flag = rctr_parser.RPA();
     vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
 
-    
     vector<double> T_params = rctr_parser.Ts();
     vector<double> P_params = rctr_parser.Ps();
     vector<double> fr_params = rctr_parser.FRs();

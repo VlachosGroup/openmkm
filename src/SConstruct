@@ -8,7 +8,7 @@ env = Environment(CPPPATH=[
                   CCFLAGS=["-std=c++11", "-Wall", "-Wno-inline", "-O0",
                            "-g",
                            "-fprofile-arcs", "-ftest-coverage", "-pthread"],
-                  LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread", "-g", "-O0"])
+                  LINKFLAGS = ["-fprofile-arcs", "-ftest-coverage", "-pthread", "-g", "-std=c++11"])
 
 sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
            "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", #"hctexceptions.cpp", 
@@ -20,7 +20,9 @@ env.Program(target="omkm", source=sources,
             LIBS=["cantera", #"sundials_cvodes", "sundials_idas", 
                   #"sundials_kinsol", "sundials_nvecserial",  
                   "yaml-cpp", 
-                  "boost_filesystem", "boost_system"],
+            #LIBS=["cantera", "sundials_cvodes", "sundials_idas", 
+            #      "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp", 
+            #      "boost_filesystem", "boost_system"],
             #LIBPATH=["/home/mbkumar/Software/cantera/install/lib64", "/usr/local/lib" ])
             LIBPATH=["/home/mbkumar/Software/cantera/install1/lib64"])
             #LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", 

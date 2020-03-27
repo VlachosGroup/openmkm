@@ -57,7 +57,7 @@ IF ( NOT sundials_INCLUDE_DIRS )
 ENDIF ()
 IF ( NOT SUNDIALS_SKIP_LIBRARY )
     FIND_LIBRARY(sundials_LIBRARIES
-            NAMES "sundials_cvcodes" "sundials_idas" "sundials_kinsol" "sundials_nvecserial"
+            NAMES "sundials_cvodes" "sundials_idas" "sundials_kinsol" "sundials_nvecserial"
             HINTS "${SUNDIALS_PREFIX}/lib" "${SUNDIALS_PREFIX}/lib64" ENV LD_LIBRARY_PATH
         )
     IF ( NOT sundials_LIBRARIES )
