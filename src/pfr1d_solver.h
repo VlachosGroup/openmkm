@@ -115,7 +115,7 @@ protected:
     double m_h0;
 
     //! Max solver internal steps 
-    double m_maxSteps;
+    size_t m_maxSteps;
 
     //! Simulation end time
     double m_tStop;

@@ -14,7 +14,9 @@ namespace OpenMKM
 {
 
 PFR1dSolver::PFR1dSolver(shared_ptr<PFR1d> pfr) : 
-    m_solver(nullptr), m_ss_started(false)
+    m_solver(nullptr), m_ss_started(false),
+    m_z(0.0), m_h0(0.0), m_rtol(0.0), m_atol(0.0),
+    m_maxSteps(0), m_tStop(0.0)
 {
     m_neq = pfr->nEquations();
     m_vec.resize(m_neq);
