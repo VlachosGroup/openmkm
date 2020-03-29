@@ -287,7 +287,7 @@ public:
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     //! (in the homogeneous phase).
-    virtual void addSensitivityReaction(std::string rxn_id);
+    virtual void addSensitivityReaction(std::string& rxn_id);
 
     //! Add a sensitivity parameter associated with the enthalpy formation of
     //! species *k* (in the homogeneous phase)
@@ -390,7 +390,7 @@ protected:
     virtual void resetSensitivity(double* params);
 
     //! Data associated each sensitivity parameter
-    std::vector<Cantera::SensitivityParameter> m_sensParams;
+    std::vector<std::vector<Cantera::SensitivityParameter> > m_sensParams;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;

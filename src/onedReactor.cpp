@@ -139,10 +139,11 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
     /* Read the sensitivity coefficients */
     bool sens_on = rctr_parser.SAEnabled();
+    vector<std::string> rxnids;
     if (sens_on){
         // Read the equations and enable them
-        vector<string> rxnids = rctr_parser.getSAReactions();
-        for (const auto& id : rxnids) {
+        rxnids = rctr_parser.getSAReactions();
+        for (auto& id : rxnids) {
             pfr.addSensitivityReaction(id);
         }
     }
@@ -270,6 +271,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
                 pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
                 pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
+                pfr_solver.writeSensitivityData((out_dir / "1d_pfr_sensitivity.out").string(), rxnids);
 
                 // Print final rpa data
                 rates_out.precision(6);

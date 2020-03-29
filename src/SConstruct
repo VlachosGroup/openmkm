@@ -22,7 +22,7 @@ env.Program(target="omkm", source=sources,
                   "yaml-cpp", 
             #LIBS=["cantera", "sundials_cvodes", "sundials_idas", 
             #      "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp", 
-            #      "boost_filesystem", "boost_system"],
+                  "boost_filesystem", "boost_system"],
             #LIBPATH=["/home/mbkumar/Software/cantera/install/lib64", "/usr/local/lib" ])
             LIBPATH=["/home/mbkumar/Software/cantera/install1/lib64"])
             #LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", 

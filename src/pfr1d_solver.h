@@ -82,6 +82,8 @@ public:
 
     void writeSurfaceData(const std::string & saveas);
 
+    void writeSensitivityData(const std::string & saveas, const std::vector<std::string> & rxnids);
+
     Cantera::DAE_Solver& solver() {
         return *m_solver;
     }

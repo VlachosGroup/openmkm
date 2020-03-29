@@ -560,11 +560,12 @@ double PFR1d::getHeat(double Tint) const
    
 }
 
-void PFR1d::addSensitivityReaction(string rxn_id)
+void PFR1d::addSensitivityReaction(std::string& rxn_id)
 {
     // Find the kinetics to which the reaction id belongs to
     // Start with GasKinetics
-    size_t kin_no = -1, rxn_no = -1;
+    int kin_no = -1, rxn_no = -1;
+    cout << "rxn id " << rxn_id << " added to sensitivity list " << endl;
     for (size_t i = 0; i < m_gas->nReactions(); i++){
         if (m_gas->reaction(i)->id == rxn_id){
             kin_no = 0;
@@ -577,7 +578,7 @@ void PFR1d::addSensitivityReaction(string rxn_id)
             auto kin = m_surf_kins[j];
             for (size_t i = 0; i < kin->nReactions(); i++){
                 if (kin->reaction(i)->id == rxn_id){
-                    kin_no = j;
+                    kin_no = j + 1;
                     rxn_no = i;
                     break;
                 }
@@ -610,6 +611,7 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
     if (!kin_ind) {
         kin = m_gas;
     } else {
+        //kin = dynamic_cast<Cantera::Kinetics>(m_surf_kins[kin_ind-1]);
         kin = m_surf_kins[kin_ind-1];
     }
 
@@ -624,7 +626,14 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
     m_sens_params.push_back(1.0);
     m_paramScales.push_back(1.0);
 
-    m_sensParams.emplace_back(
+    if (kin_ind >= m_sensParams.size()){
+        for (size_t i = 0; i <= kin_ind - m_sensParams.size() + 1; i++){
+            vector<SensitivityParameter> sensParams;
+            m_sensParams.emplace_back(sensParams);
+        }
+    }
+    //vector<SensitivityParameter> curr_sensParams = m_sensParams[kin_ind];
+    m_sensParams[kin_ind].emplace_back(
             SensitivityParameter{rxn, m_sens_params.size()-1, 1.0,
                                  SensParameterType::reaction});
 
@@ -664,7 +673,7 @@ void PFR1d::applySensitivity(double* params)
         return;
     }       
     
-    for (auto& p : m_sensParams) {
+    for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
             p.value = m_gas->multiplier(p.local);
             m_gas->setMultiplier(p.local, p.value*params[p.global]);
@@ -674,7 +683,7 @@ void PFR1d::applySensitivity(double* params)
     }
 
     for (size_t i = 0; i < m_surf_kins.size(); i++){
-        for (auto& p : m_sensParams) {
+        for (auto& p : m_sensParams[i+1]) {
             p.value = m_surf_kins[i]->multiplier(p.local);
             m_surf_kins[i]->setMultiplier(p.local, p.value*params[p.global]);
         }
@@ -691,7 +700,7 @@ void PFR1d::resetSensitivity(double* params)
     if (!params) {
         return;
     }   
-    for (auto& p : m_sensParams) {
+    for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
             m_gas->setMultiplier(p.local, p.value);
         } else if (p.type == SensParameterType::enthalpy) {
@@ -700,7 +709,7 @@ void PFR1d::resetSensitivity(double* params)
     }           
 
     for (size_t i = 0; i < m_surf_kins.size(); i++){
-        for (auto& p : m_sensParams) {
+        for (auto& p : m_sensParams[i+1]) {
             m_surf_kins[i]->setMultiplier(p.local, p.value);
         }
     }

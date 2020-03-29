@@ -16,7 +16,7 @@ namespace OpenMKM
 PFR1dSolver::PFR1dSolver(shared_ptr<PFR1d> pfr) : 
     m_solver(nullptr), m_ss_started(false),
     m_z(0.0), m_h0(0.0), m_rtol(0.0), m_atol(0.0),
-    m_maxSteps(0), m_tStop(0.0)
+    m_maxSteps(0), m_tStop(0.0),
     m_atolsens(0), m_rtolsens(0)
 {
     m_neq = pfr->nEquations();
@@ -182,9 +182,7 @@ int PFR1dSolver::solve(double xout)
     {
         std::cerr << err.what() << std::endl;
         retcode = -99;
-    }
-
-    // TODO get pointer to sol instead.
+    } // TODO get pointer to sol instead.
     print_state(xout, ",");
     
     return retcode;
@@ -256,6 +254,42 @@ void PFR1dSolver::writeSurfaceData(const string & saveas)
     }
     ofs << m_ss_surf.str();
     ofs.close();
+}
+
+void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::string>& rxnids)
+{
+    std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
+    if (!ofs)
+    {
+        throw std::runtime_error("Cannot output to file");
+    }
+
+    stringstream sensi_strm;
+    sensi_strm.str(std::string());
+    sensi_strm.precision(6);
+    sensi_strm  << "Rxnid";
+    string sep = ",";
+    for (auto var : m_var_state) { 
+	sensi_strm << sep << var; 
+    }
+    for (auto var : m_var_gas) { 
+	sensi_strm << sep << var; 
+    }
+    for (auto var : m_var_surf) { 
+	sensi_strm << sep << var; 
+    }
+    sensi_strm << endl;
+
+    for (size_t j = 0; j < rxnids.size(); j++){
+        sensi_strm << rxnids[j] << scientific ;
+        //cout << x << endl;
+        for (unsigned i = 0; i < neq(); ++i) {
+            sensi_strm << sep << m_solver->sensitivity(i, j);
+        }
+        sensi_strm << std::endl;
+    }
+
+    ofs << sensi_strm.str();
 }
 
 } 
