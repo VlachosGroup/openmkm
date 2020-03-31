@@ -1,0 +1,55 @@
+reactor:
+    type: "pfr"
+    area: "1.0 cm2"
+    length: "0.1 cm"
+    mode: "isothermal"
+    temperature:  873
+    pressure:  "1 atm"
+    cat_abyv: "200 /cm"
+    #wall_abyv: "20 /cm"
+    #htc: "2000 kW/m2"
+    #Text: 1200
+
+inlet_gas:
+    flow_rate: "10 cm3/s"
+
+simulation:
+    end_time: 50
+    solver:
+        atol: 1e-8
+        rtol: 1e-8
+    transient: no
+    sensitivity:
+        reactions:
+            - 0006
+            - 0007
+            - 0008
+            - 0009
+            - 0010
+            - 0011
+            - 0012
+            - 0013
+            - 0014
+            - 0015
+            - 0016
+            - 0017
+            - 0018
+            - 0019
+            - 0020
+            - 0021
+            - 0022
+            - 0023
+            - 0024
+            - 0025
+            - 0026
+            - 0027
+            
+phases:
+    gas:
+        name: gas
+        initial_state: "CH3CH3:0.07,N2:0.93"
+    bulk: 
+        name: bulk
+    surfaces:
+        - name: terrace
+          initial_state: "PT(S):1"
