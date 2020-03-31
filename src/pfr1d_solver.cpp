@@ -284,7 +284,7 @@ void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::
         sensi_strm << rxnids[j] << scientific ;
         //cout << x << endl;
         for (unsigned i = 0; i < neq(); ++i) {
-            sensi_strm << sep << m_solver->sensitivity(i, j);
+            sensi_strm << sep << m_solver->sensitivity(i, j)/m_solver->solution(i);
         }
         sensi_strm << std::endl;
     }
