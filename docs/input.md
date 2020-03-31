@@ -55,12 +55,12 @@ mandatory nodes are *reactor*, *simulation*, *phases*, and the optional node is
 
 1. **reactor**: This node specifies the reactor parameters such as its type,
 dimensions, operational mode, catalyst size, state (temperature and pressure)
-etc. Sensitivity analysis is also specified in this node.
+etc. 
 
 2. **simulation**: This node specifies the simulation parameters including
 those supplied to numerical solvers such as simulation time, stepping options
 for advancing (time for CSTR & batch, and distance for PFR), solver tolerances
-etc.
+etc. Sensitivity analysis is also specified under this node.
 
 3. **phases**: OpenMKM expects 1 or 3 types of phases. For purely gas phase 
 mechanism, a gas phase has to be specified. For heterogeneous reactions, two 
