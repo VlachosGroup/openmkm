@@ -55,7 +55,7 @@ mandatory nodes are *reactor*, *simulation*, *phases*, and the optional node is
 
 1. **reactor**: This node specifies the reactor parameters such as its type,
 dimensions, operational mode, catalyst size, state (temperature and pressure)
-etc.
+etc. Sensitivity analysis is also specified in this node.
 
 2. **simulation**: This node specifies the simulation parameters including
 those supplied to numerical solvers such as simulation time, stepping options
