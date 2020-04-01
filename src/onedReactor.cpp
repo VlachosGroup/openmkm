@@ -271,7 +271,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
                 pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
                 pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
-                pfr_solver.writeSensitivityData((out_dir / "1d_pfr_sensitivity.out").string(), rxnids);
+                pfr_solver.writeSensitivityData((out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids);
 
                 // Print final rpa data
                 rates_out.precision(6);
