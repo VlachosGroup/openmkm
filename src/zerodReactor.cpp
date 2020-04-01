@@ -183,6 +183,40 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         }
     }
 
+    /* Sensitivity Analysis */
+    bool sens_on = rctr_parser.SAEnabled();
+    vector<string> rxnids;
+
+    if (sens_on) {
+        rxnids = rctr_parser.getSAReactions();
+        for (auto& id : rxnids){
+            // Identify which kinetics the reaction belong to
+            // First gas phase kinetics
+            bool rxnConsumed = false;
+            for (size_t i = 0; i < gas->nReactions(); i++){
+                if (gas->reaction(i)->id == id){
+                    rctr->addSensitivityReaction(i);
+                    rxnConsumed = true;
+                    break;
+                }
+            }
+            size_t kin_ind = 0;
+            while(!rxnConsumed && kin_ind < surfaces.size()) {
+                for (size_t i = 0; i < surfaces[kin_ind]->nReactions(); i++){
+                    if (surfaces[kin_ind]->reaction(i)->id == id){
+			cat_surfs[kin_ind]->addSensitivityReaction(i);
+			rxnConsumed = true;
+                        break;
+                    }
+                }
+                kin_ind++;
+            }
+            if(!rxnConsumed) {
+                throw CanteraError("Sensitivity reaction id {} not found in any mechanism", id);
+            }
+        }
+
+    }
     // Read simulation parameters
     double end_time = 0;
     if (mode == "tpd"){
@@ -304,11 +338,11 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 ofstream rates_out ((out_dir / "rates_ss.out").string(), ios::out);
 
                 if (data_format == OutputFormat::DAT) {
-                    gas_ss_mole_out << "Gas Mole fractions at Steady State\n";
-                    gas_ss_mass_out << "Gas Mass fractions at Steady State\n";
-                    gas_ss_msdot_out << "Surface Production Rates of  Gas Species at Steady State\n";
-                    surf_ss_out << "Surace Coverages at Steady State\n"; 
-                    state_var_ss_out << "Steady State Reactor State\n";
+                    gas_ss_mole_out << "#Gas Mole fractions at Steady State\n";
+                    gas_ss_mass_out << "#Gas Mass fractions at Steady State\n";
+                    gas_ss_msdot_out << "#Surface Production Rates of  Gas Species at Steady State\n";
+                    surf_ss_out << "#Surace Coverages at Steady State\n"; 
+                    state_var_ss_out << "#Steady State Reactor State\n";
                 }
                 
                 // Reaction path analysis (RPA) data, consisting of rates of progress.
