@@ -284,7 +284,12 @@ void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::
         sensi_strm << rxnids[j] << scientific ;
         //cout << x << endl;
         for (unsigned i = 0; i < neq(); ++i) {
-            sensi_strm << sep << m_solver->sensitivity(i, j)/m_solver->solution(i);
+            // The sensitivity is multiplied by 2 to conform with the manual evaluation of the 
+            // sensitivity coefficients. The difference in 2 is attributable to the use of 
+            // central difference scheme. Central difference scheme was found to be not resulting
+            // in accurate derivatives in some cases, where the -ve perturbation is essentially ignored
+            // because some variables & parameters can't be < 0.  
+            sensi_strm << sep << 2*m_solver->sensitivity(i, j)/m_solver->solution(i);
         }
         sensi_strm << std::endl;
     }
