@@ -7,6 +7,7 @@
 #include <boost/range/adaptors.hpp>
 
 #include "pfr1d.h"
+#include "cantera/numerics/ResidJacEval.h"
 
 using namespace std;
 using namespace Cantera;
@@ -20,8 +21,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
              double inlet_gas_velocity) 
    : ResidJacEval{}, m_gas(gas), m_surf_kins(surf_kins), 
      m_surf_phases(surf_phases), m_Ac(area), m_cat_abyv(cat_abyv), 
-     m_u0(inlet_gas_velocity), m_heat(false), m_energy(0), 
-     m_T_interp(nullptr)
+     m_u0(inlet_gas_velocity), m_T_interp(nullptr)
 {
    
     suppress_thermo_warnings(SUPPRESS_WARNINGS);
@@ -160,7 +160,7 @@ int PFR1d::getInitialConditions(const double t0,
     const double rho0 = m_gas->density();
     const double Wavg = m_gas->meanMolecularWeight();
     const double RT = m_T0 * GasConstant;
-    const double Rrho = rho0 * GasConstant;
+    //const double Rrho = rho0 * GasConstant;
 
 
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(m_nsp + m_neqs_extra, 
@@ -174,7 +174,7 @@ int PFR1d::getInitialConditions(const double t0,
     cout << 0 << " y " << y[0] << endl
          << 1 << " y " << y[1] << endl
          << 2 << " y " << y[2] << endl;*/
-    int gas_start_loc;
+    //int gas_start_loc;
     if (energyEnabled()) {
         y[3] = m_T0;
         //cout << 3 << " y " << y[3] << endl;
@@ -299,7 +299,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
                        const Cantera::ResidEval_Type_Enum evalType, 
                        const int id_x, const double delta_x)
 {
-    applySensitivity(m_sens_params.data());
+    applySensitivity();//m_sens_params.data());
     const double u = y[0];       // Flow rate
     const double r = y[1];       // Density
     const double p = y[2];       // Pressure
@@ -329,7 +329,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     double mdot_surf = 0.0; // net mass flux from surface
 
     loc = m_nsp;
-    for (auto i = 0; i < m_surf_phases.size(); i++) {
+    for (size_t i = 0; i < m_surf_phases.size(); i++) {
         double cov_sum = 0.0;
         InterfaceKinetics* kin = m_surf_kins[i];
         SurfPhase* surf = m_surf_phases[i];
@@ -510,9 +510,9 @@ double PFR1d::evalSurfaces()
     double mdot_surf = 0.0; // net mass flux from surface
 
 
-    for (auto i = 0; i < m_surf_phases.size(); i++) {
+    for (size_t i = 0; i < m_surf_phases.size(); i++) {
         InterfaceKinetics* kin = m_surf_kins[i];
-        SurfPhase* surf = m_surf_phases[i];
+        //SurfPhase* surf = m_surf_phases[i];
         work.resize(kin->nTotalSpecies());
         fill(work.begin(), work.end(), 0.0);
 
@@ -574,7 +574,7 @@ void PFR1d::addSensitivityReaction(std::string& rxn_id)
         }
     }
     if (kin_no < 0){
-        for (auto j = 0; j < m_surf_phases.size(); j++) {
+        for (size_t j = 0; j < m_surf_phases.size(); j++) {
             auto kin = m_surf_kins[j];
             for (size_t i = 0; i < kin->nReactions(); i++){
                 if (kin->reaction(i)->id == rxn_id){
@@ -667,25 +667,35 @@ size_t PFR1d::nSensParams()
     return m_sensParams.size();
 }
 
-void PFR1d::applySensitivity(double* params)
+//void PFR1d::applySensitivity(double* params)
+void PFR1d::applySensitivity()
 {
-    if (!params) {
+    if (!nparams()) {
         return;
     }       
     
     for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
             p.value = m_gas->multiplier(p.local);
-            m_gas->setMultiplier(p.local, p.value*params[p.global]);
+            //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
+            //double bias = 0.0 ;
+            //m_gas->setMultiplier(p.local, p.value * (params[p.global] + bias));
+            //m_gas->setMultiplier(p.local, p.value * params[p.global]);
+            m_gas->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
         } else if (p.type == SensParameterType::enthalpy) {
-            m_gas->modifyOneHf298SS(p.local, p.value + params[p.global]);
+            m_gas->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
+            //m_gas->modifyOneHf298SS(p.local, p.value + params[p.global]);
         }       
     }
 
     for (size_t i = 0; i < m_surf_kins.size(); i++){
         for (auto& p : m_sensParams[i+1]) {
             p.value = m_surf_kins[i]->multiplier(p.local);
-            m_surf_kins[i]->setMultiplier(p.local, p.value*params[p.global]);
+            //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
+            //double bias = 0.0 ;
+            //m_surf_kins[i]->setMultiplier(p.local, p.value * (params[p.global] + bias));
+            //m_surf_kins[i]->setMultiplier(p.local, p.value * params[p.global]);
+            m_surf_kins[i]->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
         }
     }
 
@@ -695,9 +705,9 @@ void PFR1d::applySensitivity(double* params)
     //}   
 }
 
-void PFR1d::resetSensitivity(double* params)
+void PFR1d::resetSensitivity()
 {
-    if (!params) {
+    if (!nparams()) {
         return;
     }   
     for (auto& p : m_sensParams[0]) {

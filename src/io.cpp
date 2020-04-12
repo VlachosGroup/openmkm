@@ -364,11 +364,11 @@ void print_rxn_rates_hdr(ofstream& out)
 {
     out //<< hdr << endl
         //<< setw(16) << left << "Reaction No."
-        << setw(16) << left << "Fwd Rate"
-        << setw(16) << left << "Rev Rate"
-        << setw(16) << left << "Net Rate"
-        << setw(16) << left << "Partial Equil."
-        << setw(32) << left << "Reaction String"
+        << setw(16) << left << "Fwd_Rate"
+        << setw(16) << left << "Rev_Rate"
+        << setw(16) << left << "Net_Rate"
+        << setw(16) << left << "PEI"
+        << setw(32) << left << "Reaction_string"
         << endl;
 }
 

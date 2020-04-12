@@ -29,6 +29,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/SurfLatIntPhase.h"
 #include "cantera/numerics/eigen_dense.h"
+#include "cantera/numerics/ResidEval.h"
 #include "cantera/numerics/ResidJacEval.h"
 #include "cantera/transport.h"
 
@@ -287,7 +288,7 @@ public:
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     //! (in the homogeneous phase).
-    virtual void addSensitivityReaction(std::string& rxn_id);
+    void addSensitivityReaction(std::string& rxn_id);
 
     //! Add a sensitivity parameter associated with the enthalpy formation of
     //! species *k* (in the homogeneous phase)
@@ -300,7 +301,7 @@ protected:
     //! Surface kinetics objects
     std::vector<Cantera::InterfaceKinetics*> m_surf_kins;
 
-    virtual void addSensitivityReaction(size_t kin_ind, size_t rxn_id);
+    void addSensitivityReaction(size_t kin_ind, size_t rxn_id);
 
     //! Surface phases objects.
     //! Both surface kinetics and phases have to refer
@@ -321,7 +322,7 @@ protected:
     std::vector<std::string> m_var;
 
     //! Number of equations in residual.
-    unsigned m_neq;
+    //unsigned m_neq;
 
     //! Number of gas species.
     unsigned m_nsp;
@@ -336,13 +337,13 @@ protected:
     double m_rho_ref;
 
     //! Reactor cross-sectional area
-    const double m_Ac = 0.0;
+    double m_Ac; 
 
     //! Solve Energy Equation
-    bool m_energy;
+    bool m_energy = 0;
 
     //! Inlet gas velocity
-    double m_u0 = 0.0;
+    double m_u0;// = 0.0;
 
     //! Inlet temperature
     double m_T0 = 0.0;
@@ -363,13 +364,13 @@ protected:
     
     //! Current index of Tprofile_ind
     //! Not used anymore. Will be deleted in future release
-    int m_T_profile_iind;
+    //int m_T_profile_iind;
 
     //! Barycentric interpolator to interpolate temperatures for T profile 
     std::shared_ptr<boost::math::barycentric_rational<double>> m_T_interp;
 
     //! External Heat supplied 
-    bool m_heat;
+    bool m_heat = false;
 
     //! External temperature
     double m_Text = 0;
@@ -385,9 +386,9 @@ protected:
 
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
-    virtual void applySensitivity(double* params);
+    void applySensitivity();
     //! Reset the reaction rate multipliers
-    virtual void resetSensitivity(double* params);
+    void resetSensitivity();
 
     //! Data associated each sensitivity parameter
     std::vector<std::vector<Cantera::SensitivityParameter> > m_sensParams;

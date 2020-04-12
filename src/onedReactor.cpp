@@ -239,6 +239,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 ofstream surf_cov_out((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
                 ofstream state_var_out((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
                 ofstream rates_out((out_dir / "rates_ss.out").string(), ios::out);
+                print_rxn_rates_hdr(rates_out);
 
                 gas_mole_out.precision(6);
                 gas_mass_out.precision(6);
