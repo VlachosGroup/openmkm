@@ -16,7 +16,7 @@ using namespace Cantera;
 namespace OpenMKM 
 {
 
-PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
+PFR1d::PFR1d(Solution *gas, vector<InterfaceKinetics*> surf_kins,
              vector<SurfPhase*> surf_phases, double area, double cat_abyv,
              double inlet_gas_velocity) 
    : ResidJacEval{}, m_gas(gas), m_surf_kins(surf_kins), 
@@ -32,9 +32,9 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
          << setw(16) << "\nUsing LAPACK?   " << bool(CT_SUNDIALS_USE_LAPACK)
          << endl;
 
-    m_rho_ref = m_gas->density();
+    m_rho_ref = m_gas->thermo()->density();
     cout << boolalpha << setw(16) << "Energy enabled? " << energyEnabled() << endl;
-    m_nsp = m_gas->nSpecies();
+    m_nsp = m_gas->thermo()->nSpecies();
     if (energyEnabled()) 
         m_neqs_extra = 4;
     else
@@ -47,7 +47,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     }
 
     m_W.resize(m_nsp);
-    m_gas->getMolecularWeights(m_W.data());
+    m_gas->thermo()->getMolecularWeights(m_W.data());
     m_wdot.resize(m_nsp);
     fill(m_wdot.begin(), m_wdot.end(), 0.0);
     m_sdot.resize(m_nsp);
@@ -62,7 +62,7 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
     m_var.push_back("Pressure(Pa)");
     if (energyEnabled())
         m_var.push_back("Temperature(K)");
-    auto sp_names = m_gas->speciesNames();
+    auto sp_names = m_gas->thermo()->speciesNames();
     for (auto i = 0; i < sp_names.size(); i++){
         m_var.push_back(sp_names[i]);
     }
@@ -73,18 +73,18 @@ PFR1d::PFR1d(IdealGasMix *gas, vector<InterfaceKinetics*> surf_kins,
         }
     }
 
-    m_T0 = gas->temperature();
-    m_P0 = gas->pressure();
+    m_T0 = gas->thermo()->temperature();
+    m_P0 = gas->thermo()->pressure();
     cout << setw(16) << "External heat supplied: " << getHeat(m_T0) << endl;
 }   
 
 void PFR1d::reinit()
 {
 
-    m_rho_ref = m_gas->density();
+    m_rho_ref = m_gas->thermo()->density();
 
     cout << boolalpha << "Energy enabled? " << energyEnabled() << endl;
-    m_nsp = m_gas->nSpecies();
+    m_nsp = m_gas->thermo()->nSpecies();
     if (energyEnabled())
         m_neqs_extra = 4;
     else
@@ -99,7 +99,7 @@ void PFR1d::reinit()
     //cout << "neq " << neq_ << endl;
 
     m_W.resize(m_nsp);
-    m_gas->getMolecularWeights(m_W.data());
+    m_gas->thermo()->getMolecularWeights(m_W.data());
     m_wdot.resize(m_nsp);
     fill(m_wdot.begin(), m_wdot.end(), 0.0);
     m_sdot.resize(m_nsp);
@@ -112,7 +112,7 @@ void PFR1d::reinit()
     m_var.push_back("Pressure(Pa)");
     if (energyEnabled())
         m_var.push_back("Temperature(K)");
-    auto sp_names = m_gas->speciesNames();
+    auto sp_names = m_gas->thermo()->speciesNames();
     //m_var.insert(m_var.end(), sp_names.begin(), sp_names.end());
     for (auto i = 0; i < sp_names.size(); i++){
         m_var.push_back(sp_names[i]);
@@ -124,8 +124,8 @@ void PFR1d::reinit()
         }
     }
 
-    m_T0 = m_gas->temperature();
-    m_P0 = m_gas->pressure();
+    m_T0 = m_gas->thermo()->temperature();
+    m_P0 = m_gas->thermo()->pressure();
 }
 
 void PFR1d::setConstraints()
@@ -157,8 +157,8 @@ int PFR1d::getInitialConditions(const double t0,
                                 double *const ydot)
 {
     //const double P0 = m_gas->pressure();
-    const double rho0 = m_gas->density();
-    const double Wavg = m_gas->meanMolecularWeight();
+    const double rho0 = m_gas->thermo()->density();
+    const double Wavg = m_gas->thermo()->meanMolecularWeight();
     const double RT = m_T0 * GasConstant;
     //const double Rrho = rho0 * GasConstant;
 
@@ -180,7 +180,7 @@ int PFR1d::getInitialConditions(const double t0,
         //cout << 3 << " y " << y[3] << endl;
     }
 
-    m_gas->getMassFractions(y + m_neqs_extra);
+    m_gas->thermo()->getMassFractions(y + m_neqs_extra);
     /*
     for (size_t i = 0; i < m_nsp; i++){
         cout << i << " y " << y[i + m_neqs_extra] << endl;
@@ -222,7 +222,7 @@ int PFR1d::getInitialConditions(const double t0,
         A(2, k) = m_P0 * Wavg * Wavg / m_W[k - m_neqs_extra];
 
     double mdot_surf = evalSurfaces();
-    m_gas->getNetProductionRates(&m_wdot[0]);
+    m_gas->kinetics()->getNetProductionRates(&m_wdot[0]);
 
     if (energyEnabled()) {
         //vector<double> cpr_k(m_nsp);
@@ -232,7 +232,7 @@ int PFR1d::getInitialConditions(const double t0,
             //cpr += cpr_k[i] * y[i + m_neqs_extra];
         //}
         //cout << "cp" << cpr*GasConstant << endl;
-        auto cp = m_gas->cp_mass();
+        auto cp = m_gas->thermo()->cp_mass();
 
         A(3,0) = 0;            // u'
         A(3,1) = 0;            // rho'
@@ -241,7 +241,7 @@ int PFR1d::getInitialConditions(const double t0,
         //cout << "A(3,3) " << A(3, 3) << endl;
 
         vector<double> H_rt(m_nsp);
-        m_gas->getEnthalpy_RT(H_rt.data());
+        m_gas->thermo()->getEnthalpy_RT(H_rt.data());
         b(3) = 0;                          // RHS energy
         for (size_t i = 0; i < m_nsp; i++){
             //b(3) -= (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr_k[i];
@@ -311,8 +311,8 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     const double dpdz = ydot[2];
     double dtempdz = energyEnabled() ? ydot[3] : 0;
 
-    m_gas->setMassFractions_NoNorm(y + m_neqs_extra);
-    m_gas->setState_TP(temp, p);
+    m_gas->thermo()->setMassFractions_NoNorm(y + m_neqs_extra);
+    m_gas->thermo()->setState_TP(temp, p);
 
     auto loc = m_neqs_extra + m_nsp;
     for (auto s_ph : m_surf_phases) {
@@ -322,7 +322,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     }
 
     // Get species production rates
-    m_gas->getNetProductionRates(&m_wdot[0]);
+    m_gas->kinetics()->getNetProductionRates(&m_wdot[0]);
     //double mdot_surf = s();
     vector_fp work(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
@@ -353,7 +353,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
 
     resid[0] = u * drdz + r * dudz - m_cat_abyv * mdot_surf;
     resid[1] = 2 * r * u * dudz + u *u * drdz + dpdz;
-    resid[2] = m_gas->density() - r;  // Density is set as pW/RT
+    resid[2] = m_gas->thermo()->density() - r;  // Density is set as pW/RT
 
     if (energyEnabled()){
         /*
@@ -364,12 +364,12 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
             cp += cpr[i] * y[i + m_neqs_extra];
         }
         */
-        auto cp = m_gas->cp_mass();
+        auto cp = m_gas->thermo()->cp_mass();
         resid[3] = cp *  r * u * dtempdz;
 
         double h_term  = 0;                          
         vector<double> H_rt(m_nsp);
-        m_gas->getEnthalpy_RT(H_rt.data());
+        m_gas->thermo()->getEnthalpy_RT(H_rt.data());
         for (size_t i = 0; i < m_nsp; i++){
             //h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv) * m_W[i] * cpr[i];
             h_term += (m_wdot[i] + m_sdot[i] * m_cat_abyv)  * H_rt[i];
@@ -583,8 +583,8 @@ void PFR1d::addSensitivityReaction(std::string& rxn_id)
     // Start with GasKinetics
     int kin_no = -1, rxn_no = -1;
     cout << "rxn id " << rxn_id << " added to sensitivity list " << endl;
-    for (size_t i = 0; i < m_gas->nReactions(); i++){
-        if (m_gas->reaction(i)->id == rxn_id){
+    for (size_t i = 0; i < m_gas->kinetics()->nReactions(); i++){
+        if (m_gas->kinetics()->reaction(i)->id == rxn_id){
             kin_no = 0;
             rxn_no = i;
             break;
@@ -626,7 +626,7 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
 {
     Kinetics* kin = nullptr;
     if (!kin_ind) {
-        kin = m_gas;
+        kin = m_gas->kinetics().get();
     } else {
         kin = m_surf_kins[kin_ind-1];
     }
@@ -759,14 +759,14 @@ void PFR1d::applySensitivity()
     
     for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
-            p.value = m_gas->multiplier(p.local);
+            p.value = m_gas->kinetics()->multiplier(p.local);
             //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
             //double bias = 0.0 ;
             //m_gas->setMultiplier(p.local, p.value * (params[p.global] + bias));
             //m_gas->setMultiplier(p.local, p.value * params[p.global]);
-            m_gas->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
+            m_gas->kinetics()->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
         } else if (p.type == SensParameterType::enthalpy) {
-            m_gas->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
+            m_gas->thermo()->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
             //m_gas->modifyOneHf298SS(p.local, p.value + params[p.global]);
         }       
     }
@@ -786,9 +786,11 @@ void PFR1d::applySensitivity()
         }
     }
 
-    (dynamic_cast<Phase *>(m_gas))->invalidateCache();
+    //(dynamic_cast<Phase *>(m_gas))->invalidateCache();
     //if (m_gas) {
-        (dynamic_cast<Kinetics *>(m_gas))->invalidateCache();
+    //(dynamic_cast<Kinetics *>(m_gas))->invalidateCache();
+    m_gas->thermo()->invalidateCache();
+    m_gas->kinetics()->invalidateCache();
     //}   
 }
 
@@ -799,9 +801,9 @@ void PFR1d::resetSensitivity()
     }   
     for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
-            m_gas->setMultiplier(p.local, p.value);
+            m_gas->kinetics()->setMultiplier(p.local, p.value);
         } else if (p.type == SensParameterType::enthalpy) {
-            m_gas->resetHf298(p.local);
+            m_gas->thermo()->resetHf298(p.local);
         }   
     }           
 
@@ -811,10 +813,12 @@ void PFR1d::resetSensitivity()
         }
     }
 
-    (dynamic_cast<Phase *>(m_gas))->invalidateCache();
+    //(dynamic_cast<Phase *>(m_gas))->invalidateCache();
     //if (m_gas) {
-        (dynamic_cast<Kinetics *>(m_gas))->invalidateCache();
+    //(dynamic_cast<Kinetics *>(m_gas))->invalidateCache();
     //}   
+    m_gas->thermo()->invalidateCache();
+    m_gas->kinetics()->invalidateCache();
 }
 
 

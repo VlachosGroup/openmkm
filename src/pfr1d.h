@@ -87,7 +87,7 @@ public:
      *                    Convert flow rates, residence times and mass flow rates
      *                    into velocity using the reactor size and density
      */
-    PFR1d(Cantera::IdealGasMix *gas, 
+    PFR1d(Cantera::Solution *gas, 
           std::vector<Cantera::InterfaceKinetics*> surf_kins,       
           std::vector<Cantera::SurfPhase*> surf_phases,
           double pfr_xc_area,
@@ -153,7 +153,7 @@ public:
 
     unsigned getSpeciesIndex(std::string name) const
     {
-        return m_gas->kineticsSpeciesIndex(name);
+        return m_gas->kinetics()->kineticsSpeciesIndex(name);
     }
 
     //! Setup the constraints for each of the governing the numerical solver
@@ -162,7 +162,7 @@ public:
     //! Get the internal energy per unit mass of the fluid in the reactor
     double getIntEnergyMass() const
     {
-        return m_gas->intEnergy_mass();
+        return m_gas->thermo()->intEnergy_mass();
     }
 
     std::vector<std::string> variablesNames() const
@@ -282,7 +282,7 @@ public:
             throw Cantera::CanteraError("PFR1d::contents",
                                "Reactor contents not defined.");
         }
-        return *m_gas;
+        return *(m_gas->thermo());
     }
 
     const Cantera::thermo_t& contents() const 
@@ -291,7 +291,7 @@ public:
             throw Cantera::CanteraError("PFR1d::contents",
                                "Reactor contents not defined.");
         }
-        return *m_gas;
+        return *(m_gas->thermo());
     }
 
     //! Return a reference to the *n*-th SurfPhase connected to the PFR
@@ -314,7 +314,7 @@ public:
 
 protected:
     //! Pointer to the gas phase object.
-    Cantera::IdealGasMix *m_gas = nullptr;
+    Cantera::Solution *m_gas = nullptr;
 
     //! Surface kinetics objects
     std::vector<Cantera::InterfaceKinetics*> m_surf_kins;

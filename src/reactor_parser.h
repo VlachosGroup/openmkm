@@ -79,6 +79,9 @@ public:
     std::shared_ptr<Cantera::IdealGasMix> getGasPhase(
             std::string phase_filename);
 
+    std::shared_ptr<Cantera::Solution> getGasSolution(
+            std::string phase_filename);
+
     bool bulkPhaseDefined(std::string phase_filename);
 
     std::shared_ptr<Cantera::StoichSubstance> getBulkPhase(

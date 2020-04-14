@@ -52,13 +52,15 @@ void print_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
 
 
 void run_0d_reactor(ReactorParser& rctr_parser,
-                    shared_ptr<IdealGasMix> gas, 
+                    shared_ptr<Solution> gas, 
                     vector<shared_ptr<InterfaceInteractions>> surfaces,
                     ofstream& gen_info_out) 
 {
     //Define the reactor based on the input file
     auto rctr = make_shared<IdealGasTRampReactor>();
-    rctr->insert(*gas);
+    rctr->insert(gas);
+    //rctr->setThermoMgr(*(gas->thermo()));
+    //rctr->setKineticsMgr(*(gas->kinetics()));
     gen_info_out << "Reactor density " << rctr->density() << endl;
 
     // Read the reactor dimensions
@@ -149,8 +151,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         inlet_mfc->setMassFlowRate(mfr);
         outlet->setMaster(inlet_mfc.get());
         outlet->setPressureCoeff(1e-10);
-        in_rsrv->insert(*gas);
-        exhst->insert(*gas);
+        in_rsrv->insert(gas);
+        exhst->insert(gas);
         inlet_mfc->install(*in_rsrv, *rctr);
         outlet->install(*rctr, *exhst);
     }
@@ -174,9 +176,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
             double htc = rctr_parser.getWallHeatTransferCoeff();  // htc
             double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
             double ext_temp = rctr_parser.getExternalTemp();      // Text
-            auto press = gas->pressure();
-            gas->setState_TP(ext_temp, press);
-            heat_rsrv->insert(*gas);
+            auto press = gas->thermo()->pressure();
+            gas->thermo()->setState_TP(ext_temp, press);
+            heat_rsrv->insert(gas);
             wall->setHeatTransferCoeff(htc);
             wall->setArea(wall_abyv * rctr->volume());
             wall->install(*heat_rsrv, *rctr);
@@ -193,8 +195,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
             // Identify which kinetics the reaction belong to
             // First gas phase kinetics
             bool rxnConsumed = false;
-            for (size_t i = 0; i < gas->nReactions(); i++){
-                if (gas->reaction(i)->id == id){
+            for (size_t i = 0; i < gas->kinetics()->nReactions(); i++){
+                if (gas->kinetics()->reaction(i)->id == id){
                     rctr->addSensitivityReaction(i);
                     rxnConsumed = true;
                     break;
@@ -273,12 +275,12 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     {
         if (data_format == OutputFormat::CSV) {
             out << ind_var;
-            for (const auto & sp_name : gas->speciesNames()) {
+            for (const auto & sp_name : gas->thermo()->speciesNames()) {
                 out << "," << sp_name;
             }
         } else {
             out << setw(16) << left << ind_var;
-            for (const auto & sp_name : gas->speciesNames()) {
+            for (const auto & sp_name : gas->thermo()->speciesNames()) {
                 out << setw(16) << left << sp_name;
             }
         }
@@ -292,7 +294,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     if (!fr_params.size()){
         if (rctr_type != BATCH) {
             auto mfr = inlet_mfc->massFlowRate();
-            fr_params.push_back(mfr/gas->density());
+            fr_params.push_back(mfr/gas->thermo()->density());
         }
         else {
             fr_params.push_back(0.0);
@@ -305,11 +307,11 @@ void run_0d_reactor(ReactorParser& rctr_parser,
             for (const auto& fr : fr_params){
                 // Set the gas state TPX and sync the appropriate reactors
                 auto X = rctr_parser.getGasPhaseComposition();
-                gas->setState_TPX(T, P, X);
+                gas->thermo()->setState_TPX(T, P, X);
                 if (rctr_type != BATCH){
                     in_rsrv->syncState();
                     exhst->syncState();
-                    inlet_mfc->setMassFlowRate(fr * gas->density());
+                    inlet_mfc->setMassFlowRate(fr * gas->thermo()->density());
                 }
                 rctr->syncState();
                 rnet.setInitialTime(0);
@@ -442,7 +444,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     state_var_print_hdr(state_var_tr_out, "t(s)");
                 }
 
-                vector<double> gas_X(gas->nSpecies()); // Temporary work array
+                vector<double> gas_X(gas->thermo()->nSpecies()); // Temporary work array
                 for (size_t i = 0; i < rctr_nos; i++) {
                     if (rctr_nos > 1) {
                         gen_info_out << "CSTR #: " << i << endl;
@@ -451,7 +453,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     double temp = rctr->contents().temperature();
                     double pressure = rctr->contents().pressure();
                     rctr->contents().getMoleFractions(gas_X.data());
-                    gas->setState_TPX(temp, pressure, gas_X.data());
+                    gas->thermo()->setState_TPX(temp, pressure, gas_X.data());
                     if (rctr_type != BATCH){
                         in_rsrv->syncState();
                     }
@@ -501,7 +503,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
                         rates_out.precision(6);
 
-                        print_rxn_rates(gas.get(), rates_out);
+                        print_rxn_rates(gas->kinetics().get(), rates_out);
                         for (auto surf : surfaces) {
                             print_rxn_rates(surf.get(), rates_out);
                         }
@@ -510,7 +512,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 // Print final rpa data
                 print_rxn_rates_hdr(rates_out);
                 rates_out.precision(6);
-                print_rxn_rates(gas.get(), rates_out);
+                print_rxn_rates(gas->kinetics().get(), rates_out);
                 for (auto surf : surfaces) {
                     print_rxn_rates(surf.get(), rates_out);
                 }
