@@ -53,9 +53,9 @@ int main(int argc, char* argv[])
     try{
         // Read the gas phase definition
         auto rctr_parser = ReactorParser(tube_file_name);
-        auto gas = rctr_parser.getGasPhase(phase_filename);
-        vector<shared_ptr<ThermoPhase>> all_phases {gas};
-        vector<Kinetics*> all_km {gas.get()};
+        shared_ptr<Solution> gas = rctr_parser.getGasSolution(phase_filename);
+        vector<shared_ptr<ThermoPhase>> all_phases {gas->thermo()};
+        vector<Kinetics*> all_km {gas->kinetics().get()};
 
         // Try to read the bulk node and if present read surface definitons as well
         bool blk_phase_defined = rctr_parser.bulkPhaseDefined(phase_filename);
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
         if (blk_phase_defined) {
             auto bulk = rctr_parser.getBulkPhase(phase_filename);
             all_phases.push_back(bulk);
-            gb_phases.push_back(gas.get()); 
+            gb_phases.push_back(gas->thermo().get()); 
             gb_phases.push_back(bulk.get());
         }
         bool surf_phases_defined = rctr_parser.surfacePhasesDefined(phase_filename);
@@ -92,9 +92,9 @@ int main(int argc, char* argv[])
         cout << "Total # of reactions: " << n_rxns << endl;
 
         print_rxns(all_km, "reactions.out");
-        print_rxn_enthalpy(all_km, gas->temperature(), "Hrxn.out");
+        print_rxn_enthalpy(all_km, gas->thermo()->temperature(), "Hrxn.out");
         print_rxn_entropy(all_km, "Srxn.out");
-        print_rxn_gibbs(all_km, gas->temperature(), "Grxn.out");
+        print_rxn_gibbs(all_km, gas->thermo()->temperature(), "Grxn.out");
         print_rxn_kf(all_km,  "kf.out");
         print_rxn_kc(all_km,  "kc.out");
         print_rxn_kr(all_km,  "kr.out");

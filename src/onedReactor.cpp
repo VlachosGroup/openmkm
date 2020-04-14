@@ -39,7 +39,7 @@ namespace OpenMKM
 {
 
 void run_1d_reactor(ReactorParser& rctr_parser,
-                    shared_ptr<IdealGasMix> gas, 
+                    shared_ptr<Solution> gas, 
                     vector<shared_ptr<InterfaceInteractions>> surfaces,
                     ofstream& gen_info)
 {
@@ -60,7 +60,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     double velocity{0};
     if (mfr_defined) {
         auto mfr = rctr_parser.getMassFlowRate();
-        auto flow_rate = mfr / gas->density();
+        auto flow_rate = mfr / gas->thermo()->density();
         velocity = flow_rate / rctr_xc_area;
     } else if (fr_defined) {
         auto flow_rate = rctr_parser.getFlowRate();
@@ -202,7 +202,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
             for (const auto& fr : fr_params){
                 pfr.setVelocity(get_vel(fr));
                 string gas_comp = rctr_parser.getGasPhaseComposition();
-                gas->setState_TPX(T, P, gas_comp);
+                gas->thermo()->setState_TPX(T, P, gas_comp);
                 size_t i = 0;
                 for (const auto surf : surfaces) {
                     surf->setState_TP(T, P);
@@ -261,7 +261,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                                             rates_out);
                         rates_out.precision(6);
 
-                        print_rxn_rates(gas.get(), rates_out);
+                        print_rxn_rates(gas->kinetics().get(), rates_out);
                         for (auto surf : surfaces) {
                             print_rxn_rates(surf.get(), rates_out);
                         }
@@ -276,7 +276,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
                 // Print final rpa data
                 rates_out.precision(6);
-                print_rxn_rates(gas.get(), rates_out);
+                print_rxn_rates(gas->kinetics().get(), rates_out);
                 for (auto surf : surfaces) {
                     print_rxn_rates(surf.get(), rates_out);
                 }

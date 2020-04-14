@@ -23,12 +23,12 @@ namespace OpenMKM
 {
 
 void run_0d_reactor(ReactorParser& rctr_parser,
-                    std::shared_ptr<Cantera::IdealGasMix> gas, 
+                    std::shared_ptr<Cantera::Solution> gas, 
                     std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces,
                     std::ofstream& gen_info);
 
 void run_1d_reactor(ReactorParser& rctr_parser,
-                    std::shared_ptr<Cantera::IdealGasMix> gas, 
+                    std::shared_ptr<Cantera::Solution> gas, 
                     std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> surfaces,
                     std::ofstream& gen_info);
                     

@@ -98,6 +98,19 @@ shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
     return gas;
 }
 
+shared_ptr<Solution> ReactorParser::getGasSolution(string phase_filename)
+{
+    auto gas_name_nd = getChildNode(m_phase_nd, "tube.phases", 
+                                    vector<string>{"name", "gas"});
+    auto gas_phase_name = gas_name_nd.as<string>();
+    auto gas = newSolution(phase_filename, gas_phase_name);
+
+    m_gas_X = getGasPhaseComposition();
+    gas->thermo()->setState_TPX(m_T, m_P, m_gas_X);
+    return gas;
+}
+
+
 string ReactorParser::getGasPhaseComposition()
 {
     if (!m_gas_X.size()){
