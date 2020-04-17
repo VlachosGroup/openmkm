@@ -263,13 +263,15 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         auto rel_tol = rctr_parser.get_rtol();
         rnet.setTolerances(rel_tol, abs_tol);
     }
-    /* For these options, changes have to be made in Cantera
-    if (rctr_parser.solverInitStepSizeDefined()){
-        rnet.setInitialStepSize(rctr_parser.getSolverInitStepSize());
-    }
+    //if (rctr_parser.solverInitStepSizeDefined()){
+    //    rnet.setInitialStepSize(rctr_parser.getSolverInitStepSize());
+    //}
     if (rctr_parser.solverMaxStepsDefined()){
-        rnet.setMaxNumSteps(rctr_parser.getSolverMaxSteps());
-    }*/
+        auto nsteps = rctr_parser.getSolverMaxSteps();
+        if (nsteps > 500){ // CVODES default is 500. Use this only to increase the steps
+            rnet.setMaxSteps(nsteps);
+        }
+    }
 
     auto gas_print_specie_header = [&gas, data_format](string ind_var, ostream& out) -> void
     {
