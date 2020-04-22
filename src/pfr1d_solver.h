@@ -30,6 +30,10 @@ public:
 
     void setSensitivityTolerances(double rtol, double atol);
 
+    void setQuadratureSize(size_t nquad) {
+        m_nquad = nquad;
+    }
+
     void setMaxNumSteps(unsigned maxsteps);
 
     void setMaxTimeStep(double maxtimestep);
@@ -82,7 +86,13 @@ public:
 
     void writeSurfaceData(const std::string & saveas);
 
-    void writeSensitivityData(const std::string & saveas, const std::vector<std::string> & rxnids);
+    void writeSensitivityData(const std::string & saveas, 
+                              const std::vector<std::string> & rxnids, 
+                              std::string sep);
+
+    void writeFisherInformationMatrixDiag(const std::string & saveas, 
+                                          const std::vector<std::string> & rxnids, 
+                                          std::string sep);
 
     Cantera::DAE_Solver& solver() {
         return *m_solver;
@@ -120,6 +130,9 @@ protected:
 
     //! Number of equations in reactor model.
     unsigned m_neq;
+
+    //! Number of quadrature equations to be computed.
+    unsigned m_nquad;
 
     //! Absolute DAE solver tolerance
     double m_atol;

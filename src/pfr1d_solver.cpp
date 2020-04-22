@@ -16,7 +16,7 @@ namespace OpenMKM
 PFR1dSolver::PFR1dSolver(shared_ptr<PFR1d> pfr) : 
     m_solver(nullptr), m_ss_started(false),
     m_z(0.0), m_h0(0.0), m_rtol(0.0), m_atol(0.0),
-    m_maxSteps(0), m_tStop(0.0),
+    m_maxSteps(0), m_tStop(0.0), m_nquad(0),
     m_atolsens(0), m_rtolsens(0)
 {
     m_neq = pfr->nEquations();
@@ -46,6 +46,7 @@ void PFR1dSolver::init()
         m_solver->setJacobianType(0);
         m_solver->setDenseLinearSolver();
         applyOptions();
+        m_solver->setQuadratureVarSize(m_nquad);
         m_solver->init(0.0);
     }
     catch (Cantera::CanteraError& err)
@@ -256,7 +257,9 @@ void PFR1dSolver::writeSurfaceData(const string & saveas)
     ofs.close();
 }
 
-void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::string>& rxnids)
+void PFR1dSolver::writeSensitivityData(const string & saveas, 
+                                       const vector<string>& rxnids, 
+                                       string sep)
 {
     std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
     if (!ofs)
@@ -268,7 +271,6 @@ void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::
     sensi_strm.str(std::string());
     sensi_strm.precision(6);
     sensi_strm  << "Rxnid";
-    string sep = ",";
     for (auto var : m_var_state) { 
 	sensi_strm << sep << var; 
     }
@@ -289,11 +291,66 @@ void PFR1dSolver::writeSensitivityData(const string & saveas, const vector<std::
             // central difference scheme. Central difference scheme was found to be not resulting
             // in accurate derivatives in some cases, where the -ve perturbation is essentially ignored
             // because some variables & parameters can't be < 0.  
-            sensi_strm << sep << 2*m_solver->sensitivity(i, j)/m_solver->solution(i);
+            sensi_strm << sep << m_solver->sensitivity(i, j)/m_solver->solution(i);
         }
         sensi_strm << std::endl;
     }
 
+    ofs << sensi_strm.str();
+}
+
+
+void PFR1dSolver::writeFisherInformationMatrixDiag(const string & saveas, 
+                                                   const vector<std::string>& rxnids, 
+                                                   std::string sep)
+{
+    std::ofstream ofs(saveas, std::ios::out | std::ios::binary);
+    if (!ofs) {
+        throw std::runtime_error("Cannot output to file");
+    }
+
+    stringstream sensi_strm;
+    sensi_strm.str(std::string());
+    sensi_strm.precision(6);
+    sensi_strm  << "Rxnid";
+    /*
+    for (auto var : m_var_state) { 
+	sensi_strm << sep << var; 
+    }
+    for (auto var : m_var_gas) { 
+	sensi_strm << sep << var; 
+    }
+    for (auto var : m_var_surf) { 
+	sensi_strm << sep << var; 
+    }
+    */
+    sensi_strm << sep << "FIM_Diag";
+    sensi_strm << endl;
+
+    auto fim = m_solver->quadratureVector();
+    auto tm = m_solver->getCurrentTimeFromIDA();
+    if (tm == 0.0) {
+        throw std::runtime_error("Time should be greater than 0 to output Fisher Information Matrix");
+    }
+
+    for (size_t j = 0; j < rxnids.size(); j++){
+        sensi_strm << rxnids[j] << sep << scientific << fim[j]/tm << endl;
+    }
+    /*
+    for (size_t j = 0; j < rxnids.size(); j++){
+        sensi_strm << rxnids[j] << scientific ;
+        //cout << x << endl;
+        for (unsigned i = 0; i < neq(); ++i) {
+            // The sensitivity is multiplied by 2 to conform with the manual evaluation of the 
+            // sensitivity coefficients. The difference in 2 is attributable to the use of 
+            // central difference scheme. Central difference scheme was found to be not resulting
+            // in accurate derivatives in some cases, where the -ve perturbation is essentially ignored
+            // because some variables & parameters can't be < 0.  
+            sensi_strm << sep << m_solver->sensitivity(i, j)/m_solver->solution(i);
+        }
+        sensi_strm << std::endl;
+    }
+    */
     ofs << sensi_strm.str();
 }
 

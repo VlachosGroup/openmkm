@@ -137,20 +137,18 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     pfr.setConstraints();
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
 
-    /* Read the sensitivity coefficients */
+    // Read the sensitivity coefficients 
     bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
     bool full_sens = rctr_parser.isfullSensitivityAnalysis();
     vector<std::string> rxnids;
     if (sens_on) {
-        if (full_sens){
-        // Enable Fisher Information Matrix
-        } else {
+        if (!full_sens){ 
             // Read the sensitivity equations and enable them
             rxnids = rctr_parser.getSensitivityReactions();
             for (auto& id : rxnids) {
                 pfr.addSensitivityReaction(id);
             }
-        }
+        }   // Full sens is dealt below 
     }
 
     /*
@@ -170,6 +168,17 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         auto rel_tol = rctr_parser.get_rtol();
         pfr_solver.setTolerances(rel_tol, abs_tol);
     }
+
+    // Full sensitivity is set through PFR solver
+    int nquad = gas->nReactions();
+    for (auto kin : ikin){
+        nquad += kin->nReactions();
+    }
+
+    if (sens_on && full_sens){
+        pfr_solver.setQuadratureSize(nquad);
+    }
+    
     if (rctr_parser.solverInitStepSizeDefined()){
         pfr_solver.setInitialStepSize(rctr_parser.getSolverInitStepSize());
     }
@@ -277,7 +286,15 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
                 pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
                 pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
-                pfr_solver.writeSensitivityData((out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids);
+                if (sens_on){
+                    string sep = (file_ext == "csv") ? "," : "\t";
+                    if (!full_sens)
+                        pfr_solver.writeSensitivityData(
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                    else
+                        pfr_solver.writeFisherInformationMatrixDiag(
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                }
 
                 // Print final rpa data
                 rates_out.precision(6);
