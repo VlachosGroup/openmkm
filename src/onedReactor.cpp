@@ -138,13 +138,18 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
 
     /* Read the sensitivity coefficients */
-    bool sens_on = rctr_parser.SAEnabled();
+    bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
+    bool full_sens = rctr_parser.isfullSensitivityAnalysis();
     vector<std::string> rxnids;
-    if (sens_on){
-        // Read the equations and enable them
-        rxnids = rctr_parser.getSAReactions();
-        for (auto& id : rxnids) {
-            pfr.addSensitivityReaction(id);
+    if (sens_on) {
+        if (full_sens){
+        // Enable Fisher Information Matrix
+        } else {
+            // Read the sensitivity equations and enable them
+            rxnids = rctr_parser.getSensitivityReactions();
+            for (auto& id : rxnids) {
+                pfr.addSensitivityReaction(id);
+            }
         }
     }
 

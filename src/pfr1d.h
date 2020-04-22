@@ -106,7 +106,7 @@ public:
                                      double *const y,
                                      double *const ydot);
 
-    //! Evalueate the residual functional F(t, y, y') = 0 of differential 
+    //! Evalueate the residual functional F(z, y, y') = 0 of differential 
     //! algebraic equations corresponding to 1d PFR.
     /*!
      * @param t z value from the PFR entrance. In DAE parlance, this is the
@@ -132,6 +132,24 @@ public:
     //! Evaluate the production rates of the species at the surfaces
     //! Returns the total mass of species produced at surfaces
     double evalSurfaces();
+
+    //! Evalueate the quadrature with integrand ROP(z, y, y') of differential 
+    //! algebraic equations corresponding to 1d PFR.
+    /*!
+     * @param t z value from the PFR entrance. In DAE parlance, this is the
+     *          individual variable and is typically denoted as t, because 
+     *          often time is the independent variable. 
+     * @param y State of the PFR. The state consists of gas velocity, density,
+     *          pressure, gas mass fractions and coverages of the surfaces.
+     * @param ydot First order derivates of the state variables w.r.t. z.
+     * @param rhsQ Integrand function F(t, y, y') corresponding to the rate of progress 
+     *              of the reactions 
+     * @param evalType
+     */
+    virtual int evalQuadRhs(const double t,
+                    const double* const y,
+                    const double* const ydot,
+                    double* const rshQ);
 
     unsigned getSpeciesIndex(std::string name) const
     {

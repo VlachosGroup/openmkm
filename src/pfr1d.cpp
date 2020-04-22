@@ -389,6 +389,22 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     return 0;
 }
 
+// This function is used to compute Fisher Information Matrix
+// using all the reactions participating in the kinetics
+int PFR1d::evalQuadRhs(const double t, const double* const y, 
+                       const double* const ydot, double* const rhsQ)
+{
+    size_t loc = 0;
+    m_gas->getNetRatesOfProgress(rhsQ);
+    loc += m_gas->nReactions();
+    
+    for (auto kin : m_surf_kins) {
+        kin->getNetRatesOfProgress(rhsQ + loc);
+        loc += kin->nReactions();
+    }
+    return 0;
+}
+
 /*
 void PFR1d::setTProfile(map<double, double> T_profile)
 {

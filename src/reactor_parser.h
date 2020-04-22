@@ -152,10 +152,11 @@ public:
     double getTPDEndTemp();
 
     // Sensitivity Analysis
-    bool SAEnabled();
-    double get_satol();
-    double get_srtol();
-    std::vector<std::string> getSAReactions();
+    bool isSensitivityAnalysisEnabled();
+    bool isfullSensitivityAnalysis();
+    double getSensitivityAtol();
+    double getSensitivityRtol();
+    std::vector<std::string> getSensitivityReactions();
 
 
     //! Parametric study 

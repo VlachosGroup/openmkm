@@ -562,13 +562,22 @@ std::vector<double> ReactorParser::FRs()
 }
 
 // Parsing sensitivity related variables
-bool ReactorParser::SAEnabled()
+bool ReactorParser::isSensitivityAnalysisEnabled()
 {
     vector<string> kids {"sensitivity"};
     return IsChildNodeAvailable(m_simul_nd, kids);
 }
 
-double ReactorParser::get_srtol()
+bool ReactorParser::isfullSensitivityAnalysis()
+{
+    vector<string> kids {"full", "sensitivity"};
+    if(!IsChildNodeAvailable(m_simul_nd, kids)){
+        return false;
+    }
+    auto fullSA_nd = getChildNode(m_simul_nd, "tube.sumulation", kids);
+    return fullSA_nd.as<bool>();
+}
+double ReactorParser::getSensitivityRtol()
 {
 
     vector<string> kids {"rtol", "sensitivity"};
@@ -579,7 +588,7 @@ double ReactorParser::get_srtol()
     return rtol_nd.as<double>();
 }
 
-double ReactorParser::get_satol()
+double ReactorParser::getSensitivityAtol()
 {
     vector<string> kids {"atol", "sensitivity"};
     if (!IsChildNodeAvailable(m_simul_nd, kids)){
@@ -589,7 +598,7 @@ double ReactorParser::get_satol()
     return atol_nd.as<double>();
 }
 
-vector<string> ReactorParser::getSAReactions()
+vector<string> ReactorParser::getSensitivityReactions()
 {
     vector<string> rxn_ids;
     vector<string> kids {"reactions", "sensitivity"};

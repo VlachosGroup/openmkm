@@ -184,11 +184,11 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     }
 
     /* Sensitivity Analysis */
-    bool sens_on = rctr_parser.SAEnabled();
+    bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
     vector<string> rxnids;
 
     if (sens_on) {
-        rxnids = rctr_parser.getSAReactions();
+        rxnids = rctr_parser.getSensitivityReactions();
         for (auto& id : rxnids){
             // Identify which kinetics the reaction belong to
             // First gas phase kinetics
