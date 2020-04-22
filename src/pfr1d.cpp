@@ -386,6 +386,7 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
                     (m_wdot[k] + m_sdot[k] * m_cat_abyv) * m_W[k];
     }
 
+    resetSensitivity();
     return 0;
 }
 
