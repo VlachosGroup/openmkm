@@ -136,6 +136,16 @@ shared_ptr<StoichSubstance> ReactorParser::getBulkPhase(string phase_filename)
     return blk;
 }
 
+shared_ptr<Solution> ReactorParser::getBulkSolution(string phase_filename)
+{
+    auto blk_name_nd = getChildNode(m_phase_nd, "tube.phases", 
+                                    vector<string>{"name", "bulk"});
+    auto blk_phase_name = blk_name_nd.as<string>();
+    auto blk = newSolution(phase_filename, blk_phase_name);
+    blk->thermo()->setState_TP(m_T, m_P);
+    return blk;
+}
+
 bool ReactorParser::surfacePhasesDefined(string phase_filename)
 {
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"surfaces"});

@@ -87,6 +87,9 @@ public:
     std::shared_ptr<Cantera::StoichSubstance> getBulkPhase(
             std::string phase_filename);
 
+    std::shared_ptr<Cantera::Solution> getBulkSolution(
+            std::string phase_filename);
+
     bool surfacePhasesDefined(std::string phase_filename);
 
     std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> getSurfPhases(
