@@ -61,10 +61,11 @@ int main(int argc, char* argv[])
         bool blk_phase_defined = rctr_parser.bulkPhaseDefined(phase_filename);
         vector<ThermoPhase*> gb_phases;
         if (blk_phase_defined) {
-            auto bulk = rctr_parser.getBulkPhase(phase_filename);
-            all_phases.push_back(bulk);
+            //auto bulk = rctr_parser.getBulkPhase(phase_filename);
+            auto bulk = rctr_parser.getBulkSolution(phase_filename);
+            all_phases.push_back(bulk->thermo());
             gb_phases.push_back(gas->thermo().get()); 
-            gb_phases.push_back(bulk.get());
+            gb_phases.push_back(bulk->thermo().get());
         }
         bool surf_phases_defined = rctr_parser.surfacePhasesDefined(phase_filename);
         vector<shared_ptr<InterfaceInteractions>> surf_phases;
