@@ -141,6 +141,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
     bool full_sens = rctr_parser.isfullSensitivityAnalysis();
     vector<std::string> rxnids;
+    int nquad;
     if (sens_on) {
         if (!full_sens){ 
             // Read the sensitivity equations and enable them
@@ -148,7 +149,18 @@ void run_1d_reactor(ReactorParser& rctr_parser,
             for (auto& id : rxnids) {
                 pfr.addSensitivityReaction(id);
             }
-        }   // Full sens is dealt below 
+        }  else { // Full sens enabling dealt below. Here all rxnids are counted
+            nquad = gas->nReactions();
+            for (int i = 0; i < gas->nReactions(); i++){
+                rxnids.push_back(gas->reaction(i)->id);
+            }
+            for (auto kin : ikin){
+                nquad += kin->nReactions();
+                for (int i = 0; i < kin->nReactions(); i++){
+                    rxnids.push_back(kin->reaction(i)->id);
+                }
+            }
+        }
     }
 
     /*
@@ -170,10 +182,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
 
     // Full sensitivity is set through PFR solver
-    int nquad = gas->nReactions();
-    for (auto kin : ikin){
-        nquad += kin->nReactions();
-    }
 
     if (sens_on && full_sens){
         pfr_solver.setQuadratureSize(nquad);
