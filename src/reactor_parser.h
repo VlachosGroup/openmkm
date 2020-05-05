@@ -96,6 +96,10 @@ public:
             std::string phase_filename, 
             std::vector<Cantera::ThermoPhase*> gb_phases);
 
+    std::vector<std::shared_ptr<Cantera::Solution>> getSurfaceSolutions(
+            std::string phase_filename, 
+            std::vector<std::shared_ptr<Cantera::Solution>>& gb_phases);
+
     std::vector<std::string> getSurfPhaseCompositions();
 
     //! Get Reactor Type
