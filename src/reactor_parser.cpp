@@ -179,6 +179,34 @@ vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
     return surf_phases;
 }
 
+vector<shared_ptr<Solution>> ReactorParser::getSurfaceSolutions(
+        string phase_filename, vector<shared_ptr<Solution>>& gb_solns)
+{
+    auto surf_nds = m_phase_nd["surfaces"];
+    if (!surf_nds || surf_nds.IsNull()){
+        throw YAMLParserError("ReactorParser::getSurfPhases", 
+                              "phases.surfaces", "node not found or null");
+    }
+
+    vector<shared_ptr<Solution>> surf_solns;
+    vector<SurfPhase*> surf_phases;
+
+    for (const auto & surf_nd :  surf_nds){
+        auto surf_name = surf_nd["name"].as<string>();
+        auto surf = newSolution(phase_filename, surf_name, "", gb_solns);
+        auto surf_init_state = surf_nd["initial_state"].as<string>();
+        auto surf_phase = dynamic_cast<SurfLatIntPhase*>(surf->thermo().get());
+        surf_phase->setState_TP(m_T, m_P);
+        surf_phase->setCoveragesByName(surf_init_state);
+        m_surf_X.push_back(surf_init_state);
+        surf_solns.push_back(surf);
+        surf_phases.push_back(surf_phase);
+    }
+    setTotalSiteDensity(surf_phases);
+
+    return surf_solns;
+}
+
 vector<string> ReactorParser::getSurfPhaseCompositions()
 {
     return m_surf_X; 

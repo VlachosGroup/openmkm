@@ -54,26 +54,35 @@ int main(int argc, char* argv[])
         // Read the gas phase definition
         auto rctr_parser = ReactorParser(tube_file_name);
         shared_ptr<Solution> gas = rctr_parser.getGasSolution(phase_filename);
+        cout << "Kinetics type " << gas->kinetics()->kineticsType() << endl;
         vector<shared_ptr<ThermoPhase>> all_phases {gas->thermo()};
         vector<Kinetics*> all_km {gas->kinetics().get()};
+        vector<shared_ptr<Solution>> gb_solns {gas};
 
-        // Try to read the bulk node and if present read surface definitons as well
+        // Try to read the bulk node 
         bool blk_phase_defined = rctr_parser.bulkPhaseDefined(phase_filename);
-        vector<ThermoPhase*> gb_phases;
         if (blk_phase_defined) {
             //auto bulk = rctr_parser.getBulkPhase(phase_filename);
             auto bulk = rctr_parser.getBulkSolution(phase_filename);
             all_phases.push_back(bulk->thermo());
-            gb_phases.push_back(gas->thermo().get()); 
-            gb_phases.push_back(bulk->thermo().get());
+            gb_solns.push_back(bulk);
         }
         bool surf_phases_defined = rctr_parser.surfacePhasesDefined(phase_filename);
-        vector<shared_ptr<InterfaceInteractions>> surf_phases;
-        if (surf_phases_defined && blk_phase_defined) {
-            surf_phases = rctr_parser.getSurfPhases(phase_filename, gb_phases);
-            for (auto& surf_phase : surf_phases) {
-                all_phases.push_back(surf_phase);
-                all_km.push_back(surf_phase.get());
+        //vector<shared_ptr<InterfaceInteractions>> surf_phases;
+        //if (surf_phases_defined && blk_phase_defined) {
+         //   surf_phases = rctr_parser.getSurfPhases(phase_filename, gb_phases);
+          //  for (auto& surf_phase : surf_phases) {
+           //     all_phases.push_back(surf_phase);
+            //    all_km.push_back(surf_phase.get());
+            //}
+        //}
+        vector<shared_ptr<Solution>> surf_solns;
+        if (surf_phases_defined) {
+            surf_solns = rctr_parser.getSurfaceSolutions(phase_filename, gb_solns);
+            for (auto& surf_soln : surf_solns) {
+                cout << "Kinetics type " << surf_soln->kinetics()->kineticsType() << endl;
+                all_phases.push_back(surf_soln->thermo());
+                all_km.push_back(surf_soln->kinetics().get());
             }
         }
         cout << "Total # of phases: " << all_phases.size() << endl;
@@ -104,11 +113,13 @@ int main(int argc, char* argv[])
         auto rctr_type = rctr_parser.getReactorType();
         cout << "Reactor Model: " << RctrTypeString[rctr_type] << endl;
         if (rctr_type == BATCH || rctr_type == CSTR || rctr_type == PFR_0D) { // 0d reactors
-            run_0d_reactor(rctr_parser, gas, surf_phases, gen_info);
+            //run_0d_reactor(rctr_parser, gas, surf_phases, gen_info);
+            run_0d_reactor(rctr_parser, gas, surf_solns, gen_info);
 
         }
         else if (rctr_type == PFR) { // 1d reactor
-            run_1d_reactor(rctr_parser, gas, surf_phases, gen_info);
+            //run_1d_reactor(rctr_parser, gas, surf_phases, gen_info);
+            run_1d_reactor(rctr_parser, gas, surf_solns, gen_info);
         }
         print_species(all_phases, "species.out");
     }
