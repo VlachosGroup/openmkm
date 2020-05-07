@@ -1,0 +1,876 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <!-- phase gas     -->
+  <phase id="gas" dim="3">
+    <elementArray datasrc="elements.xml">H C O N Pt</elementArray>
+    <speciesArray datasrc="#species_data">CH2CH2  CH3CH3  CH4     CHCH    H2      N2</speciesArray>
+    <state>
+      <temperature units="K">873.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- phase bulk     -->
+  <phase id="bulk" dim="3">
+    <elementArray datasrc="elements.xml">Pt</elementArray>
+    <speciesArray datasrc="#species_data">PT(B)</speciesArray>
+    <state>
+      <temperature units="K">873.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="StoichSubstance">
+      <density units="g/cm3">21.4</density>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- phase terrace     -->
+  <phase id="terrace" dim="2">
+    <elementArray datasrc="elements.xml">H C O N Pt</elementArray>
+    <speciesArray datasrc="#species_data">
+      CH2CH3(S)  CH3(S)     H(S)       CH2(S)
+      CHCH3(S)   CH2CH2(S)  CH(S)      CCH3(S)
+      CHCH2(S)   C(S)       CCH2(S)    CHCH(S)
+      CCH(S)     CC(S)      CH4(S)     PT(S)</speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">873.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="SurfaceCoverage">
+      <site_density units="mol/cm2">2.485e-09</site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <transport model="None"/>
+    <phaseArray>gas bulk</phaseArray>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species CH2CH2    -->
+    <species name="CH2CH2">
+      <atomArray>C:2 H:4 </atomArray>
+      <note>20180216</note>
+      <thermo>
+        <NASA Tmin="298.15" Tmax="700.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.007959000E+00,   6.345070000E-03,   2.372066000E-05,  -3.741865000E-08, 
+             1.713816000E-11,   5.285668000E+03,   1.227730000E+01</floatArray>
+        </NASA>
+        <NASA Tmin="700.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.714629000E+00,   2.746817000E-02,  -2.326748000E-05,   1.093010000E-08, 
+             -2.127992000E-12,   5.834109000E+03,   2.901878000E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH3CH3    -->
+    <species name="CH3CH3">
+      <atomArray>C:2 H:6 </atomArray>
+      <note>20180216</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="600.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.687837000E+00,  -2.105701000E-02,   1.209877000E-04,  -1.704135000E-07, 
+             8.432696000E-11,  -1.161639000E+04,  -2.925983000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="600.0" Tmax="1700.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.179667000E-01,   2.441103000E-02,  -1.221218000E-05,   2.921645000E-09, 
+             -2.633766000E-13,  -1.102727000E+04,   2.116908000E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH4    -->
+    <species name="CH4">
+      <atomArray>C:1 H:4 </atomArray>
+      <note>20180216</note>
+      <thermo>
+        <NASA Tmin="300.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             8.167462000E+00,  -4.340863000E-02,   1.565496000E-04,  -2.170620000E-07, 
+             1.137175000E-10,  -1.051860000E+04,  -1.645645000E+01</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             1.923256000E+00,   6.477388000E-03,   3.691325000E-06,  -4.728679000E-09, 
+             1.272770000E-12,  -9.878082000E+03,   9.422848000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CHCH    -->
+    <species name="CHCH">
+      <atomArray>C:2 H:2 </atomArray>
+      <note>20180216</note>
+      <thermo>
+        <NASA Tmin="298.15" Tmax="600.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.822474000E+00,   4.657433000E-02,  -1.095117000E-04,   1.302547000E-07, 
+             -6.038627000E-11,   2.648013000E+04,   2.453934000E+01</floatArray>
+        </NASA>
+        <NASA Tmin="600.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.867774000E+00,   1.163393000E-02,  -1.114154000E-05,   6.261766000E-09, 
+             -1.415648000E-12,   2.597286000E+04,   4.810602000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species H2    -->
+    <species name="H2">
+      <atomArray>H:2 </atomArray>
+      <note>20180216</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="600.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.359620000E+00,   8.669434000E-03,  -2.452869000E-05,   3.092782000E-08, 
+             -1.454207000E-11,  -9.263951000E+02,   5.339751000E-01</floatArray>
+        </NASA>
+        <NASA Tmin="600.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             3.660716000E+00,  -5.094913000E-04,   4.129702000E-07,   1.712035000E-10, 
+             -1.025803000E-13,  -1.078695000E+03,  -5.024551000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species N2    -->
+    <species name="N2">
+      <atomArray>N:2 </atomArray>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="1476.5" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             3.541360170E+00,  -6.933742340E-04,   2.101024280E-06,  -1.289729490E-09, 
+             2.585986450E-13,  -1.041178200E+03,   2.992226740E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1476.5" Tmax="5000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.833177440E+00,   1.600165030E-03,  -6.099808970E-07,   1.063494310E-10, 
+             -6.909143080E-15,  -8.729273850E+02,   6.546339590E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH2CH3(S)    -->
+    <species name="CH2CH3(S)">
+      <atomArray>C:2 H:5 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             1.509545000E+00,   2.370879000E-02,  -4.206735000E-05,   1.142839000E-07, 
+             -1.090274000E-10,  -8.064211000E+03,  -5.705300000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -2.258286000E-01,   3.004395000E-02,  -2.202130000E-05,   9.023088000E-09, 
+             -1.605355000E-12,  -7.850360000E+03,   2.113424000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH3(S)    -->
+    <species name="CH3(S)">
+      <atomArray>C:1 H:3 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.187186000E+00,   1.680177000E-03,   3.892003000E-05,  -7.382379000E-08, 
+             4.376563000E-11,  -5.559465000E+03,  -7.855966000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             1.194708000E+00,   1.423652000E-02,  -1.010630000E-05,   4.219376000E-09, 
+             -7.864777000E-13,  -5.530979000E+03,  -4.393658000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species H(S)    -->
+    <species name="H(S)">
+      <atomArray>H:1 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             4.674423000E-01,  -1.236145000E-02,   9.704183000E-05,  -2.043171000E-07, 
+             1.444866000E-10,  -6.129081000E+03,  -1.335558000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -9.086012000E-01,   1.025622000E-02,  -1.141342000E-05,   5.977537000E-09, 
+             -1.206452000E-12,  -6.124573000E+03,   2.978258000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH2(S)    -->
+    <species name="CH2(S)">
+      <atomArray>C:1 H:2 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             9.544894000E-02,   8.266314000E-04,   8.383573000E-05,  -2.106852000E-07, 
+             1.601288000E-10,   1.030677000E+02,  -4.478997000E-01</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             6.264019000E-01,   1.397214000E-02,  -1.272516000E-05,   6.313806000E-09, 
+             -1.284905000E-12,  -1.640006000E+02,  -4.769744000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CHCH3(S)    -->
+    <species name="CHCH3(S)">
+      <atomArray>C:2 H:4 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -4.113585000E-01,   3.743024000E-02,  -8.919294000E-05,   1.768932000E-07, 
+             -1.403783000E-10,  -3.705290000E+03,   5.363592000E-02</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             9.025253000E-02,   2.708504000E-02,  -2.138174000E-05,   9.311559000E-09, 
+             -1.723912000E-12,  -3.736539000E+03,  -1.551386000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH2CH2(S)    -->
+    <species name="CH2CH2(S)">
+      <atomArray>C:2 H:4 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             1.096493000E+00,   6.925538000E-03,   6.159403000E-05,  -1.170425000E-07, 
+             6.337176000E-11,  -6.381594000E+03,  -4.533019000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -8.149834000E-01,   3.067157000E-02,  -2.657674000E-05,   1.251334000E-08, 
+             -2.441502000E-12,  -6.333305000E+03,   2.124563000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH(S)    -->
+    <species name="CH(S)">
+      <atomArray>C:1 H:1 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -6.513198000E-02,  -8.371021000E-03,   1.302545000E-04,  -3.168100000E-07, 
+             2.427516000E-10,  -2.777849000E+03,   5.930793000E-01</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             3.744729000E-01,   1.175451000E-02,  -1.244203000E-05,   6.633967000E-09, 
+             -1.388031000E-12,  -3.095592000E+03,  -4.026741000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CCH3(S)    -->
+    <species name="CCH3(S)">
+      <atomArray>C:2 H:3 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -9.859575000E-01,   4.053640000E-02,  -1.046830000E-04,   1.887246000E-07, 
+             -1.372248000E-10,  -8.923267000E+03,   2.080105000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             4.644927000E-01,   2.270053000E-02,  -1.847712000E-05,   8.206552000E-09, 
+             -1.532704000E-12,  -9.038404000E+03,  -3.390287000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CHCH2(S)    -->
+    <species name="CHCH2(S)">
+      <atomArray>C:2 H:3 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -7.620181000E-01,   1.435291000E-02,   5.888303000E-05,  -1.595238000E-07, 
+             1.147657000E-10,  -1.097550000E+03,   2.234118000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -3.870203000E-01,   2.751720000E-02,  -2.572815000E-05,   1.269380000E-08, 
+             -2.539153000E-12,  -1.362864000E+03,  -1.444942000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species C(S)    -->
+    <species name="C(S)">
+      <atomArray>C:1 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.993275000E-01,  -2.823787000E-03,   7.410448000E-05,  -1.915362000E-07, 
+             1.511463000E-10,   7.854423000E+03,   8.954592000E-01</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             3.027595000E-01,   7.570590000E-03,  -8.809530000E-06,   4.762805000E-09, 
+             -9.840407000E-13,   7.642476000E+03,  -2.859839000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CCH2(S)    -->
+    <species name="CCH2(S)">
+      <atomArray>C:2 H:2 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.611502000E+00,   2.796421000E-02,  -1.780694000E-05,  -1.977736000E-08, 
+             2.588635000E-11,   1.593056000E+02,   5.047071000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.522989000E-01,   2.156932000E-02,  -2.043579000E-05,   1.009863000E-08, 
+             -2.011886000E-12,  -1.561459000E+02,  -3.818589000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CHCH(S)    -->
+    <species name="CHCH(S)">
+      <atomArray>C:2 H:2 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.292304000E+00,   2.182556000E-02,   1.173726000E-05,  -7.095320000E-08, 
+             5.612058000E-11,   2.957913000E+03,   4.016718000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.858754000E-02,   2.319838000E-02,  -2.299849000E-05,   1.170765000E-08, 
+             -2.374937000E-12,   2.647209000E+03,  -3.066757000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CCH(S)    -->
+    <species name="CCH(S)">
+      <atomArray>C:2 H:1 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -1.120939000E+00,   2.914219000E-02,  -2.653472000E-05,  -2.753142000E-08, 
+             4.705642000E-11,   1.727610000E+04,   3.943562000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             2.135943000E+00,   1.365195000E-02,  -1.374848000E-05,   7.046227000E-09, 
+             -1.432055000E-12,   1.681396000E+04,  -1.083295000E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CC(S)    -->
+    <species name="CC(S)">
+      <atomArray>C:2 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             -2.924487000E+00,   4.950572000E-02,  -1.360988000E-04,   1.885220000E-07, 
+             -1.037266000E-10,   2.852930000E+04,   9.353349000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             1.875781000E+00,   1.028997000E-02,  -1.110441000E-05,   5.697750000E-09, 
+             -1.133850000E-12,   2.803846000E+04,  -1.048019000E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species CH4(S)    -->
+    <species name="CH4(S)">
+      <atomArray>C:1 H:4 </atomArray>
+      <note>20181018</note>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.326382000E+00,   8.630948000E-03,  -5.281370000E-05,   1.566818000E-07, 
+             -1.344879000E-10,  -1.035587000E+04,  -1.565319000E+01</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             3.473184000E+00,   8.924720000E-03,  -5.019543000E-07,  -1.807339000E-09, 
+             5.442894000E-13,  -1.001321000E+04,  -6.328310000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species PT(S)    -->
+    <species name="PT(S)">
+      <atomArray>Pt:1 </atomArray>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species PT(B)    -->
+    <species name="PT(B)">
+      <atomArray>Pt:1 </atomArray>
+      <thermo>
+        <NASA Tmin="100.0" Tmax="500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00</floatArray>
+        </NASA>
+        <NASA Tmin="500.0" Tmax="1500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data" motz_wise="false">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001" reversible="yes" type="surface">
+      <equation>CH3CH3 + 2 PT(S) [=] CH2CH3(S) + H(S) + 2 PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="CH3CH3">
+           <A>5.000000E-01</A>
+           <b>0.0</b>
+           <E units="kcal/mol">12.390000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH3CH3:1.0 PT(S):2.0</reactants>
+      <products>CH2CH3(S):1.0 H(S):1 PT(B):2.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction id="0002" reversible="yes" type="surface">
+      <equation>CH2CH2 + PT(S) [=] CH2CH2(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="CH2CH2">
+           <A>5.000000E-01</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH2:1.0 PT(S):1</reactants>
+      <products>CH2CH2(S):1.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction id="0003" reversible="yes" type="surface">
+      <equation>CHCH + PT(S) [=] CHCH(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="CHCH">
+           <A>5.000000E-01</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH:1.0 PT(S):1</reactants>
+      <products>CHCH(S):1.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction id="0004" reversible="yes" type="surface">
+      <equation>CH4 + PT(S) [=] CH4(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="CH4">
+           <A>5.000000E-01</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH4:1.0 PT(S):1</reactants>
+      <products>CH4(S):1.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction id="0005" reversible="yes" type="surface">
+      <equation>H2 + 2 PT(S) [=] 2 H(S) + 2 PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="H2">
+           <A>5.000000E-01</A>
+           <b>0.0</b>
+           <E units="kcal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:1.0 PT(S):2.0</reactants>
+      <products>H(S):2.0 PT(B):2.0</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction id="0006" reversible="yes" type="surface">
+      <equation>CC(S) + PT(S) [=] 2 C(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">15.340000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CC(S):1.0 PT(S):1</reactants>
+      <products>C(S):2.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction id="0007" reversible="yes" type="surface">
+      <equation>CCH(S) + PT(S) [=] C(S) + CH(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">15.970000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 CH(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0008    -->
+    <reaction id="0008" reversible="yes" type="surface">
+      <equation>CCH(S) + PT(S) [=] CC(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">35.270000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH(S):1.0 PT(S):1</reactants>
+      <products>CC(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0009    -->
+    <reaction id="0009" reversible="yes" type="surface">
+      <equation>CCH2(S) + PT(S) [=] C(S) + CH2(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">42.980000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH2(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 CH2(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0010    -->
+    <reaction id="0010" reversible="yes" type="surface">
+      <equation>CCH2(S) + PT(S) [=] CCH(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">48.560000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH2(S):1.0 PT(S):1</reactants>
+      <products>CCH(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0011    -->
+    <reaction id="0011" reversible="yes" type="surface">
+      <equation>CCH3(S) + PT(S) [=] C(S) + CH3(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">47.720000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH3(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 CH3(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0012    -->
+    <reaction id="0012" reversible="yes" type="surface">
+      <equation>CCH3(S) + PT(S) [=] CCH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">31.050000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CCH3(S):1.0 PT(S):1</reactants>
+      <products>CCH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0013    -->
+    <reaction id="0013" reversible="yes" type="surface">
+      <equation>CH(S) + PT(S) [=] C(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">34.290000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0014    -->
+    <reaction id="0014" reversible="yes" type="surface">
+      <equation>CH2(S) + PT(S) [=] CH(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">6.820000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2(S):1.0 PT(S):1</reactants>
+      <products>CH(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0015    -->
+    <reaction id="0015" reversible="yes" type="surface">
+      <equation>CH2CH2(S) + PT(S) [=] 2 CH2(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">41.580000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH2(S):1.0 PT(S):1</reactants>
+      <products>CH2(S):2.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0016    -->
+    <reaction id="0016" reversible="yes" type="surface">
+      <equation>CH2CH2(S) + PT(S) [=] CHCH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.800000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">14.680000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH2(S):1.0 PT(S):1</reactants>
+      <products>CHCH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0017    -->
+    <reaction id="0017" reversible="yes" type="surface">
+      <equation>CH2CH3(S) + PT(S) [=] CH2(S) + CH3(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">36.620000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH3(S):1.0 PT(S):1</reactants>
+      <products>CH2(S):1.0 CH3(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0018    -->
+    <reaction id="0018" reversible="yes" type="surface">
+      <equation>CH2CH3(S) + PT(S) [=] CH2CH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">16.050000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH3(S):1.0 PT(S):1</reactants>
+      <products>CH2CH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0019    -->
+    <reaction id="0019" reversible="yes" type="surface">
+      <equation>CH2CH3(S) + PT(S) [=] CHCH3(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">21.680000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2CH3(S):1.0 PT(S):1</reactants>
+      <products>CHCH3(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0020    -->
+    <reaction id="0020" reversible="yes" type="surface">
+      <equation>CH4(S) + PT(S) [=] CH3(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">21.060000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH4(S):1.0 PT(S):1</reactants>
+      <products>CH3(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0021    -->
+    <reaction id="0021" reversible="yes" type="surface">
+      <equation>CH3(S) + PT(S) [=] CH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">23.726000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH3(S):1.0 PT(S):1</reactants>
+      <products>CH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0022    -->
+    <reaction id="0022" reversible="yes" type="surface">
+      <equation>CHCH(S) + PT(S) [=] CCH(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">42.770000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH(S):1.0 PT(S):1</reactants>
+      <products>CCH(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0023    -->
+    <reaction id="0023" reversible="yes" type="surface">
+      <equation>CHCH(S) + PT(S) [=] 2 CH(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>3.410000E+18</A>
+           <b>1.0</b>
+           <E units="kcal/mol">28.880000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH(S):1.0 PT(S):1</reactants>
+      <products>CH(S):2.0 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0024    -->
+    <reaction id="0024" reversible="yes" type="surface">
+      <equation>CHCH2(S) + PT(S) [=] CCH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">15.430000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH2(S):1.0 PT(S):1</reactants>
+      <products>CCH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0025    -->
+    <reaction id="0025" reversible="yes" type="surface">
+      <equation>CHCH2(S) + PT(S) [=] CH(S) + CH2(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">30.770000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH2(S):1.0 PT(S):1</reactants>
+      <products>CH(S):1.0 CH2(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0026    -->
+    <reaction id="0026" reversible="yes" type="surface">
+      <equation>CHCH2(S) + PT(S) [=] CHCH(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">21.220000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH2(S):1.0 PT(S):1</reactants>
+      <products>CHCH(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0027    -->
+    <reaction id="0027" reversible="yes" type="surface">
+      <equation>CHCH3(S) + PT(S) [=] CCH3(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">2.270000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH3(S):1.0 PT(S):1</reactants>
+      <products>CCH3(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0028    -->
+    <reaction id="0028" reversible="yes" type="surface">
+      <equation>CHCH3(S) + PT(S) [=] CH(S) + CH3(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">27.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH3(S):1.0 PT(S):1</reactants>
+      <products>CH(S):1.0 CH3(S):1 PT(B):1</products>
+    </reaction>
+
+    <!-- reaction 0029    -->
+    <reaction id="0029" reversible="yes" type="surface">
+      <equation>CHCH3(S) + PT(S) [=] CHCH2(S) + H(S) + PT(B)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>8.370000E+17</A>
+           <b>1.0</b>
+           <E units="kcal/mol">17.896000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CHCH3(S):1.0 PT(S):1</reactants>
+      <products>CHCH2(S):1.0 H(S):1 PT(B):1</products>
+    </reaction>
+  </reactionData>
+</ctml>

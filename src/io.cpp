@@ -83,11 +83,17 @@ void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file)
     }
 
     // Print the header
+    /*
     out << setw(16) << left << "Species_name" 
         << setw(10) << left << "Phase" 
         << setw(16) << left << "Surf_cov";
     for (const auto& el : allElements) 
         out << setw(4) <<  el;
+    out << endl;
+    */
+    out << "Species_name\tPhase\tSurf_cov";
+    for (const auto& el : allElements) 
+        out << "\t" <<  el;
     out << endl;
 
     vector_fp coverages;
@@ -108,6 +114,7 @@ void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file)
         //out.width(16); 
         for (size_t k = 0; k < phase->nSpecies(); k++) {
             auto species = phase->species(k);
+            /*
             out << setw(16) << left << species->name 
                 << setw(10) << left  << phase_type;
             if (phase_type == "Surface"){
@@ -119,6 +126,18 @@ void print_species(vector<shared_ptr<ThermoPhase>> phases, string output_file)
                                                        allElements);
             for (const auto& comp : comps)
                 out << setw(4) << comp;
+            out << endl;
+            */
+            out << species->name << "\t"  << phase_type;
+            if (phase_type == "Surface"){
+                out << "\t" << coverages[k];
+            } else {
+                out << "\t" << 0.0;
+            }
+            vector<double> comps = expandedComposition(species->composition, 
+                                                       allElements);
+            for (const auto& comp : comps)
+                out << "\t" << comp;
             out << endl;
         } 
     }   
@@ -364,11 +383,11 @@ void print_rxn_rates_hdr(ofstream& out)
 {
     out //<< hdr << endl
         //<< setw(16) << left << "Reaction No."
-        << setw(16) << left << "Fwd Rate"
-        << setw(16) << left << "Rev Rate"
-        << setw(16) << left << "Net Rate"
-        << setw(16) << left << "Partial Equil."
-        << setw(32) << left << "Reaction String"
+        << setw(16) << left << "Fwd_Rate"
+        << setw(16) << left << "Rev_Rate"
+        << setw(16) << left << "Net_Rate"
+        << setw(16) << left << "PEI"
+        << setw(32) << left << "Reaction_string"
         << endl;
 }
 

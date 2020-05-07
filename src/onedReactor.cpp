@@ -136,7 +136,33 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     }
     pfr.setConstraints();
     gen_info << "Energy enabled? "  << pfr.energyEnabled() << endl;
-    
+
+    // Read the sensitivity coefficients 
+    bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
+    bool full_sens = rctr_parser.isfullSensitivityAnalysis();
+    vector<std::string> rxnids;
+    int nquad;
+    if (sens_on) {
+        if (!full_sens){ 
+            // Read the sensitivity equations and enable them
+            rxnids = rctr_parser.getSensitivityReactions();
+            for (auto& id : rxnids) {
+                pfr.addSensitivityReaction(id);
+            }
+        }  else { // Full sens enabling dealt below. Here all rxnids are counted
+            nquad = gas->nReactions();
+            for (int i = 0; i < gas->nReactions(); i++){
+                rxnids.push_back(gas->reaction(i)->id);
+            }
+            for (auto kin : ikin){
+                nquad += kin->nReactions();
+                for (int i = 0; i < kin->nReactions(); i++){
+                    rxnids.push_back(kin->reaction(i)->id);
+                }
+            }
+        }
+    }
+
     /*
     vector<double> ydot(25);
     vector<double> y(25);
@@ -154,6 +180,13 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         auto rel_tol = rctr_parser.get_rtol();
         pfr_solver.setTolerances(rel_tol, abs_tol);
     }
+
+    // Full sensitivity is set through PFR solver
+
+    if (sens_on && full_sens){
+        pfr_solver.setQuadratureSize(nquad);
+    }
+    
     if (rctr_parser.solverInitStepSizeDefined()){
         pfr_solver.setInitialStepSize(rctr_parser.getSolverInitStepSize());
     }
@@ -168,7 +201,6 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     auto rpa_flag = rctr_parser.RPA();
     vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
 
-    
     vector<double> T_params = rctr_parser.Ts();
     vector<double> P_params = rctr_parser.Ps();
     vector<double> fr_params = rctr_parser.FRs();
@@ -229,6 +261,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 ofstream surf_cov_out((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
                 ofstream state_var_out((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
                 ofstream rates_out((out_dir / "rates_ss.out").string(), ios::out);
+                print_rxn_rates_hdr(rates_out);
 
                 gas_mole_out.precision(6);
                 gas_mass_out.precision(6);
@@ -261,6 +294,15 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
                 pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
                 pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
+                if (sens_on){
+                    string sep = (file_ext == "csv") ? "," : "\t";
+                    if (!full_sens)
+                        pfr_solver.writeSensitivityData(
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                    else
+                        pfr_solver.writeFisherInformationMatrixDiag(
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                }
 
                 // Print final rpa data
                 rates_out.precision(6);

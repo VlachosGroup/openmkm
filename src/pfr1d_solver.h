@@ -28,6 +28,12 @@ public:
     
     void setTolerances(double rtol, double atol);
 
+    void setSensitivityTolerances(double rtol, double atol);
+
+    void setQuadratureSize(size_t nquad) {
+        m_nquad = nquad;
+    }
+
     void setMaxNumSteps(unsigned maxsteps);
 
     void setMaxTimeStep(double maxtimestep);
@@ -44,12 +50,24 @@ public:
         return m_z;
     }
 
+    //! Relative tolerance
     double rtol(){
         return m_rtol;
     }
 
+    //! Absolute tolerance
     double atol(){
         return m_atol;
+    }
+
+    //! Relative sensitivity tolerance
+    doublereal rtolSensitivity() const {
+        return m_rtolsens;
+    }
+
+    //! Absolute sensitivity tolerance
+    doublereal atolSensitivity() const {
+        return m_atolsens;
     }
 
     double solution(unsigned num) const;
@@ -67,6 +85,14 @@ public:
     void writeGasData(const std::string & saveas);
 
     void writeSurfaceData(const std::string & saveas);
+
+    void writeSensitivityData(const std::string & saveas, 
+                              const std::vector<std::string> & rxnids, 
+                              std::string sep);
+
+    void writeFisherInformationMatrixDiag(const std::string & saveas, 
+                                          const std::vector<std::string> & rxnids, 
+                                          std::string sep);
 
     Cantera::DAE_Solver& solver() {
         return *m_solver;
@@ -105,17 +131,26 @@ protected:
     //! Number of equations in reactor model.
     unsigned m_neq;
 
+    //! Number of quadrature equations to be computed.
+    unsigned m_nquad;
+
     //! Absolute DAE solver tolerance
     double m_atol;
 
     //! Relative DAE solver tolerance
     double m_rtol;
 
+    //! Absolute DAE solver tolerance for sensitivity
+    double m_atolsens;
+
+    //! Relative DAE solver tolerance for sensitivity
+    double m_rtolsens;
+
     //! Initial Step Size
     double m_h0;
 
     //! Max solver internal steps 
-    double m_maxSteps;
+    size_t m_maxSteps;
 
     //! Simulation end time
     double m_tStop;
