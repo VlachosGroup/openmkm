@@ -23,11 +23,13 @@
 
 #include <boost/math/interpolators/barycentric_rational.hpp>
 
+#include "cantera/zeroD/ReactorBase.h"
 #include "cantera/IdealGasMix.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/SurfLatIntPhase.h"
 #include "cantera/numerics/eigen_dense.h"
+#include "cantera/numerics/ResidEval.h"
 #include "cantera/numerics/ResidJacEval.h"
 #include "cantera/transport.h"
 
@@ -58,6 +60,12 @@ static inline double sccmTocmps(doublereal sccm)
  * state of PFR at the inlet is used to propagate the state as a function of z by
  * solving differential algebraic governing equations of the PFR.
  */
+
+//TODO: Clean up PFR implementation to correspond to that of the
+//TODO: zeroD reactors. Implement a Reactor Surface model 
+//TODO: corresponding to zeroD 
+//TODO: reactor surface model for the PFR. Current PFR doesn't 
+//TODO: exhibit modularity well.
 class PFR1d : public Cantera::ResidJacEval
 {
 public:
@@ -89,7 +97,7 @@ public:
     ~PFR1d()
     {
         Cantera::appdelete();
-        m_T_interp = nullptr;
+        //m_T_interp = nullptr;
     }
 
     void reinit();
@@ -98,7 +106,7 @@ public:
                                      double *const y,
                                      double *const ydot);
 
-    //! Evalueate the residual functional F(t, y, y') = 0 of differential 
+    //! Evalueate the residual functional F(z, y, y') = 0 of differential 
     //! algebraic equations corresponding to 1d PFR.
     /*!
      * @param t z value from the PFR entrance. In DAE parlance, this is the
@@ -124,6 +132,24 @@ public:
     //! Evaluate the production rates of the species at the surfaces
     //! Returns the total mass of species produced at surfaces
     double evalSurfaces();
+
+    //! Evalueate the quadrature with integrand ROP(z, y, y') of differential 
+    //! algebraic equations corresponding to 1d PFR.
+    /*!
+     * @param t z value from the PFR entrance. In DAE parlance, this is the
+     *          individual variable and is typically denoted as t, because 
+     *          often time is the independent variable. 
+     * @param y State of the PFR. The state consists of gas velocity, density,
+     *          pressure, gas mass fractions and coverages of the surfaces.
+     * @param ydot First order derivates of the state variables w.r.t. z.
+     * @param rhsQ Integrand function F(t, y, y') corresponding to the rate of progress 
+     *              of the reactions 
+     * @param evalType
+     */
+    virtual int evalQuadRhs(const double t,
+                    const double* const y,
+                    const double* const ydot,
+                    double* const rshQ);
 
     unsigned getSpeciesIndex(std::string name) const
     {
@@ -274,12 +300,26 @@ public:
         return m_surf_phases[n];
     }
 
+    //! Number of sensitivity parameters associated with this reactor
+    //! (including walls)
+    virtual size_t nSensParams();
+
+    //! Add a sensitivity parameter associated with the reaction number *rxn*
+    //! (in the homogeneous phase).
+    void addSensitivityReaction(std::string& rxn_id);
+
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* (in the homogeneous phase)
+    //virtual void addSensitivitySpeciesEnthalpy(size_t k);
+
 protected:
     //! Pointer to the gas phase object.
     Cantera::IdealGasMix *m_gas = nullptr;
 
     //! Surface kinetics objects
     std::vector<Cantera::InterfaceKinetics*> m_surf_kins;
+
+    void addSensitivityReaction(size_t kin_ind, size_t rxn_id);
 
     //! Surface phases objects.
     //! Both surface kinetics and phases have to refer
@@ -300,7 +340,7 @@ protected:
     std::vector<std::string> m_var;
 
     //! Number of equations in residual.
-    unsigned m_neq;
+    //unsigned m_neq;
 
     //! Number of gas species.
     unsigned m_nsp;
@@ -315,13 +355,13 @@ protected:
     double m_rho_ref;
 
     //! Reactor cross-sectional area
-    const double m_Ac = 0.0;
+    double m_Ac; 
 
     //! Solve Energy Equation
-    bool m_energy;
+    bool m_energy = 0;
 
     //! Inlet gas velocity
-    double m_u0 = 0.0;
+    double m_u0;// = 0.0;
 
     //! Inlet temperature
     double m_T0 = 0.0;
@@ -342,13 +382,13 @@ protected:
     
     //! Current index of Tprofile_ind
     //! Not used anymore. Will be deleted in future release
-    int m_T_profile_iind;
+    //int m_T_profile_iind;
 
     //! Barycentric interpolator to interpolate temperatures for T profile 
     std::shared_ptr<boost::math::barycentric_rational<double>> m_T_interp;
 
     //! External Heat supplied 
-    bool m_heat;
+    bool m_heat = false;
 
     //! External temperature
     double m_Text = 0;
@@ -362,7 +402,17 @@ protected:
     //! Inlet pressure
     double m_P0 = 0;
 
+    //! Set reaction rate multipliers based on the sensitivity variables in
+    //! *params*.
+    void applySensitivity();
+    //! Reset the reaction rate multipliers
+    void resetSensitivity();
 
+    //! Data associated each sensitivity parameter
+    std::vector<std::vector<Cantera::SensitivityParameter> > m_sensParams;
+
+    //! Names corresponding to each sensitivity parameter
+    std::vector<std::string> m_paramNames;
 }; 
 
 } 

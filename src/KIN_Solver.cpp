@@ -417,7 +417,11 @@ void KIN_Solver::applyOptions()
         #if CT_SUNDIALS_VERSION >= 30
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_VERSION < 40
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #else
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
+            #endif
             if (m_linsol_matrix == nullptr) {
                 throw CanteraError("KIN_Solver::applyOptions",
                     "Unable to create SUNBandMatrix of size {} with bandwidths "
