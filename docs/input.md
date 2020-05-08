@@ -10,6 +10,14 @@ To run OpenMKM, two input files are required:
 1. A YAML file that specifies parameters related to the reactor.
 2. An XML file that specifies thermodynamic and kinetic parameters.
 
+When running OpenMKM in the command line, the following syntax is used:
+
+```bash
+omkm reactor.yaml thermo.xml
+```
+
+where ``reactor.yaml`` and ``thermo.xml`` correspond to (1) and (2) above.
+
 These files can be generated manually or by using software, such as
 [pMuTT][pmutt_omkm_example].
 
@@ -28,8 +36,8 @@ to the reactor, such as:
 
 To generate a YAML file, one could:
 
-- write it from scratch
-- modify one of [OpenMKM's YAML examples][yaml_examples]
+- write it manually,
+- modify one of [OpenMKM's YAML examples][yaml_examples],
 - use [pMuTT's write_yaml function][pmutt_write_yaml]
 
 [This YAML tutorial][yaml_tutorial] introduces the YAML-language syntax. Since
@@ -49,7 +57,7 @@ entered, then the units can be explictly specified. For example, the
 reactor volume could either be specified as:
 
 ```yaml
-volume: 20 # Units will depend on 'length' parameter to units directive
+volume: 20 # Units assumed to be m3
 ```
 
 or
@@ -63,348 +71,412 @@ indicates whether this field is nested under another.
 
 [//]: # To regenerate table, copy HTML code and paste in https://www.tablesgenerator.com/html_tables, modify the contents and regenerate the HTML code
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
-.tg td{background-color:#fff;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
-  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
-  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
-</style>
-<table class="tg">
+<table>
 <thead>
   <tr>
-    <th class="tg-0pky">1st Level</th>
-    <th class="tg-0pky">2nd Level</th>
-    <th class="tg-0pky">3rd Level</th>
-    <th class="tg-0pky">Type</th>
-    <th class="tg-0pky">Description</th>
-    <th class="tg-0pky">Default Units</th>
+    <th>1st Level</th>
+    <th>2nd Level</th>
+    <th>3rd Level</th>
+    <th>Type</th>
+    <th>Required</th>
+    <th>Description</th>
+    <th>Default Units</th>
   </tr>
 </thead>
 <tbody>
   <tr>
-    <td class="tg-0pky">reactor</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Reactor parameters</td>
-    <td class="tg-0pky">-</td>
+    <td>reactor</td>
+    <td></td>
+    <td></td>
+    <td>dictionary</td>
+    <td>Y</td>
+    <td>Reactor parameters</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">reactor_type</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Type of reactor. Supported&nbsp;&nbsp;&nbsp;options: <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr' (plug flow reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'cstr' (continuously stirred tank reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'batch' (batch reactor)</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>reactor_type</td>
+    <td></td>
+    <td>string</td>
+    <td>Y</td>
+    <td>Type of reactor. Supported   options: <br>     - 'pfr' (plug flow reactor)<br>     - 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>     - 'cstr' (continuously stirred tank reactor)<br>     - 'batch' (batch reactor)</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">mode</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Operation of reactor. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'isothermal' (constant temperature)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'adiabatic' (no heat flow)</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>mode</td>
+    <td></td>
+    <td>string</td>
+    <td>Y</td>
+    <td>Operation of reactor. Supported   options:<br>     - 'isothermal' (constant temperature)<br>     - 'adiabatic' (no heat flow)</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">nodes</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">integer</td>
-    <td class="tg-0pky">Number of CSTRs to model the PFR. Only applicable if&nbsp;&nbsp;&nbsp;``reactor_type='pfr_0d'``.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>nodes</td>
+    <td></td>
+    <td>integer</td>
+    <td>N</td>
+    <td>Number of CSTRs to model the PFR. Only applicable if   ``reactor_type='pfr_0d'``.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">volume</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Volume of reactor.</td>
-    <td class="tg-0pky">m^3</td>
+    <td></td>
+    <td>volume</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Volume of reactor.</td>
+    <td>m^3</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">temperature</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Temperature of reactor.</td>
-    <td class="tg-0pky">K</td>
+    <td></td>
+    <td>temperature</td>
+    <td></td>
+    <td>float</td>
+    <td>Y</td>
+    <td>Temperature of reactor.</td>
+    <td>K</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">pressure</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Pressure of reactor.</td>
-    <td class="tg-0pky">Pa</td>
+    <td></td>
+    <td>pressure</td>
+    <td></td>
+    <td>float</td>
+    <td>Y</td>
+    <td>Pressure of reactor.</td>
+    <td>Pa</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">area</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Surface area of reactor. Only applicable if ``reactor_type='pfr'``</td>
-    <td class="tg-0pky">m^2</td>
+    <td></td>
+    <td>area</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Surface area of reactor. Only applicable if ``reactor_type='pfr'``</td>
+    <td>m^2</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">length</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Length of the reactor. Only applicable if ``reactor_type='pfr'``</td>
-    <td class="tg-0pky">m</td>
+    <td></td>
+    <td>length</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Length of the reactor. Only applicable if ``reactor_type='pfr'``</td>
+    <td>m</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">cat_abyv</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Catalyst surface area to reactor volume ratio</td>
-    <td class="tg-0pky">m^-1</td>
+    <td></td>
+    <td>cat_abyv</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Catalyst surface area to reactor volume ratio. Only required if a surface phase is specified.</td>
+    <td>m^-1</td>
   </tr>
   <tr>
-    <td class="tg-0pky">inlet_gas</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Inlet gas properties. Not applicable&nbsp;&nbsp;&nbsp;if ``reactor_type = 'batch'``</td>
-    <td class="tg-0pky"></td>
+    <td>inlet_gas</td>
+    <td></td>
+    <td></td>
+    <td>dictionary</td>
+    <td>N</td>
+    <td>Inlet gas properties. Not applicable   if ``reactor_type = 'batch'``</td>
+    <td></td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">flow_rate</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Volumetric flow rate of inlet stream. Not required if&nbsp;&nbsp;&nbsp;``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
-    <td class="tg-0pky">m^3/s</td>
+    <td></td>
+    <td>flow_rate</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Volumetric flow rate of inlet stream. Not required if   ``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
+    <td>m^3/s</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">residence_time</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Residence time of reactor.  Not&nbsp;&nbsp;&nbsp;required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is&nbsp;&nbsp;&nbsp;specified</td>
-    <td class="tg-0pky">s</td>
+    <td></td>
+    <td>residence_time</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Residence time of reactor.&nbsp;&nbsp;Not   required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is   specified</td>
+    <td>s</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">mass_flow_rate</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Mass flow rate of inlet stream. &nbsp;&nbsp;&nbsp;Not required if ``inlet_gas.residence_time`` or&nbsp;&nbsp;&nbsp;``inlet_gas.flow_rate`` is specified</td>
-    <td class="tg-0pky">kg/s</td>
+    <td></td>
+    <td>mass_flow_rate</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Mass flow rate of inlet stream.    Not required if ``inlet_gas.residence_time`` or   ``inlet_gas.flow_rate`` is specified</td>
+    <td>kg/s</td>
   </tr>
   <tr>
-    <td class="tg-0pky">simulation</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">Simulation options.</td>
-    <td class="tg-0pky"></td>
+    <td>simulation</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>N</td>
+    <td>Simulation options.</td>
+    <td></td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">end_time</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Reactor simulation time. For continuous reactors, the system is assumed&nbsp;&nbsp;&nbsp;to reach steady state by this time.</td>
-    <td class="tg-0pky">s</td>
+    <td></td>
+    <td>end_time</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Reactor simulation time. For continuous reactors, the system is assumed   to reach steady state by this time.</td>
+    <td>s</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">transient</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">boolean</td>
-    <td class="tg-0pky">If True, transient results written&nbsp;&nbsp;&nbsp;to output files. Otherwise, transient files are empty</td>
-    <td class="tg-0pky"></td>
+    <td></td>
+    <td>transient</td>
+    <td></td>
+    <td>boolean</td>
+    <td>N</td>
+    <td>If True, transient results written   to output files. Otherwise, transient files are empty</td>
+    <td></td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">stepping</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Type of time stepping for&nbsp;&nbsp;&nbsp;transient operation. Pairs with ``simulation.step_size``. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'logarithmic'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'regular'</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>stepping</td>
+    <td></td>
+    <td>string</td>
+    <td>N</td>
+    <td>Type of time stepping for   transient operation. Pairs with ``simulation.step_size``. Supported   options:<br>     - 'logarithmic'<br>     - 'regular'</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">step_size</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Step size. If ``simulation.stepping = 'logarithmic'``, represents the&nbsp;&nbsp;&nbsp;ratio between the next step and the current step. If ``simulation.stepping =&nbsp;&nbsp;&nbsp;'regular'``, represents the time between the next step and the current step&nbsp;&nbsp;&nbsp;in units of time.</td>
-    <td class="tg-0pky">s</td>
+    <td></td>
+    <td>step_size</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Step size. If ``simulation.stepping = 'logarithmic'``, represents the   ratio between the next step and the current step. If ``simulation.stepping =   'regular'``, represents the time between the next step and the current step   in units of time.</td>
+    <td>s</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">init_step</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Initial time step.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>init_step</td>
+    <td></td>
+    <td>float</td>
+    <td>N</td>
+    <td>Initial time step.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">output_format</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Format for output files.&nbsp;&nbsp;&nbsp;Supported options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'csv'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'dat'</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>output_format</td>
+    <td></td>
+    <td>string</td>
+    <td>N</td>
+    <td>Format for output files.   Supported options:<br>     - 'csv'<br>     - 'dat'</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">solver</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Solver options</td>
-    <td class="tg-0pky"></td>
+    <td></td>
+    <td>solver</td>
+    <td></td>
+    <td>dictionary</td>
+    <td>N</td>
+    <td>Solver options</td>
+    <td></td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">atol</td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Absolute tolerance of solver.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>atol</td>
+    <td>float</td>
+    <td>N</td>
+    <td>Absolute tolerance of solver.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">rtol</td>
-    <td class="tg-0pky">float</td>
-    <td class="tg-0pky">Relative tolerance of solver.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>rtol</td>
+    <td>float</td>
+    <td>N</td>
+    <td>Relative tolerance of solver.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">multi_input</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Multiple runs where temperature, pressure, and flow rate can be varied.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>multi_input</td>
+    <td></td>
+    <td>dictionary</td>
+    <td>N</td>
+    <td>Multiple runs where temperature, pressure, and flow rate can be varied.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">multi_T</td>
-    <td class="tg-0pky">list of float</td>
-    <td class="tg-0pky">Multiple temperatures of reactor</td>
-    <td class="tg-0pky">K</td>
+    <td></td>
+    <td></td>
+    <td>multi_T</td>
+    <td>list of float</td>
+    <td>N</td>
+    <td>Multiple temperatures of reactor</td>
+    <td>K</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">multi_P</td>
-    <td class="tg-0pky">list of float</td>
-    <td class="tg-0pky">Multiple pressures of reactor</td>
-    <td class="tg-0pky">Pa</td>
+    <td></td>
+    <td></td>
+    <td>multi_P</td>
+    <td>list of float</td>
+    <td>N</td>
+    <td>Multiple pressures of reactor</td>
+    <td>Pa</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">multi_flow_rate</td>
-    <td class="tg-0pky">list of float</td>
-    <td class="tg-0pky">Multiple volumetric flow rates</td>
-    <td class="tg-0pky">m^3/s</td>
+    <td></td>
+    <td></td>
+    <td>multi_flow_rate</td>
+    <td>list of float</td>
+    <td>N</td>
+    <td>Multiple volumetric flow rates</td>
+    <td>m^3/s</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">sensitivity</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Sensitivity analysis options</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>sensitivity</td>
+    <td></td>
+    <td>dictionary</td>
+    <td>N</td>
+    <td>Sensitivity analysis options</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">full</td>
-    <td class="tg-0pky">boolean</td>
-    <td class="tg-0pky">If True, runs sensitivity analysis using the Fisher Information Matrix&nbsp;&nbsp;&nbsp;(FIM).</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>full</td>
+    <td>boolean</td>
+    <td>N</td>
+    <td>If True, runs sensitivity analysis using the Fisher Information Matrix   (FIM).</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">reactions</td>
-    <td class="tg-0pky">list of str</td>
-    <td class="tg-0pky">IDs of reactions to perform local sensitivity analysis (LSA)</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>reactions</td>
+    <td>list of str</td>
+    <td>N</td>
+    <td>IDs of reactions to perform local sensitivity analysis (LSA)</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky">phases</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">Phase properties</td>
-    <td class="tg-0pky">-</td>
+    <td>phases</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>Y<br></td>
+    <td>Phase properties</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">bulk</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">dictionary</td>
-    <td class="tg-0pky">Bulk phase properties</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>bulk</td>
+    <td></td>
+    <td>dictionary</td>
+    <td>N</td>
+    <td>Bulk phase properties</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">name</td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Name of bulk phase</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>name</td>
+    <td>string</td>
+    <td>N</td>
+    <td>Name of bulk phase</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">gas</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">Gas properties</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>gas</td>
+    <td></td>
+    <td></td>
+    <td>N</td>
+    <td>Gas properties</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">name</td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Name of gas phase</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>name</td>
+    <td>string</td>
+    <td>N</td>
+    <td>Name of gas phase</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">initial_state</td>
-    <td class="tg-0pky">string</td>
-    <td class="tg-0pky">Non-zero initial mole fractions for gas phase. Multiple species should be&nbsp;&nbsp;&nbsp;separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>initial_state</td>
+    <td>string</td>
+    <td>N</td>
+    <td>Non-zero initial mole fractions for gas phase. Multiple species should be   separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">surfaces</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">list of dictionaries</td>
-    <td class="tg-0pky">Surface phase properties. Note that multiple surface can be specified.</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td>surfaces</td>
+    <td></td>
+    <td>list of dictionaries</td>
+    <td>N</td>
+    <td>Surface phase properties. Note that multiple surface can be specified.</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">name</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">Name of surface phase</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>name</td>
+    <td></td>
+    <td>N</td>
+    <td>Name of surface phase</td>
+    <td>-</td>
   </tr>
   <tr>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">initial_state</td>
-    <td class="tg-0pky"></td>
-    <td class="tg-0pky">Non-zero initial coverages for surface phase. Multiple species should be&nbsp;&nbsp;&nbsp;separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
-    <td class="tg-0pky">-</td>
+    <td></td>
+    <td></td>
+    <td>initial_state</td>
+    <td></td>
+    <td>N</td>
+    <td>Non-zero initial coverages for surface phase. Multiple species should be   separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td>-</td>
   </tr>
 </tbody>
 </table>
+
+### Sample YAML file.
+
+```yaml
+inlet_gas:
+    flow_rate: "2 cm3/s"
+phases:
+    bulk:
+        name: bulk
+    gas:
+        initial_state: "CH3CH3:1.0"
+        name: gas
+    surfaces:
+    -   initial_state: "M(S):1.0"
+        name: terrace
+reactor:
+    cat_abyv: "200 /cm"
+    mode: "isothermal"
+    nodes: 50
+    pressure: "1 atm"
+    temperature: 973
+    type: "pfr_0d"
+    volume: "1 cm3"
+simulation:
+    end_time: "1000 s"
+    init_step: 1.0e-10
+    output_format: "csv"
+    step_size: 10
+    stepping: "logarithmic"
+    transient: true
+```
 
 ## OpenMKM XML Format
 
@@ -434,8 +506,18 @@ useful information about specifying types and the syntax.
 ### Units
 
 Default units for the CTI file can be specified using a ``units`` directive.
-All of the fields are optional and if a field is omitted, it is assumed to be
-in SI units. Below, we show a sample ``units`` directive.
+It takes the following parameters:
+
+- ``length`` -- Optional
+- ``time`` -- Optional
+- ``quantity`` -- Optional
+- ``energy`` -- Optional. Used for lateral interactions.
+- ``act_energy`` -- Optional. Used for activation energies and BEP
+  relationships.
+- ``pressure`` -- Optional
+- ``mass`` -- Optional
+
+Below, we show a sample ``units`` directive.
 
 ```python
 units(length="m", time="s", quantity="mol", energy="kcal",
@@ -457,8 +539,9 @@ site_density = (1.e15, "molec/cm2")
 ### Phases
 
 Phases can control transport, kinetic, and thermodynamic properties of the
-species. Every simulation will require at least one. Below, we show the three
-most common for heterogeneous catalysis.
+species. Every simulation will require at least one.
+[The comprehensive set of parameters can be found here.][cantera_phase_docs]
+Below, we show the three most common for heterogeneous catalysis.
 
 #### Ideal Gas
 
@@ -773,3 +856,4 @@ retry. If it works, add the missing bulk phase definition directly into the CTI 
 [cantera_reaction_docs]: https://cantera.org/science/reactions.html
 [pmutt_omkm_example]: https://vlachosgroup.github.io/pMuTT/examples_jupyter/examples.html#openmkm-io-example
 [cantera_ck2cti_docs]: https://cantera.org/tutorials/ck2cti-tutorial.html
+[cantera_phase_docs]: https://cantera.org/documentation/dev/sphinx/html/yaml/phases.html#phase-definitions
