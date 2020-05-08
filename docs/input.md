@@ -785,10 +785,10 @@ parameter in the ``units`` directive) between 0.11 ML - 1 ML of C(S).
 #### Matrix Interactions
 
 The lateral interaction matrix takes the following parameters:
-- *species*, -- species which have lateral interactions
-- *interaction\_matrix*, -- a matrix denoting the lateral interaction
+- ``species`` -- species which have lateral interactions
+- ``interaction_matrix`` -- a matrix denoting the lateral interaction
   strengths, and
-- *coverage\_thresholds*, -- coverage thresholds above which lateral
+- ``coverage_thresholds`` -- coverage thresholds above which lateral
   interactions modify enthalpy of species.
 
 ```python
