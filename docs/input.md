@@ -5,171 +5,708 @@ layout: default
 # Input Files
 
 ## Introduction
-OpenMKM uses two input files supplied as two arguments to the OpenMKM
-executable.
+To run OpenMKM, two input files are required:
 
-1. The first argument *rctr.yaml* is the name of yaml file specifying the
-reactor model parameters, operating conditions, and the names of thermodynamic
-phases (which are defined in the Cantera XML file supplied as second argument)
-and the starting composition and coverages of gas and surface phases
-respectively. For more details on the yaml file format,
-refer to the YAML subsection below.
+1. A YAML file that specifies parameters related to the reactor.
+2. An XML file that specifies thermodynamic and kinetic parameters.
 
-2. The second argument *input.xml* is Cantera input file in XML format which
-provides the definitions of species, reactions, interactions, and gas, solid
-and catalyst surface phases. Cantera defines an additional input format called
-CTI, which is easier to work with. To assist those migrating from Chemkin,
-scripts are available to convert Chemkin input files to Cantera files. 
+These files can be generated manually or by using software, such as
+[pMuTT][pmutt_omkm_example].
 
 ## YAML Input File.
 
-The first argument (called *rctr.yaml* throughout this document, but could be
-named anything) uses [YAML](https://yaml.org) format, which is a human friendly
-data format. YAML is a superset of JSON format, so the input could be specified
-in JSON format also. The data specified in YAML file can be thought of as a
-nested Python dictionary. A brief snippet of a pseudo YAML file containing 
-most of the YAML format features used for *rctr.yaml* are given below.
+The YAML file, as its name implies, uses the [YAML](https://yaml.org) format,
+which is a human-friendly data format. This file contains information related
+to the reactor, such as:
 
-```python
-key1 : value1
-key2 : 
-    nested_key1: value2
-    nested_key2:
-       - array_value1
-       - array_value2
+- operating conditions,
+- phases,
+- composition of gas or surface at initial conditions (t = 0 or z = 0),
+- solver parameters.
+
+### Generating YAML Files
+
+To generate a YAML file, one could:
+
+- write it from scratch
+- modify one of [OpenMKM's YAML examples][yaml_examples]
+- use [pMuTT's write_yaml function][pmutt_write_yaml]
+
+[This YAML tutorial][yaml_tutorial] introduces the YAML-language syntax. Since
+OpenMKM's YAML file uses only simple types, readers do not need to write passed
+the 'Advanced Options' heading.
+
+There are several validators available to check your YAML file for syntax
+errors.[This site][yaml_validator] will show errors and can even reformat
+your file.
+
+
+### OpenMKM YAML Format
+
+Quantities with units can be specified in the YAML file as a float or a string.
+If a float is entered, OpenMKM assumes it is in SI units. If a string is 
+entered, then the units can be explictly specified. For example, the 
+reactor volume could either be specified as:
+
+```yaml
+volume: 20 # Units will depend on 'length' parameter to units directive
 ```
 
-In the above snippet, the YAML data contains two level-1 keys (also called
-YAML nodes), *key1, key2*. *key1* has a single data value, *value1* assigned
-to it. On the other hand *key2* consists of nested compound data (which is
-again a dictionary) as value. The keys of nested dictionary can be thought of
-as level-2 keys. Interesting would be the value for *nested\_key2*, which is a
-sequence (also called array) of two values, *array\_value1* and *array\_value2*. 
+or
 
-YAML is a free format. So *key1 : value1* line could have been given below the
-data for *key2*. Also any text after *\#* is a comment.
-
-*rctr.yaml* specifies 3 mandatory and one optional level-1 nodes (or keys). The 
-mandatory nodes are *reactor*, *simulation*, *phases*, and the optional node is 
-*inlet_gas*.
-
-1. **reactor**: This node specifies the reactor parameters such as its type,
-dimensions, operational mode, catalyst size, state (temperature and pressure)
-etc.
-
-2. **simulation**: This node specifies the simulation parameters including
-those supplied to numerical solvers such as simulation time, stepping options
-for advancing (time for CSTR & batch, and distance for PFR), solver tolerances
-etc.
-
-3. **phases**: OpenMKM expects 1 or 3 types of phases. For purely gas phase 
-mechanism, a gas phase has to be specified. For heterogeneous reactions, two 
-additional types of phases, one bulk solid phase and one or more surface phases 
-have to be specified. The phases are actually defined in the Cantera input
-file, which is supplied as the second argument. Since a Cantera input XML file
-allows for defining arbitrary number of phases, the names of the phase
-definitions to be used in the simulation are specified in the *rctr.yaml*.
-The Cantera XML file can contain definitions of additional phases not specified
-in the *rctr.yaml* file. This way one could use a single XML file and just the
-phase definitions for different runs if required. In addition to the names of
-the phase definitions, this node is also used to specify the initial
-composition of the phases.
-
-4. **inlet_gas**: This node is required only for CSTR and PFR models. These
-models require a continuous input of feed with a flow rate and composition,
-which can be defined by this node.
-
-Predefined templates are available for batch, CSTR, PFR, TPD and temperature 
-profiled PFR reactor models in the
-[*\<OpenMKM_ROOT\>/data/input_files/*][examples] folder. The users can quickly
-modify those template files rather than trying to write *rctr.yaml* from
-scratch. The *rctr_tmplt.yaml* file in the same folder contains full
-explanation of all the possible keywords given as comments next to each of the
-keywords.
-
-
-## Cantera XML Input File.
-The second argument to OpenMKM is the name of Cantera XML file specifying the
-definitions of thermodynamics of species, kinetics of reactions, and phases,
-which can be thought as collection of species and reactions.
-
-Cantera defines two format types for its input called CTI and XML. Data defined
-in CTI format can be converted into XML format. The users are expected to work
-with CTI format, which is essentially a python code, and convert the CTI file
-into XML format using the supplied
-[*\<OpenMKM\_ROOT\>/scripts/ctml_writer.py*][ctml_writer] script. Note that
-this script differs from the *ctml\_writer.py* supplied with Cantera. 
-
-CTI and XML file formats are explained on Cantera website. Please read the
-[Cantera documentation][cantera_docs] on the CTI and XML input file formats
-before reading further.
-
-### Coverage dependent **lateral interactions** between surface species
-
-One main addition to the CTI and XML formats done in OpenMKM is to 
-add specification for coverage dependent lateral interactions. Coverage 
-effects need to be
-incorporated into the xml file supplied to OpenMKM. Since it is easy to work
-with CTI files, users have the option of specifying coverage effects in CTI
-file and then convert the CTI file into XML file with the Python script
-[*ctml_writer.py*][ctml_writer]. To specify that a surface has species with
-coverage dependent lateral interactions, in the CTI file, change the
-*interface* keyword to *interacting\_interface* and add *interactions="all"*
-in the arguments to *interacting\_interface*. 
-
-Following is an example surface phase definition required by OpenMKM 
-
-```python
-interacting_interface(name='TERRACE',
-                elements="H N Ru He",
-                species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
-                site_density=2.1671e-09,
-                phases="gas BULK",
-                reactions='all',
-                interactions='all',
-                initial_state=state(temperature=300.0, pressure=OneAtm))
-
+```yaml
+volume: "20 cm3" # Explictly state the volume is in cm3
 ```
 
-The following is the original CTI definition for the same phase without lateral
-interactions.
+Below is an exhaustive list of available options supported by OpenMKM. The level
+indicates whether this field is nested under another.
+
+[//]: # To regenerate table, copy HTML code and paste in https://www.tablesgenerator.com/html_tables, modify the contents and regenerate the HTML code
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
+.tg td{background-color:#fff;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-0pky">1st Level</th>
+    <th class="tg-0pky">2nd Level</th>
+    <th class="tg-0pky">3rd Level</th>
+    <th class="tg-0pky">Type</th>
+    <th class="tg-0pky">Description</th>
+    <th class="tg-0pky">Default Units</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="tg-0pky">reactor</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Reactor parameters</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">reactor_type</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Type of reactor. Supported&nbsp;&nbsp;&nbsp;options: <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr' (plug flow reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'cstr' (continuously stirred tank reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'batch' (batch reactor)</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">mode</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Operation of reactor. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'isothermal' (constant temperature)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'adiabatic' (no heat flow)</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">nodes</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">integer</td>
+    <td class="tg-0pky">Number of CSTRs to model the PFR. Only applicable if&nbsp;&nbsp;&nbsp;``reactor_type='pfr_0d'``.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">volume</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Volume of reactor.</td>
+    <td class="tg-0pky">m^3</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">temperature</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Temperature of reactor.</td>
+    <td class="tg-0pky">K</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">pressure</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Pressure of reactor.</td>
+    <td class="tg-0pky">Pa</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">area</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Surface area of reactor. Only applicable if ``reactor_type='pfr'``</td>
+    <td class="tg-0pky">m^2</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">length</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Length of the reactor. Only applicable if ``reactor_type='pfr'``</td>
+    <td class="tg-0pky">m</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">cat_abyv</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Catalyst surface area to reactor volume ratio</td>
+    <td class="tg-0pky">m^-1</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">inlet_gas</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Inlet gas properties. Not applicable&nbsp;&nbsp;&nbsp;if ``reactor_type = 'batch'``</td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">flow_rate</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Volumetric flow rate of inlet stream. Not required if&nbsp;&nbsp;&nbsp;``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
+    <td class="tg-0pky">m^3/s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">residence_time</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Residence time of reactor.  Not&nbsp;&nbsp;&nbsp;required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is&nbsp;&nbsp;&nbsp;specified</td>
+    <td class="tg-0pky">s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">mass_flow_rate</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Mass flow rate of inlet stream. &nbsp;&nbsp;&nbsp;Not required if ``inlet_gas.residence_time`` or&nbsp;&nbsp;&nbsp;``inlet_gas.flow_rate`` is specified</td>
+    <td class="tg-0pky">kg/s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">simulation</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">Simulation options.</td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">end_time</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Reactor simulation time. For continuous reactors, the system is assumed&nbsp;&nbsp;&nbsp;to reach steady state by this time.</td>
+    <td class="tg-0pky">s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">transient</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">boolean</td>
+    <td class="tg-0pky">If True, transient results written&nbsp;&nbsp;&nbsp;to output files. Otherwise, transient files are empty</td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">stepping</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Type of time stepping for&nbsp;&nbsp;&nbsp;transient operation. Pairs with ``simulation.step_size``. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'logarithmic'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'regular'</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">step_size</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Step size. If ``simulation.stepping = 'logarithmic'``, represents the&nbsp;&nbsp;&nbsp;ratio between the next step and the current step. If ``simulation.stepping =&nbsp;&nbsp;&nbsp;'regular'``, represents the time between the next step and the current step&nbsp;&nbsp;&nbsp;in units of time.</td>
+    <td class="tg-0pky">s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">init_step</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Initial time step.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">output_format</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Format for output files.&nbsp;&nbsp;&nbsp;Supported options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'csv'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'dat'</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">solver</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Solver options</td>
+    <td class="tg-0pky"></td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">atol</td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Absolute tolerance of solver.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">rtol</td>
+    <td class="tg-0pky">float</td>
+    <td class="tg-0pky">Relative tolerance of solver.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">multi_input</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Multiple runs where temperature, pressure, and flow rate can be varied.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">multi_T</td>
+    <td class="tg-0pky">list of float</td>
+    <td class="tg-0pky">Multiple temperatures of reactor</td>
+    <td class="tg-0pky">K</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">multi_P</td>
+    <td class="tg-0pky">list of float</td>
+    <td class="tg-0pky">Multiple pressures of reactor</td>
+    <td class="tg-0pky">Pa</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">multi_flow_rate</td>
+    <td class="tg-0pky">list of float</td>
+    <td class="tg-0pky">Multiple volumetric flow rates</td>
+    <td class="tg-0pky">m^3/s</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">sensitivity</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Sensitivity analysis options</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">full</td>
+    <td class="tg-0pky">boolean</td>
+    <td class="tg-0pky">If True, runs sensitivity analysis using the Fisher Information Matrix&nbsp;&nbsp;&nbsp;(FIM).</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">reactions</td>
+    <td class="tg-0pky">list of str</td>
+    <td class="tg-0pky">IDs of reactions to perform local sensitivity analysis (LSA)</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">phases</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">Phase properties</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">bulk</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">dictionary</td>
+    <td class="tg-0pky">Bulk phase properties</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">name</td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Name of bulk phase</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">gas</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">Gas properties</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">name</td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Name of gas phase</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">initial_state</td>
+    <td class="tg-0pky">string</td>
+    <td class="tg-0pky">Non-zero initial mole fractions for gas phase. Multiple species should be&nbsp;&nbsp;&nbsp;separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">surfaces</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">list of dictionaries</td>
+    <td class="tg-0pky">Surface phase properties. Note that multiple surface can be specified.</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">name</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">Name of surface phase</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">initial_state</td>
+    <td class="tg-0pky"></td>
+    <td class="tg-0pky">Non-zero initial coverages for surface phase. Multiple species should be&nbsp;&nbsp;&nbsp;separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td class="tg-0pky">-</td>
+  </tr>
+</tbody>
+</table>
+
+## OpenMKM XML Format
+
+The XML file specifies physical, thermodynamic, and kinetic parameters of:
+
+- phases
+- species
+- reactions
+- interactions
+- BEPs
+
+However, the XML can be difficult to generate manually so we recommend creating
+a CTI file, which has a very similar syntax to Python code. CTI files can be
+converted to an XML file using [ctml_writer.py][ctml_writer]. Note there are
+some differences between OpenMKM's ctml_writer.py and the script supplied by
+Cantera.
+
+Alternatively, Chemkin input files can be converted to Cantera format using
+[ck2cti.py][ck2cti_script].
+
+## OpenMKM CTI Format
+
+The OpenMKM CTI format borrows heavily from
+[Cantera's CTI format][cantera_cti_docs]. Their documentation has a lot of
+useful information about specifying types and the syntax.
+
+### Units
+
+Default units for the CTI file can be specified using a ``units`` directive.
+All of the fields are optional and if a field is omitted, it is assumed to be
+in SI units. Below, we show a sample ``units`` directive.
 
 ```python
-interface(name='TERRACE',
-          elements="H N Ru He",
-          species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
-          site_density=2.1671e-09,
-          phases="gas BULK",
-          reactions='all',
-          initial_state=state(temperature=300.0, pressure=OneAtm))
-
+units(length="m", time="s", quantity="mol", energy="kcal",
+      act_energy="kcal/mol", pressure="atm", mass="g")
 ```
 
-Please note that *interacting\_interface* is superset of
-*interface*. It means it is safe to use *interacting\_interface*
-for all surface phase whether lateral interactions are present or not.
-*At present, OpenMKM works only with surface phases defined with*
-*interacting\_interface keyword.* For phases without any lateral interactions
-use the following surface phase definition:
+[The complete list of supported units is available here.][supported_units]
+
+If you wish to override the units for a specific quantity, you can use a tuple
+(note that this is different than the YAML syntax which uses strings).
+For example, the ``units`` directive above specifies ``quantity="mol"`` and
+``length="m"`` but we would like to specify the site density as
+1.e15 molecules/cm2. This can be done using:
 
 ```python
-interacting_interface(name='TERRACE',
-                      elements="H N Ru He",
-                      species="N2(S1)   N(S1)    H(S1)    NH3(S1)  NH2(S1)  NH(S1) RU(S1)",
-                      site_density=2.1671e-09,
-                      phases="gas BULK",
-                      reactions='all',
-                      initial_state=state(temperature=300.0, pressure=OneAtm))
-
+site_density = (1.e15, "molec/cm2")
 ```
 
-Now to specify the lateral interaction, use the *lateral\_interactions* keyword 
-in the CTI file, which requires three keywords:
+### Phases
+
+Phases can control transport, kinetic, and thermodynamic properties of the
+species. Every simulation will require at least one. Below, we show the three
+most common for heterogeneous catalysis.
+
+#### Ideal Gas
+
+The ``ideal_gas`` directive models species in the gas phase.
+
+```python
+ideal_gas(name="gas",
+          elements="H C", # Elements present in species
+          species="H2 CH4 CHCH CH2CH2 CH3CH3",  # Gaseous species
+          reactions=["0001", "0003 to 0005"]) # Reaction IDs
+```
+
+#### Stoichiometric Solid
+
+The ``stoichiometric_solid`` directive is used to specify a bulk solid phase.
+This is useful for balancing empty sites.
+
+```python
+stoichiometric_solid(name="bulk",
+                     elements="Ru", # Elements present in species
+                     species="M(B)", # Bulk species
+                     density=(12.45, 'g/cm3')) # Ignored property for isothermal
+```
+
+#### Interactive Interface
+
+The ``interacting_interface`` directive is used to specify a catalytic surface.
+For heterogeneous catalysis, this is the most important phase. It links two 
+phases (usually an ``ideal_gas`` to a ``stoichiometric_solid``), contains the
+surface intermediates, their interactions, reactions, and BEP relationships.
+
+```python
+interacting_interface(name="terrace",
+                      elements="Ru H C", # Elements present in species
+                      species="""M(S) H(S) C(S) CH(S) CH2(S) CH3(S) CH4(S) CC(S)
+                                 CCH(S) CCH2(S) CHCH(S) CCH3(S) CHCH2(S)
+                                 CHCH3(S) CH2CH2(S) CH2CH3(S) CH3CH3(S) """,
+                      phases="gas bulk", # Connected phases
+                      site_density=(2.49e-09, 'mol/cm2'), # Site density
+                      interactions=["0000 to 0195"], # Lateral interactions on this phase
+                      reactions=["0000 to 0004"], # Reactions on this phase
+                      beps="C-C C-H") # BEPs associated with reactions on this phase
+```
+
+### Species
+
+OpenMKM 
+Each species present in your mechanism should have its thermodynamic properties
+specified using one of the following:
+
+- NASA7 polynomial
+- NASA9 polynomial
+- Shomate polynomial
+
+[More information can be found on Cantera's documentation.][cantera_thermo_docs]
+
+#### NASA7 Polynomial
+
+NASA7 polynomials use 7 coefficients to describe the heat capacity, enthalpy,
+and entropy of a species. Common species are available in the
+[Burcat database][burcat_db] or can be generated using
+[pMuTT's Nasa class][pmutt_nasa].
+
+$$\frac {Cp} {R} = a_{1} + a_{2} T + a_{3} T^{2} + a_{4} T^{3} + a_{5} T^{4}$$
+
+$$\frac {H} {RT} = a_{1} + a_{2} \frac {T} {2} + a_{3} \frac {T^{2}} {3} 
++ a_{4} \frac {T^{3}} {4} + a_{5} \frac {T^{4}} {5} + a_{6} \frac {1} {T}$$
+
+$$\frac {S} {R} = a_{1} \ln {T} + a_{2} T + a_{3} \frac {T^{2}} {2} 
++ a_{4} \frac {T^{3}} {3} + a_{5} \frac {T^{4}} {4} + a_{7}$$
+
+```python
+species(name="CH4(S)", # Label used to identify the species
+        atoms="C:1 H:4", # Atomic composition of species separated with spaces
+        size=1, # Number of sites occupied by species. Only needed for surface species
+        thermo=(NASA([250.0, 480.0], # This interval is valid between 250 - 480 K
+                     [ 6.37200798E+00, -4.66939392E-03,  6.26492184E-06,
+                       4.28698448E-08, -5.33259424E-11, -1.23940270E+04,
+                      -2.09817174E+01]),
+                NASA([480.0, 1500.0], # This interval is valid between 480 - 1500 K
+                     [ 3.73282076E+00,  7.75238626E-03,  1.47755181E-06,
+                      -3.18500889E-09,  8.84603159E-13, -1.20467882E+04,
+                      -9.12054966E+00])))
+```
+
+#### NASA9 Polynomial
+
+NASA9 polynomials use 9 coefficients to describe the heat capacity, enthalpy,
+and entropy of a species. Common species are available in the
+[Burcat database][burcat_db] or can be generated using
+[pMuTT's Nasa9 class][pmutt_nasa9].
+
+$$\frac {Cp} {R} = a_{1} T^{-2} + a_{2} T^{-1} + a_{3} + a_{4} T
++ a_{5} T^{2} + a_{6} T^{3} + a_{7} T^{4}$$
+
+$$\frac {H} {RT} = -a_{1} \frac {T^{-2}} {2} +
+a_{2} \frac {ln {T}} {T} + a_{3} + a_{4} \frac {T} {2} + a_{5}
+\frac {T^{2}} {3} + a_{6} \frac {T^{3}} {4} + a_{7} \frac {T^{4}} {5} +
+a_{8} \frac {1} {T}$$
+
+$$\frac {S} {R} = -a_{1}\frac {T^{-2}} {2} - a_2 \frac {1} {T} +
+a_{3} \ln {T} + a_{4} T + a_{5} \frac {T^{2}} {2} + a_{6}
+\frac {T^{3}} {3} + a_{7}\frac {T^{4}} {4} + a_{9}$$
+
+```python
+species(name="CH4(S)", # Label used to identify the species
+        atoms="C:1 H:4", # Atomic composition of species separated with spaces
+        size=1, # Number of sites occupied by species. Only needed for surface species
+        thermo=(NASA9([200.0, 1000.0], # This interval is valid between 200 - 1000 K
+                      [22103.71497, -381.846182, 6.08273836, -0.00853091441,
+                       1.384646189e-05, -9.62579362e-09, 2.519705809e-12,
+                       710.846086, -10.76003744]),
+                NASA9([1000.0, 6000.0], # This interval is valid between 1000 - 6000 K
+                      [587712.406, -2239.249073, 6.06694922, -0.00061396855,
+                       1.491806679e-07, -1.923105485e-11, 1.061954386e-15,
+                       12832.10415, -15.86640027]),
+                NASA9([6000.0, 20000.0], # This interval is valid between 6000 - 20000 K
+                      [831013916.0, -642073.354, 202.0264635, -0.03065092046,
+                       2.486903333e-06, -9.70595411e-11, 1.437538881e-15,
+                       4938707.04, -1672.09974])))
+```
+
+#### Shomate
+
+Shomate polynomials use 9 coefficients to describe the heat capacity, enthalpy,
+and entropy of a species. Common species are available in the
+[NIST database][nist_db] or can be generated using
+[pMuTT's Shomate class][pmutt_shomate].
+
+$$\frac{c_P}{R}=\frac{1}{R}\bigg(A+Bt+Ct^2+Dt^3+\frac{E}{t^2}
+\bigg)$$
+
+$$\frac{H}{RT}=\frac{1}{RT}\bigg(At+B\frac{t^2}{2}+C\frac{t^3}{3}
++D\frac{t^4}{4}-\frac{E}{t}+F\bigg)$$
+
+$$\frac{S}{R}=\frac{1}{R}\bigg(A\ln(t)+Bt+C\frac{t^2}{2}+D
+\frac{t^3}{3}-\frac{E}{2t^2}+G\bigg)$$
+
+where $$t=\frac{T}{1000}$$ in K
+
+```python
+species(name="CH4", # Label used to identify the species
+        atoms="C:1 H:4", # Atomic composition of species separated with spaces
+        size=1, # Number of sites occupied by species. Only needed for surface species
+        thermo=Shomate([298, 1300], # This interval is valid between 298 - 1300 K
+                       [-7.03029000E-01,  1.08477300E+02, -4.25215700E+01,
+                         5.86278800E+00,  6.78565000E-01, -7.68437600E+01,
+                         1.58716300E+02]))
+```
+
+### Reactions
+
+Cantera (and consequently OpenMKM) support a wide variety of reactions. See
+[Cantera's documentation][cantera_reaction_docs] to see supported types. 
+
+
+#### Surface Reactions
+
+For surface chemistry, the ``surface_reaction`` directive will be the most
+common, which uses a modified Arrhenius expression.
+
+$$ k = A T^\beta \exp(-\frac {E_a}{RT})$$
+
+where $$k$$ is the rate constant, $$A$$ is the pre-exponential factor,
+$T$ is the temperature, $$\beta$$ adds explicit temperature dependence to the pre-exponential parameter, $$E_a$$ is the activation energy, and $R$ is the molar.
+
+For surface reactions, $$A$$ is typically calculated using:
+
+$$ A^{SR} = \frac {k_B} {h \sigma^{m-1}} $$
+
+where $$k_B$$ is the Boltzmann constant, $$h$$ is the Planck's constant,
+$$\sigma$$ is the site density, and $$m$$ is the number of surface species
+(including empty sites).
+
+If $$A$$ is represented this way, we typically replace $$E_a$$ with the 
+Gibbs energy of activation, $$\Delta G^{\ddag}$$, to include entropic effects
+based on transition state theory.
+
+$$\Delta G^{\ddag} = \Delta H^{\ddag} - T \Delta S^{\ddag}$$
+
+where $$\Delta G^{\ddag}$$ is the Gibbs energy of activation,
+$$\Delta H^{\ddag}$$ is the enthalpy of activation, $$T$$ is the temperature,
+and $$\Delta S^{\ddag}$$ is the entropy of activation.
+
+```python
+surface_reaction("CH4(S) + M(S) <=> CH3(S) + H(S) + M(B)", # Reaction string
+                 [ 8.36812e+18, 1,  5.55117e+00], # A, beta, and Ea respectively
+                 id="0001") # ID referenced by phase BEP directives
+```
+
+#### Adsorption Reactions
+
+Adsorption reactions also use the ``surface_reaction`` directive but with a
+couple of changes. The ``stick`` keyword must be specified and the first
+parameter represents the sticking coefficient, $$s$$, instead of the
+pre-exponential factor, $$A$$.
+
+$$A^{ads} = \frac {s}{\sigma^{m}}\sqrt \frac{RT}{2\pi M_i}$$
+
+where $$A^{ads}$$ is the pre-exponential for an adsorption reaction,
+$$s$$ is the sticking coefficient, $$\sigma$$ is the site density,
+$$m$$ is the number of surface species including empty sites,
+$$R$$ is the molar gas constant, $$T$$ is the temperature, and
+$$M_i$$ is the molecular weight of the gas species.
+
+```python
+surface_reaction("CH2CH2 + M(S) <=> CH2CH2(S) + M(B)", # Reaction string
+                 stick( 5.00000e-01, 0.0,  3.67653e+00), # Stick keyword indicates adsorption, values are s, beta, and Ea
+                 id="0001")
+```
+
+### Lateral Interactions
+
+The interactions among adsorbates can cause weaker or tighter binding energies.
+These are handled in OpenMKM using lateral interactions. Currently, we support
+piecewise linear interactions.
+
+$$ H_{ij} = \omega_{ijk} \theta_{j} + b_{ijk} $$
+
+where $$i$$ is the species affected by species $$j$$, $$H_{ij}$$ is the
+enthalpic change due the coverage effect, $$\theta_{j}$$ is the coverage
+of species $$j$$, $$\omega_{ijk}$$ and $$b_{ijk}$$ are the slope (strength)
+and intercept of the coverage effect at interval $$k$$.
+
+They can be specified in two ways using the ``lateral_interaction`` directive.
+Either pairwise or using a matrix.
+
+#### Pairwise Interactions
+
+```python
+lateral_interaction(species="H(S) C(S)", # Species i, Species j
+                    coverage_thresholds=[0, 0.11, 1], # Intervals to change 
+                    strengths=[0.0, -19.0], # Slope of lateral interaction
+                    id="0001")
+```
+
+In the above example, the lateral interaction strength between H(S) and C(S)
+is 0 between 0 - 0.11 ML of C(S), and -19 kcal/mol (specified using the energy
+parameter in the ``units`` directive) between 0.11 ML - 1 ML of C(S).
+
+#### Matrix Interactions
+
+The lateral interaction matrix takes the following parameters:
 - *species*, -- species which have lateral interactions
 - *interaction\_matrix*, -- a matrix denoting the lateral interaction
   strengths, and
 - *coverage\_thresholds*, -- coverage thresholds above which lateral
-  interactions modify Gibbs free energies of reactions.
+  interactions modify enthalpy of species.
 
 ```python
 lateral_interactions(
@@ -182,79 +719,57 @@ lateral_interactions(
     coverage_thresholds = [0, 0, 0, 0, 0])
 ```
 
-### Specifying Bell-Evans-Polanyi  (BEP) relationships
-Another addition to the CTI and XML formats done in OpenMKM is to 
-add specification for BEP relationships. To specify BEP relationships, use
-*bep* keyword in the CTI, which takes three mandatory arguments and 
-additional optional arguments.
-- *slope*, -- slope of the BEP linear relationship 
-- *intercept*, -- intercept of the BEP relationship 
-- *direction*, -- Direction of the BEP. Supported values are *cleavage* and
-  *synthesis*. 
-- *id*, -- Optional argument to distinguish the BEP relationship. 
-  If no value is given, a numerical 4 digit integer starting with *0001* is used
-  to distinguish the BEP relationships
-- *cleavage_reactions*, -- List of reaction ids that are of cleavage type 
-- *synthsis_reactions*, -- List of reaction ids that are of synthesis type 
+### Bell-Evans-Polanyi (BEP) relationships
 
-Below are couple of ways to define BEPs in the CTI format
+Reaction activation energies can be specified using BEP relationships. To
+specify BEP relationships, use the ``bep`` directive, which takes the following:
 
-```python
-bep(
-    0.66, (32.37, 'kcal/mol'), 'cleavage', id='C-C', 
-    cleavage_reactions = ["0001 to 0002", "0004", "0006", "0010"])
+- ``slope`` -- slope of the BEP linear relationship 
+- ``intercept`` -- intercept of the BEP relationship 
+- ``direction`` -- Direction of the BEP. Supported values are *cleavage* and
+  ``synthesis``. 
+- ``id`` -- Optional argument to distinguish the BEP relationship. If no value
+  is given, a numerical 4 digit integer starting with ``0001`` is used to
+  distinguish the BEP relationships
+- ``cleavage_reactions`` -- List of associated reaction ids where a bond is broken
+- ``synthsis_reactions`` -- List of associated reaction ids where a bond is formed
 
-bep(
-    id='C-H',
-    slope=1.02,
-    intercept=(24.44, 'kcal/mol'),
-    direction='cleavage',
+``` python
+bep(id='C-H', # Used by phases to identify the BEPs present
+    slope=1.02, # Slope
+    intercept=(24.44, 'kcal/mol'), # Intercept
+    direction='cleavage', # Direction (cleavage or synthesis)
     cleavage_reactions=["0003", "0005", "0007 to 0009", "0013 to 0017"],
     synthesis_reactions=[])
 ```
-It can be observed that when arguments are given as *keyword=value*, order of 
-arguments is not important, otherwise order of the arguments has to be maintained.
-
-BEPs are added to the phase defintion using the BEP names defined with the *id*
-argument. Within the phase definition, they are specified with *beps* keyword.
-A sample phase defintion which includes BEPs is given below.
-
-```python
-interacting_interface(name='TERRACE',
-                elements="H C O N Pt",
-                species="""CH2CH3(S)  CH3(S)     H(S)       CH2(S)
-                           CHCH3(S)   CH2CH2(S)  CH(S)      CCH3(S)
-                           CHCH2(S)   C(S)       CCH2(S)    CHCH(S)
-                           CCH(S)     CC(S)      CH4(S)     PT(S)""",
-                site_density=2.485e-09,
-                phases="gas BULK",
-                reactions='all',
-                beps="C-C C-H",
-                initial_state=state(temperature=300.0, coverages="PT(S):1")) 
-
-```
 
 ### Chemkin Users 
+
 Use the conversion script,
-*\<CANTERA\_ROOT\>/interfaces/cython/cantera/ck2cti.py*, which parses gas.inp,
+``\<CANTERA\_ROOT\>/interfaces/cython/cantera/ck2cti.py``, which parses gas.inp,
 surf.inp and thermdat files to convert Chemkin files into the Cantera CTI input
-format. For more information, refer to [Cantera documentation][cantera_docs]
-on input file format.
+format. For more information, refer to
+[Cantera documentation][cantera_ck2cti_docs] on input file format.
 
-The Chemkin input files are not sometimes parsed by ck2cti.py script.
-The troublesome file is often the surf.inp file due to bulk phase definition.
-Remove the bulk phase definition in surf.inp and retry. If it works,
-add the missing bulk phase definition directly in CTI file using the 
-*stoichiometric\_solid* keyword. Example definition is given below.
-
-```python
-stoichiometric_solid(name='bulk',
-                     elements="Ru",
-                     species="RU(B)",
-                     density=12.4,
-                     initial_state=state(temperature=300.0, pressure=OneAtm))
-```
+The Chemkin input files are not sometimes parsed by ck2cti.py script due to the
+bulk phase definition in ``surf.inp``. Remove the bulk phase definition and
+retry. If it works, add the missing bulk phase definition directly into the CTI file using the ``stoichiometric_solid`` keyword (see section above).
 
 [examples]: https://github.com/VlachosGroup/openmkm/tree/master/examples
-[ctml_writer]: https://github.com/VlachosGroup/openmkm/tree/master/scripts
-[cantera_docs]: https://cantera.org/tutorials/input-files.html
+[ctml_writer]: https://github.com/VlachosGroup/openmkm/blob/master/scripts/ctml_writer.py
+[yaml_examples]: https://github.com/VlachosGroup/openmkm/tree/master/examples/rctr_input_files
+[pmutt_write_yaml]: https://vlachosgroup.github.io/pMuTT/api/kinetic_models/omkm/pmutt.io.omkm.write_yaml.html
+[yaml_tutorial]: https://rollout.io/blog/yaml-tutorial-everything-you-need-get-started/
+[yaml_validator]: https://jsonformatter.org/yaml-validator
+[ck2cti_script]: https://github.com/VlachosGroup/openmkm/blob/master/scripts/ck2cti.py
+[cantera_cti_docs]: https://cantera.org/tutorials/cti/cti-syntax.html
+[supported_units]: https://cantera.org/tutorials/cti/cti-syntax.html#recognized-units
+[cantera_thermo_docs]: https://cantera.org/science/science-species.html#thermodynamic-property-models
+[burcat_db]: http://garfield.chem.elte.hu/Burcat/burcat.html
+[pmutt_nasa]: https://vlachosgroup.github.io/pMuTT/api/empirical/nasa/pmutt.empirical.nasa.Nasa.html
+[pmutt_nasa9]: https://vlachosgroup.github.io/pMuTT/api/empirical/nasa/pmutt.empirical.nasa.Nasa9.html#
+[nist_db]: https://webbook.nist.gov/chemistry/
+[pmutt_shomate]: https://vlachosgroup.github.io/pMuTT/api/empirical/shomate/pmutt.empirical.shomate.Shomate.html
+[cantera_reaction_docs]: https://cantera.org/science/reactions.html
+[pmutt_omkm_example]: https://vlachosgroup.github.io/pMuTT/examples_jupyter/examples.html#openmkm-io-example
+[cantera_ck2cti_docs]: https://cantera.org/tutorials/ck2cti-tutorial.html
