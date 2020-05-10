@@ -270,7 +270,7 @@ void PFR1dSolver::writeSensitivityData(const string & saveas,
     stringstream sensi_strm;
     sensi_strm.str(std::string());
     sensi_strm.precision(6);
-    sensi_strm  << "Rxnid";
+    sensi_strm  << "Rxn-Species-ids";
     for (auto var : m_var_state) { 
 	sensi_strm << sep << var; 
     }
