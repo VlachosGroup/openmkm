@@ -99,7 +99,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>string</td>
     <td>Y</td>
-    <td>Type of reactor. Supported   options: <br>     - 'pfr' (plug flow reactor)<br>     - 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>     - 'cstr' (continuously stirred tank reactor)<br>     - 'batch' (batch reactor)</td>
+    <td>Type of reactor. Supported&nbsp;&nbsp;&nbsp;options: <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr' (plug flow reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'cstr' (continuously stirred tank reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'batch' (batch reactor)</td>
     <td>-</td>
   </tr>
   <tr>
@@ -108,7 +108,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>string</td>
     <td>Y</td>
-    <td>Operation of reactor. Supported   options:<br>     - 'isothermal' (constant temperature)<br>     - 'adiabatic' (no heat flow)</td>
+    <td>Operation of reactor. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'isothermal' (constant temperature)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'adiabatic' (no heat flow)</td>
     <td>-</td>
   </tr>
   <tr>
@@ -117,7 +117,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>integer</td>
     <td>N</td>
-    <td>Number of CSTRs to model the PFR. Only applicable if   ``reactor_type='pfr_0d'``.</td>
+    <td>Number of CSTRs to model the PFR. Only applicable if   ``reactor_type='pfr_0d'``</td>
     <td>-</td>
   </tr>
   <tr>
@@ -126,7 +126,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Volume of reactor.</td>
+    <td>Volume of reactor</td>
     <td>m^3</td>
   </tr>
   <tr>
@@ -135,7 +135,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>Y</td>
-    <td>Temperature of reactor.</td>
+    <td>Temperature of reactor</td>
     <td>K</td>
   </tr>
   <tr>
@@ -144,7 +144,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>Y</td>
-    <td>Pressure of reactor.</td>
+    <td>Pressure of reactor</td>
     <td>Pa</td>
   </tr>
   <tr>
@@ -171,7 +171,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Catalyst surface area to reactor volume ratio. Only required if a surface phase is specified.</td>
+    <td>Catalyst surface area to reactor volume ratio. Only required if a surface phase is specified</td>
     <td>m^-1</td>
   </tr>
   <tr>
@@ -180,7 +180,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>dictionary</td>
     <td>N</td>
-    <td>Inlet gas properties. Not applicable   if ``reactor_type = 'batch'``</td>
+    <td>Inlet gas properties. Not applicable&nbsp;&nbsp;&nbsp;if ``reactor_type = 'batch'``</td>
     <td></td>
   </tr>
   <tr>
@@ -189,7 +189,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Volumetric flow rate of inlet stream. Not required if   ``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
+    <td>Volumetric flow rate of inlet stream. Not required if&nbsp;&nbsp;&nbsp;``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
     <td>m^3/s</td>
   </tr>
   <tr>
@@ -198,7 +198,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Residence time of reactor.&nbsp;&nbsp;Not   required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is   specified</td>
+    <td>Residence time of reactor.  Not&nbsp;&nbsp;&nbsp;required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is&nbsp;&nbsp;&nbsp;specified</td>
     <td>s</td>
   </tr>
   <tr>
@@ -207,7 +207,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Mass flow rate of inlet stream.    Not required if ``inlet_gas.residence_time`` or   ``inlet_gas.flow_rate`` is specified</td>
+    <td>Mass flow rate of inlet stream.&nbsp;&nbsp;&nbsp;&nbsp;Not required if ``inlet_gas.residence_time`` or&nbsp;&nbsp;&nbsp;``inlet_gas.flow_rate`` is specified</td>
     <td>kg/s</td>
   </tr>
   <tr>
@@ -216,7 +216,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td></td>
     <td>N</td>
-    <td>Simulation options.</td>
+    <td>Simulation options</td>
     <td></td>
   </tr>
   <tr>
@@ -225,7 +225,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Reactor simulation time. For continuous reactors, the system is assumed   to reach steady state by this time.</td>
+    <td>Reactor simulation time. For continuous reactors, the system is assumed   to reach steady state by this time</td>
     <td>s</td>
   </tr>
   <tr>
@@ -234,7 +234,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>boolean</td>
     <td>N</td>
-    <td>If True, transient results written   to output files. Otherwise, transient files are empty</td>
+    <td>If True, transient results written&nbsp;&nbsp;&nbsp;to output files. Otherwise, transient files are empty</td>
     <td></td>
   </tr>
   <tr>
@@ -243,7 +243,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>string</td>
     <td>N</td>
-    <td>Type of time stepping for   transient operation. Pairs with ``simulation.step_size``. Supported   options:<br>     - 'logarithmic'<br>     - 'regular'</td>
+    <td>Type of time stepping for&nbsp;&nbsp;&nbsp;transient operation. Pairs with ``simulation.step_size``. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'logarithmic'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'regular'</td>
     <td>-</td>
   </tr>
   <tr>
@@ -252,7 +252,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Step size. If ``simulation.stepping = 'logarithmic'``, represents the   ratio between the next step and the current step. If ``simulation.stepping =   'regular'``, represents the time between the next step and the current step   in units of time.</td>
+    <td>Step size. If ``simulation.stepping = 'logarithmic'``, represents the&nbsp;&nbsp;&nbsp;ratio between the next step and the current step. If ``simulation.stepping =&nbsp;&nbsp;&nbsp;'regular'``, represents the time between the next step and the current step&nbsp;&nbsp;&nbsp;in units of time.</td>
     <td>s</td>
   </tr>
   <tr>
@@ -261,7 +261,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>float</td>
     <td>N</td>
-    <td>Initial time step.</td>
+    <td>Initial time step</td>
     <td>-</td>
   </tr>
   <tr>
@@ -270,7 +270,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>string</td>
     <td>N</td>
-    <td>Format for output files.   Supported options:<br>     - 'csv'<br>     - 'dat'</td>
+    <td>Format for output files.&nbsp;&nbsp;&nbsp;Supported options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'csv'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'dat'</td>
     <td>-</td>
   </tr>
   <tr>
@@ -288,7 +288,7 @@ indicates whether this field is nested under another.
     <td>atol</td>
     <td>float</td>
     <td>N</td>
-    <td>Absolute tolerance of solver.</td>
+    <td>Absolute tolerance of solver</td>
     <td>-</td>
   </tr>
   <tr>
@@ -297,7 +297,7 @@ indicates whether this field is nested under another.
     <td>rtol</td>
     <td>float</td>
     <td>N</td>
-    <td>Relative tolerance of solver.</td>
+    <td>Relative tolerance of solver</td>
     <td>-</td>
   </tr>
   <tr>
@@ -306,7 +306,7 @@ indicates whether this field is nested under another.
     <td></td>
     <td>dictionary</td>
     <td>N</td>
-    <td>Multiple runs where temperature, pressure, and flow rate can be varied.</td>
+    <td>Multiple runs where temperature, pressure, and flow rate can be varied</td>
     <td>-</td>
   </tr>
   <tr>
@@ -351,7 +351,7 @@ indicates whether this field is nested under another.
     <td>full</td>
     <td>boolean</td>
     <td>N</td>
-    <td>If True, runs sensitivity analysis using the Fisher Information Matrix   (FIM).</td>
+    <td>If True, runs sensitivity analysis using the Fisher Information Matrix (FIM)</td>
     <td>-</td>
   </tr>
   <tr>
@@ -362,6 +362,15 @@ indicates whether this field is nested under another.
     <td>N</td>
     <td>IDs of reactions to perform local sensitivity analysis (LSA)</td>
     <td>-</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td>species</td>
+    <td>list of str</td>
+    <td>N</td>
+    <td>Names of species to perform local sensitivity analysis (LSA)<br></td>
+    <td></td>
   </tr>
   <tr>
     <td>phases</td>
@@ -414,7 +423,7 @@ indicates whether this field is nested under another.
     <td>initial_state</td>
     <td>string</td>
     <td>N</td>
-    <td>Non-zero initial mole fractions for gas phase. Multiple species should be   separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td>Non-zero initial mole fractions for gas phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
     <td>-</td>
   </tr>
   <tr>
@@ -441,7 +450,7 @@ indicates whether this field is nested under another.
     <td>initial_state</td>
     <td></td>
     <td>N</td>
-    <td>Non-zero initial coverages for surface phase. Multiple species should be   separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td>Non-zero initial coverages for surface phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
     <td>-</td>
   </tr>
 </tbody>
