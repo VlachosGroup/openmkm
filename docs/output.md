@@ -25,21 +25,21 @@ before *.out*.
 ## Species data
 
 1. **species.out**:
-- Lists the species supplied in the input starting with
+>- Lists the species supplied in the input starting with
 species in gas phase, followed by species in bulk phase and surface phases.
-- Provides specie's name, phase, atomic composition, and fractional surface
+>- Provides specie's name, phase, atomic composition, and fractional surface
 coverage (if a surface species)
 
 2. **Hform.out**:
-- Lists the dimensionless formation enthalpies (H/RT) of the
+>- Lists the dimensionless formation enthalpies (H/RT) of the
 species at the input temperature.
-- These are calculated from the NASA polynomials specified in the input.
-- Note: These values are calculated assuming no coverage effects.
+>- These are calculated from the NASA polynomials specified in the input.
+>- Note: These values are calculated assuming no coverage effects.
 
 3. **Sform.out**:
-- Lists the dimensionless standard entropies (S/R) of the species.
-- These are calculated from the NASA polynomials specified in the input.
-- Note: These values are calculated assuming no coverage effects.
+>- Lists the dimensionless standard entropies (S/R) of the species.
+>- These are calculated from the NASA polynomials specified in the input.
+>- Note: These values are calculated assuming no coverage effects.
 
 ## Reaction data
 
