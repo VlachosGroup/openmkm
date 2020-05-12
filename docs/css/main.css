@@ -68,13 +68,24 @@ ul.posts li {
 
 
 /* The navigation menu links */
-.sidenav a {
+.sidenav a, .dropdown-btn {
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   font-size: 25px;
   color: #818181;
   display: block;
 }
+
+/* On mouse-over over sidebar */
+.sidenav a:hover, .dropdown-btn:hover {
+  color: #f1f1f1;
+}
+
+.dropdown-container {
+  display: none;
+  padding-left: 10px;
+}
+
 
 /* Style the logo */
 
