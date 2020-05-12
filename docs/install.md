@@ -5,7 +5,7 @@ layout: default
 # OpenMKM Installation Guide
 
 ## Windows
-On Windows machines, GUI OpenMKM installer is available. 
+On Windows machines, a GUI OpenMKM installer is available. 
 After installing the OpenMKM, open the "Start Menu", browse to OpenMKM, and click on "OpenMKM CmdLine". 
 This will open a new command line windows with OpenMKM added to the path. To test, type and run "omkm" in the command line 
 which should print description about OpenMKM. 
@@ -163,7 +163,7 @@ Now SUNDIALS library is included within the cantera library. The headers of Eige
 
 ## OpenMKM installation
 
-1. Download OpenMKM from https://vlachosgroup.github.com/openmkm.
+1. Download OpenMKM from https://github.com/VlachosGroup/openmkm.
 
 2. Go to OpenMKM_ROOT/src folder, where OpenMKM_ROOT is the top level directory
    of OpenMKM package, and edit SConstruct file to specify the dependencies.
