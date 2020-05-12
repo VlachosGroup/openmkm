@@ -49,19 +49,23 @@ species at the input temperature.
 2. **Hrxn.out**:
    - Lists the dimensionless enthalpies (H/RT) of the reactions at
    the input temperature.
-   - These are calculated from the formation enthalpies and
+   - Calculated from the formation enthalpies listed in Hform.out and
    the stoichiometry coefficients of the species participating in the reactions. 
 
-3. **Srxn.out**: Lists the dimensionless entropies (S/R) of the reactions at
-   the input temperature. These are calculated from the standard entropies and
+3. **Srxn.out**:
+   - Lists the dimensionless entropies (S/R) of the reactions at
+   the input temperature.
+   - Calculated from the standard entropies listed in Sform.out and
    the stoichiometry coefficients of the species participating in the reactions. 
 
-4. **Grxn.out**: Lists the dimensionless Gibbs free energies (G/RT) of the
-   reactions at the input temperature. These are calculated from the formation
-   enthalpies, entropies, and the stoichiometry coefficients of the species
-   participating in the reactions. 
+4. **Grxn.out**:
+   - Lists the dimensionless Gibbs free energies (G/RT) of the
+   reactions at the input temperature.
+   - Calculated at the reaction inlet temperatures from the reaction enthalpies from Hrxn.out
+   and the reaction entropies from Srxn.out. 
 
-5. **kc.out**: Lists the equilibrium constants, $K$, of the reactions at the
+5. **kc.out**:
+   - Lists the equilibrium constants, $$K_c$$, of the reactions at the
    input temperature. These are calculated from the Gibbs free energies of the
    reactions.
 
