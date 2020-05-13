@@ -1,0 +1,21 @@
+reactor:                
+    type: batch          
+    mode: "adiabatic"
+    volume: "1 cm3"
+    temperature:  1001   
+    pressure:  "1 atm"  
+
+simulation:
+    end_time: 0.001
+    transient: true
+    stepping: regular
+    init_step: 1e-5
+    solver:
+        atol: 1e-10         
+        rtol: 1e-8          
+
+phases:                     
+    gas: 
+        name: gri30            
+        initial_state: "H2:2,O2:1,N2:4" 
+
