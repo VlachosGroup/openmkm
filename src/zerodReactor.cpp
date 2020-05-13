@@ -655,7 +655,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         }
     }
 
-    /* Sensitivity Analysis */
+    // Sensitivity Analysis 
     bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
     vector<string> rxnids;
 

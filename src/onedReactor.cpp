@@ -589,7 +589,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                     string sep = (file_ext == "csv") ? "," : "\t";
                     if (!full_sens)
                         pfr_solver.writeSensitivityData(
-                                (out_dir / ("1d_pfr_sensitivity_reactions." + file_ext)).string(), sens_ids, sep);
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), sens_ids, sep);
                     else
                         pfr_solver.writeFisherInformationMatrixDiag(
                                 (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), sens_ids, sep);
