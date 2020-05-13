@@ -8,22 +8,21 @@ layout: default
 To run OpenMKM, two input files are required:
 
 1. A YAML file that specifies parameters related to the reactor.
-2. An XML file that specifies thermodynamic and kinetic parameters.
+2. An XML/YAML file that specifies thermodynamic and kinetic parameters.
 
 When running OpenMKM in the command line, the following syntax is used:
 
 ```bash
 omkm reactor.yaml thermo.xml
 ```
-
 where ``reactor.yaml`` and ``thermo.xml`` correspond to (1) and (2) above.
 
 These files can be generated manually or by using software, such as
 [pMuTT][pmutt_omkm_example].
 
-## YAML Input File.
+## Reactor Input File.
 
-The YAML file, as its name implies, uses the [YAML](https://yaml.org) format,
+The reactor file, as its extension implies, uses the [YAML](https://yaml.org) format,
 which is a human-friendly data format. This file contains information related
 to the reactor, such as:
 
@@ -66,6 +65,7 @@ or
 volume: "20 cm3" # Explictly state the volume is in cm3
 ```
 
+### OpenMKM Reactor Format
 Below is an exhaustive list of available options supported by OpenMKM. The level
 indicates whether this field is nested under another.
 
@@ -465,7 +465,7 @@ indicates whether this field is nested under another.
 </tbody>
 </table>
 
-### Sample YAML file.
+### Sample Reactor YAML file.
 
 ```yaml
 inlet_gas:
@@ -496,9 +496,9 @@ simulation:
     transient: true
 ```
 
-## OpenMKM XML Format
+## OpenMKM ThermoChemistry Data File 
 
-The XML file specifies physical, thermodynamic, and kinetic parameters of:
+The thermochemistry file specifies physical, thermodynamic, and kinetic parameters of:
 
 - phases
 - species
@@ -506,18 +506,23 @@ The XML file specifies physical, thermodynamic, and kinetic parameters of:
 - interactions
 - BEPs
 
-However, the XML can be difficult to generate manually so we recommend creating
+The thermochemistry file can be of either XML or YAML format.
+If you are interested in using XML format for thermochemistry data, 
+the XML can be difficult to generate manually so we recommend creating
 a CTI file, which has a very similar syntax to Python code. CTI files can be
 converted to an XML file using [ctml_writer.py][ctml_writer]. Note there are
 some differences between OpenMKM's ctml_writer.py and the script supplied by
 Cantera.
 
+**NOTE: XML and thereby CTI formats are going to be deprecated and replaced with
+YAML in ftuure**
+
 Alternatively, Chemkin input files can be converted to Cantera format using
 [ck2cti.py][ck2cti_script].
 
-## OpenMKM CTI Format
+## OpenMKM Thermochemistry data CTI Format
 
-The OpenMKM CTI format borrows heavily from
+The OpenMKM CTI format is based on
 [Cantera's CTI format][cantera_cti_docs]. Their documentation has a lot of
 useful information about specifying types and the syntax.
 
@@ -845,6 +850,283 @@ bep(id='C-H', # Used by phases to identify the BEPs present
     synthesis_reactions=[])
 ```
 
+## OpenMKM Thermochemistry YAML Format
+
+The OpenMKM YAML format is based on
+[Cantera's YAML format][cantera_yaml_ref]. Their documentation has a lot of
+useful information about specifying types and the syntax. 
+
+### Units
+
+Default units for the YAML file can be specified using a ``units`` mapping at the top level.
+It takes the following parameters:
+
+- ``length``
+- ``time``
+- ``quantity``
+- ``energy`` -- Used for lateral interactions.
+- ``act_energy`` -- Used for activation energies and BEP relationships.
+- ``pressure``
+- ``mass``
+
+Below, we show a sample ``units`` mapping.
+
+```yaml
+units: {length: m, time: s, quantity: mol, energy: kcal, act_energy: kcal/mol, pressure: atm, mass: g}
+```
+The same units mapping can also be written as
+```yaml
+units: 
+    length: m
+    time: s
+    quantity: mol
+    energy: kcal
+    act_energy: kcal/mol
+    pressure: atm
+    mass: g
+```
+
+[The complete list of supported units is available here.][cantera_yaml_units]
+
+If you wish to override the units for a specific quantity, you can specify the unit next to 
+the quantity. 
+For example, the ``units`` directive above specifies ``quantity="mol"`` and
+``length="m"`` but we would like to specify the site density as
+1.e15 molecules/cm2. This can be done using:
+
+```yaml
+site_density: 1.e15 molec/cm2
+```
+
+### Phases
+
+Phases can control transport, kinetic, and thermodynamic properties of the
+species. Every simulation will require at least one.
+[The comprehensive set of parameters can be found here.][cantera_phase_docs]
+A phase definition in general contains a list of elements, species, reactions, 
+and the associated thermodynamic and kinetic models. A surface phase definition
+can contain BEPs and lateral interactions as well.
+
+A list of phase definitions in the YAML format are specified using ``phases`` mapping. 
+```yaml
+phases: 
+- name: phase_name
+  elements: [list of elements]
+  species: [list of species]
+  thermo: thermodynamic model
+  state: {initial state}
+  kinetics: kinetics model for the phase
+  reactions: all or declared-species or none
+  interactions: all or declared-species or none
+  bep: all or none
+- additional phase definition
+- additional phase definition
+```
+In the above phase definition mapping:
+
+* ``name``: Identifier for a phase definition and is required.
+* ``elements``: List of elements, mandatory.
+* ``species``: List of species, mandatory.
+* ``thermo``: Thermodynamic model, mandatory.
+   * For gas phase, use ``thermo: ideal-gas``.
+   * For surface phase, use ``thermo: ideal-surface``.
+   * For surface phase with lateral interactions, use ``thermo: surface-lateral-interaction``.
+* ``state``: Thermodynamic state specifying temperature and pressure for gas phase. For surface phase tempeature and surface coverages are defined. The state specified here is not used by OpenMKM, but is superceded by the thermodynamic state specified with ``initial_state`` keyword in the reactor yaml file.
+* ``kinetics``: Kinetics model. Mandatory for gas and surface phases. 
+   * For gas phase, must use ``kinetics: gas``.
+   * For surface phase (with or without lateral interactions), must use ``kinetics: surface``.
+   * For bulk phase, ``kinetics`` can be omitted.
+* ``reactions``: Keyword denoting the list of reactions. The allowed options are ``declared-species``, ``all``, and ``none``.
+   * For gas and surface phases, if no reactions are defined, use ``none`` .
+   * For bulk phase, this keyword can be omitted because ``kinetics`` is omitted.
+* ``bep``: Bell-Evans-Polyanni relations are denoted with bep keyword. At present only ``all`` or ``none`` are supported. The keyword can be omitted if BEP relations are not defined.
+* ``interactions``: Mapping to specify the lateral interactions associated with the species that are part of the phase definition. If interactions are not part of phase definition, the keyword can be omitted. If used, allowed options are ``all``, ``declared-species``, and ``none``.
+  
+Below we show the most common phases used for heterogeneous catalysis.
+
+```yaml
+phases:
+    #===========================================
+    # Ideal gas phase definition
+    #-------------------------------------------
+    - name: gas 
+      elements: [H, N, Ar] 
+      species: [N2, NH3, H2, Ar] 
+      thermo: ideal-gas
+      state: {T: 300.0 K, P: 1.01325e+05 bar}
+      kinetics: gas 
+      reactions: none
+    #===========================================
+    # Bulk phase (Stoichiometric Solid) definition
+    #-------------------------------------------
+    - name: bulk
+      elements: [Ru]
+      species: [RU(B)]
+      thermo: fixed-stoichiometry
+      state: {T: 300.0 K, P: 1.01325e+05 bar}
+    #============================================
+    # Simple surface phase definition 
+    #-------------------------------------------
+    - name: terrace
+      elements: [H, Ru, N]
+      species: [N2(T), N(T), H(T), NH3(T), NH2(T), NH(T), RU(T)]
+      thermo: ideal-surface
+      site-density: 2.1671e-09 mol/cm^2
+      kinetics: surface
+      reactions: declared-species
+      state: {T: 300.0 K, coverages: {RU(T): 1.0}}
+    #==============================================
+    # Surface phase with lateral interactions and BEPs
+    #-------------------------------------------
+    - name: step
+      elements: [H, Ru, N]
+      species: [N2(S), N(S), H(S), NH3(S), NH2(S), NH(S), RU(S)]
+      thermo: surface-lateral-interaction
+      site-density: 4.4385e-10 mol/cm^2
+      interactions: declared-species
+      kinetics: surface
+      reactions: declared-species
+      bep: all 
+      state: {T: 300.0 K, coverages: {RU(S): 1.0}}
+```
+
+### Species
+
+Each species present in your mechanism should have its thermodynamic properties
+specified using one of the following:
+
+- NASA7 polynomial
+- NASA9 polynomial
+- Shomate polynomial
+
+[More information can be found on Cantera's documentation.][cantera_thermo_docs]
+
+
+Below we show the three specie models. 
+
+```yaml
+species:
+#==========================================================
+# NASA7
+#---------------------------------------------------------
+ - name: CH4(S) # Label used to identify the species
+   composition: {C: 1, H: 4} # Atomic composition of species 
+   size: 1 # Number of sites occupied by species. Only needed for surface species
+   thermo:  
+      model: NASA7
+      temperature-ranges: [250.0, 480.0, 1500.0]
+      data: 
+      - [6.37200798E+00, -4.66939392E-03,  6.26492184E-06, 4.28698448E-08, 
+         -5.33259424E-11, -1.23940270E+04, -2.09817174E+01]
+      - [3.73282076E+00,  7.75238626E-03,  1.47755181E-06, -3.18500889E-09, 
+         8.84603159E-13, -1.20467882E+04, -9.12054966E+00]
+
+#==========================================================
+# NASA9
+#---------------------------------------------------------
+ - name: CH4(S) # Label used to identify the species
+   composition: {C: 1, H: 4} # Atomic composition of species 
+   size: 1 # Number of sites occupied by species. Only needed for surface species
+   thermo:
+      model: NASA9
+      temperature-ranges: [200.0, 1000.0, 6000.0, 20000.0]
+      data: 
+      - [22103.71497, -381.846182, 6.08273836, -0.00853091441,
+         1.384646189e-05, -9.62579362e-09, 2.519705809e-12,
+         710.846086, -10.76003744]
+      - [587712.406, -2239.249073, 6.06694922, -0.00061396855,
+         1.491806679e-07, -1.923105485e-11, 1.061954386e-15,
+         12832.10415, -15.86640027]
+      - [831013916.0, -642073.354, 202.0264635, -0.03065092046,
+         2.486903333e-06, -9.70595411e-11, 1.437538881e-15,
+         4938707.04, -1672.09974])))
+
+#==========================================================
+# Shomate
+#---------------------------------------------------------
+ - name: CH4(S) # Label used to identify the species
+   composition: {C: 1, H: 4} # Atomic composition of species 
+   size: 1 # Number of sites occupied by species. Only needed for surface species
+   thermo:
+      model: Shomate
+      temperature-ranges: [298, 1300] 
+      data: 
+      - [-7.03029000E-01,  1.08477300E+02, -4.25215700E+01,
+         5.86278800E+00,  6.78565000E-01, -7.68437600E+01,
+         1.58716300E+02]
+```
+
+### Reactions
+
+Cantera (and consequently OpenMKM) support a wide variety of reactions. See
+[Cantera's documentation][cantera_reaction_docs] to see supported types. 
+In YAML format, the reactions are specified under ``reactions`` keyword.
+
+Below are the popular reaction models such as surface and adsorption reactions. 
+
+```yaml
+reactions:
+#================================================================
+# Surface Reaction
+#----------------------------------------------------------------
+  - equation: CH4(S) + M(S) <=> CH3(S) + H(S) + M(B) # Reaction string
+    rate-constant: {A: 8.36812e+18, b: 1, Ea: 5.55117e+00}
+    id: "r0001"       # ID referenced by phase BEP directives
+
+#================================================================
+# Adsorption Reaction
+#----------------------------------------------------------------
+  - equation: CH2CH2 + M(S) <=> CH2CH2(S) + M(B)
+    sticking-coefficient: {A: 5.00000e-01, b: 0.0, Ea: 3.67653e+00} # rate constant specified with sticking-coefficient
+    sticking-species: CH2CH2
+    Motz-Wise: true
+    id: "r0002"
+```
+
+### Lateral Interactions
+
+**Pairwise** lateral interactions can be defined under under ``interactions`` keyword.
+Below is an example defintion for lateral interaction .
+
+```yaml
+interactions:
+    - species:[H(S), C(S)] # Species i, Species j
+      strength: [0.0 kcal/mol, -19.0 kcal/mol] # Slope of lateral interaction
+      coverage_threshold: [0, 0.11, 1] # Intervals to change 
+      id: "i001")
+```
+
+In the above example, the lateral interaction strength between H(S) and C(S)
+is 0 between 0 - 0.11 ML of C(S), and -19 kcal/mol (specified explicitly).  
+
+``
+
+### Bell-Evans-Polanyi (BEP) relationships
+
+Reaction activation energies can be specified using BEP relationships. To
+specify BEP relationships, use the ``bep`` directive, which takes the following:
+
+- ``slope`` -- slope of the BEP linear relationship 
+- ``intercept`` -- intercept of the BEP relationship 
+- ``direction`` -- Direction of the BEP. Supported values are *cleavage* and
+  ``synthesis``. 
+- ``id`` -- Optional argument to distinguish the BEP relationship. If no value
+  is given, a numerical 4 digit integer starting with ``0001`` is used to
+  distinguish the BEP relationships
+- ``cleavage_reactions`` -- List of associated reaction ids where a bond is broken
+- ``synthsis_reactions`` -- List of associated reaction ids where a bond is formed
+
+``` yaml
+bep: 
+    - id: C-H                   # Used by phases to identify the BEPs present
+      slope: 1.02               # Slope
+      intercept: 24.44 kcal/mol # Intercept
+      direction: cleavage       # Direction (cleavage or synthesis)
+      cleavage_reactions: [r0003, r0005, r0007, r0009, r0008, r0013, r0014, r0015, r0016, r0017]
+      # No synthesis reactions
+```
+
+
 ### Chemkin Users 
 
 Use the conversion script,
@@ -865,6 +1147,9 @@ retry. If it works, add the missing bulk phase definition directly into the CTI 
 [yaml_validator]: https://jsonformatter.org/yaml-validator
 [ck2cti_script]: https://github.com/VlachosGroup/openmkm/blob/master/scripts/ck2cti.py
 [cantera_cti_docs]: https://cantera.org/tutorials/cti/cti-syntax.html
+[cantera_yaml_tut]: https://cantera.org/tutorials/yaml/phases.html
+[cantera_yaml_ref]: https://cantera.org/documentation/dev/sphinx/html/yaml/index.html
+[cantera_yaml_units]: https://cantera.org/documentation/dev/sphinx/html/yaml/general.html#units
 [supported_units]: https://cantera.org/tutorials/cti/cti-syntax.html#recognized-units
 [cantera_thermo_docs]: https://cantera.org/science/science-species.html#thermodynamic-property-models
 [burcat_db]: http://garfield.chem.elte.hu/Burcat/burcat.html
