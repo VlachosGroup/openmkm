@@ -71,387 +71,396 @@ indicates whether this field is nested under another.
 
 [//]: # To regenerate table, copy HTML code and paste in https://www.tablesgenerator.com/html_tables, modify the contents and regenerate the HTML code
 
-<table>
+<style type="text/css">
+.tg  {border-collapse:collapse;border-color:#aaa;border-spacing:0;}
+.tg td{background-color:#fff;border-color:#aaa;border-style:solid;border-width:1px;color:#333;
+  font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#7fbe41;border-color:#aaa;border-style:solid;border-width:1px;color:#fff;
+  font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-0lax{text-align:left;vertical-align:top}
+.tg .tg-dg7a{background-color:#E2E2E2;text-align:left;vertical-align:top}
+</style>
+<table class="tg">
 <thead>
   <tr>
-    <th>1st Level</th>
-    <th>2nd Level</th>
-    <th>3rd Level</th>
-    <th>Type</th>
-    <th>Required</th>
-    <th>Description</th>
-    <th>Default Units</th>
+    <th class="tg-0lax">1st Level</th>
+    <th class="tg-0lax">2nd Level</th>
+    <th class="tg-0lax">3rd Level</th>
+    <th class="tg-0lax">Type</th>
+    <th class="tg-0lax">Required</th>
+    <th class="tg-0lax">Description</th>
+    <th class="tg-0lax">Default Units</th>
   </tr>
 </thead>
 <tbody>
   <tr>
-    <td>reactor</td>
-    <td></td>
-    <td></td>
-    <td>dictionary</td>
-    <td>Y</td>
-    <td>Reactor parameters</td>
-    <td>-</td>
+    <td class="tg-dg7a">reactor</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">dictionary</td>
+    <td class="tg-dg7a">Y</td>
+    <td class="tg-dg7a">Reactor parameters</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>reactor_type</td>
-    <td></td>
-    <td>string</td>
-    <td>Y</td>
-    <td>Type of reactor. Supported&nbsp;&nbsp;&nbsp;options: <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr' (plug flow reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'cstr' (continuously stirred tank reactor)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'batch' (batch reactor)</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">reactor_type</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">string</td>
+    <td class="tg-0lax">Y</td>
+    <td class="tg-0lax">Type of reactor. Supported options: <br>- 'pfr' (plug flow reactor)- 'pfr_0d' (plug flow reactor modeled as a series of CSTRs)<br>- 'cstr' (continuously stirred tank reactor)<br>- 'batch' (batch reactor)</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>mode</td>
-    <td></td>
-    <td>string</td>
-    <td>Y</td>
-    <td>Operation of reactor. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'isothermal' (constant temperature)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'adiabatic' (no heat flow)</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">mode</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">string</td>
+    <td class="tg-dg7a">Y</td>
+    <td class="tg-dg7a">Operation of the reactor. Supported options:<br>- 'isothermal' (constant temperature)<br>- 'adiabatic' (no heat flow)</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>nodes</td>
-    <td></td>
-    <td>integer</td>
-    <td>N</td>
-    <td>Number of CSTRs to model the PFR. Only applicable if   ``reactor_type='pfr_0d'``</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">nodes</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">integer</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Number of CSTRs to model the PFR. Only applicable if reactor_type='pfr_0d'</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>volume</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Volume of reactor</td>
-    <td>m^3</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">volume</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Volume of reactor</td>
+    <td class="tg-dg7a">m^3</td>
   </tr>
   <tr>
-    <td></td>
-    <td>temperature</td>
-    <td></td>
-    <td>float</td>
-    <td>Y</td>
-    <td>Temperature of reactor</td>
-    <td>K</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">temperature</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">Y</td>
+    <td class="tg-0lax">Temperature of reactor</td>
+    <td class="tg-0lax">K</td>
   </tr>
   <tr>
-    <td></td>
-    <td>pressure</td>
-    <td></td>
-    <td>float</td>
-    <td>Y</td>
-    <td>Pressure of reactor</td>
-    <td>Pa</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">pressure</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">Y</td>
+    <td class="tg-dg7a">Pressure of reactor</td>
+    <td class="tg-dg7a">Pa</td>
   </tr>
   <tr>
-    <td></td>
-    <td>area</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Surface area of reactor. Only applicable if ``reactor_type='pfr'``</td>
-    <td>m^2</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">area</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Surface area of reactor. Only applicable if reactor_type='pfr'</td>
+    <td class="tg-0lax">m^2</td>
   </tr>
   <tr>
-    <td></td>
-    <td>length</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Length of the reactor. Only applicable if ``reactor_type='pfr'``</td>
-    <td>m</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">length</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Length of the reactor. Only applicable if reactor_type='pfr'</td>
+    <td class="tg-dg7a">m</td>
   </tr>
   <tr>
-    <td></td>
-    <td>cat_abyv</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Catalyst surface area to reactor volume ratio. Only required if a surface phase is specified</td>
-    <td>m^-1</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">cat_abyv</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Catalyst surface area to reactor volume ratio. Only required if a surface phase is specified</td>
+    <td class="tg-0lax">m^-1</td>
   </tr>
   <tr>
-    <td>inlet_gas</td>
-    <td></td>
-    <td></td>
-    <td>dictionary</td>
-    <td>N</td>
-    <td>Inlet gas properties. Not applicable&nbsp;&nbsp;&nbsp;if ``reactor_type = 'batch'``</td>
-    <td></td>
+    <td class="tg-dg7a">inlet_gas</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">dictionary</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Inlet gas properties. Not applicable if reactor_type = 'batch'</td>
+    <td class="tg-dg7a"></td>
   </tr>
   <tr>
-    <td></td>
-    <td>flow_rate</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Volumetric flow rate of inlet stream. Not required if&nbsp;&nbsp;&nbsp;``inlet_gas.residence_time`` or ``inlet_gas.mass_flow_rate`` is specified</td>
-    <td>m^3/s</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">flow_rate</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Volumetric flow rate of inlet stream. Not required if inlet_gas.residence_time or inlet_gas.mass_flow_rate is specified</td>
+    <td class="tg-0lax">m^3/s</td>
   </tr>
   <tr>
-    <td></td>
-    <td>residence_time</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Residence time of reactor.  Not&nbsp;&nbsp;&nbsp;required if ``inlet_gas.flow_rate`` or ``inlet_gas.mass_flow_rate`` is&nbsp;&nbsp;&nbsp;specified</td>
-    <td>s</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">residence_time</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Residence time of reactor. Not required if inlet_gas.flow_rate or inlet_gas.mass_flow_rate is specified</td>
+    <td class="tg-dg7a">s</td>
   </tr>
   <tr>
-    <td></td>
-    <td>mass_flow_rate</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Mass flow rate of inlet stream.&nbsp;&nbsp;&nbsp;&nbsp;Not required if ``inlet_gas.residence_time`` or&nbsp;&nbsp;&nbsp;``inlet_gas.flow_rate`` is specified</td>
-    <td>kg/s</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">mass_flow_rate</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Mass flow rate of inlet stream. Not required if inlet_gas.residence_time or inlet_gas.flow_rate is specified</td>
+    <td class="tg-0lax">kg/s</td>
   </tr>
   <tr>
-    <td>simulation</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td>N</td>
-    <td>Simulation options</td>
-    <td></td>
+    <td class="tg-dg7a">simulation</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Simulation options</td>
+    <td class="tg-dg7a"></td>
   </tr>
   <tr>
-    <td></td>
-    <td>end_time</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Reactor simulation time. For continuous reactors, the system is assumed   to reach steady state by this time</td>
-    <td>s</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">end_time</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Reactor simulation time. For continuous reactors, the system is assumed to reach steady state by this time</td>
+    <td class="tg-0lax">s</td>
   </tr>
   <tr>
-    <td></td>
-    <td>transient</td>
-    <td></td>
-    <td>boolean</td>
-    <td>N</td>
-    <td>If True, transient results written&nbsp;&nbsp;&nbsp;to output files. Otherwise, transient files are empty</td>
-    <td></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">transient</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">boolean</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">If True, transient results written to output files. Otherwise, transient files are empty</td>
+    <td class="tg-dg7a"></td>
   </tr>
   <tr>
-    <td></td>
-    <td>stepping</td>
-    <td></td>
-    <td>string</td>
-    <td>N</td>
-    <td>Type of time stepping for&nbsp;&nbsp;&nbsp;transient operation. Pairs with ``simulation.step_size``. Supported&nbsp;&nbsp;&nbsp;options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'logarithmic'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'regular'</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">stepping</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">string</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Type of time stepping for transient operation. Pairs with simulation.step_size. Supported options:<br>- 'logarithmic'<br>- 'regular'</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>step_size</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Step size. If ``simulation.stepping = 'logarithmic'``, represents the&nbsp;&nbsp;&nbsp;ratio between the next step and the current step. If ``simulation.stepping =&nbsp;&nbsp;&nbsp;'regular'``, represents the time between the next step and the current step&nbsp;&nbsp;&nbsp;in units of time.</td>
-    <td>s</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">step_size</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Step size. If simulation.stepping = 'logarithmic', represents the ratio between the next step and the current step. If simulation.stepping = 'regular', represents the time between the next step and the current step in units of time.</td>
+    <td class="tg-dg7a">s</td>
   </tr>
   <tr>
-    <td></td>
-    <td>init_step</td>
-    <td></td>
-    <td>float</td>
-    <td>N</td>
-    <td>Initial time step</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">init_step</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Initial time step</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>output_format</td>
-    <td></td>
-    <td>string</td>
-    <td>N</td>
-    <td>Format for output files.&nbsp;&nbsp;&nbsp;Supported options:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'csv'<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 'dat'</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">output_format</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">string</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Format for output files. Supported options:<br>- 'csv'<br>- 'dat'</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>solver</td>
-    <td></td>
-    <td>dictionary</td>
-    <td>N</td>
-    <td>Solver options</td>
-    <td></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">solver</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">dictionary</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Solver options</td>
+    <td class="tg-0lax"></td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>atol</td>
-    <td>float</td>
-    <td>N</td>
-    <td>Absolute tolerance of solver</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">atol</td>
+    <td class="tg-dg7a">float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Absolute tolerance of solver</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>rtol</td>
-    <td>float</td>
-    <td>N</td>
-    <td>Relative tolerance of solver</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">rtol</td>
+    <td class="tg-0lax">float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Relative tolerance of solver</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>multi_input</td>
-    <td></td>
-    <td>dictionary</td>
-    <td>N</td>
-    <td>Multiple runs where temperature, pressure, and flow rate can be varied</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">multi_input</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">dictionary</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Multiple runs where temperature, pressure, and flow rate can be varied</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>multi_T</td>
-    <td>list of float</td>
-    <td>N</td>
-    <td>Multiple temperatures of reactor</td>
-    <td>K</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">multi_T</td>
+    <td class="tg-0lax">list of float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Multiple temperatures of reactor</td>
+    <td class="tg-0lax">K</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>multi_P</td>
-    <td>list of float</td>
-    <td>N</td>
-    <td>Multiple pressures of reactor</td>
-    <td>Pa</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">multi_P</td>
+    <td class="tg-dg7a">list of float</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Multiple pressures of reactor</td>
+    <td class="tg-dg7a">Pa</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>multi_flow_rate</td>
-    <td>list of float</td>
-    <td>N</td>
-    <td>Multiple volumetric flow rates</td>
-    <td>m^3/s</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">multi_flow_rate</td>
+    <td class="tg-0lax">list of float</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Multiple volumetric flow rates</td>
+    <td class="tg-0lax">m^3/s</td>
   </tr>
   <tr>
-    <td></td>
-    <td>sensitivity</td>
-    <td></td>
-    <td>dictionary</td>
-    <td>N</td>
-    <td>Sensitivity analysis options</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">sensitivity</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">dictionary</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Sensitivity analysis options</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>full</td>
-    <td>boolean</td>
-    <td>N</td>
-    <td>If True, runs sensitivity analysis using the Fisher Information Matrix (FIM)</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">full</td>
+    <td class="tg-0lax">boolean</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">If True, runs sensitivity analysis using the Fisher Information Matrix (FIM)</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>reactions</td>
-    <td>list of str</td>
-    <td>N</td>
-    <td>IDs of reactions to perform local sensitivity analysis (LSA)</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">reactions</td>
+    <td class="tg-dg7a">list of str</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">IDs of reactions to perform local sensitivity analysis (LSA)</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>species</td>
-    <td>list of str</td>
-    <td>N</td>
-    <td>Names of species to perform local sensitivity analysis (LSA)<br></td>
-    <td></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">species</td>
+    <td class="tg-0lax">list of str</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Names of species to perform local sensitivity analysis (LSA)<br></td>
+    <td class="tg-0lax"></td>
   </tr>
   <tr>
-    <td>phases</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td>Y<br></td>
-    <td>Phase properties</td>
-    <td>-</td>
+    <td class="tg-dg7a">phases</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">Y<br></td>
+    <td class="tg-dg7a">Phase properties</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>bulk</td>
-    <td></td>
-    <td>dictionary</td>
-    <td>N</td>
-    <td>Bulk phase properties</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">bulk</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">dictionary</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Bulk phase properties</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>name</td>
-    <td>string</td>
-    <td>N</td>
-    <td>Name of bulk phase</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">name</td>
+    <td class="tg-dg7a">string</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Name of bulk phase</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>gas</td>
-    <td></td>
-    <td></td>
-    <td>N</td>
-    <td>Gas properties</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">gas</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Gas properties</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>name</td>
-    <td>string</td>
-    <td>N</td>
-    <td>Name of gas phase</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">name</td>
+    <td class="tg-dg7a">string</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Name of gas phase</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>initial_state</td>
-    <td>string</td>
-    <td>N</td>
-    <td>Non-zero initial mole fractions for gas phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">initial_state</td>
+    <td class="tg-0lax">string</td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Non-zero initial mole fractions for gas phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td>surfaces</td>
-    <td></td>
-    <td>list of dictionaries</td>
-    <td>N</td>
-    <td>Surface phase properties. Note that multiple surface can be specified.</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">surfaces</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">list of dictionaries</td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Surface phase properties. Note that multiple surface can be specified.</td>
+    <td class="tg-dg7a">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>name</td>
-    <td></td>
-    <td>N</td>
-    <td>Name of surface phase</td>
-    <td>-</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">name</td>
+    <td class="tg-0lax"></td>
+    <td class="tg-0lax">N</td>
+    <td class="tg-0lax">Name of surface phase</td>
+    <td class="tg-0lax">-</td>
   </tr>
   <tr>
-    <td></td>
-    <td></td>
-    <td>initial_state</td>
-    <td></td>
-    <td>N</td>
-    <td>Non-zero initial coverages for surface phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
-    <td>-</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">initial_state</td>
+    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">N</td>
+    <td class="tg-dg7a">Non-zero initial coverages for surface phase. Multiple species should be separated by commas. For example: "H2: 0.4,N2: 0.6"</td>
+    <td class="tg-dg7a">-</td>
   </tr>
 </tbody>
 </table>
@@ -517,14 +526,13 @@ useful information about specifying types and the syntax.
 Default units for the CTI file can be specified using a ``units`` directive.
 It takes the following parameters:
 
-- ``length`` -- Optional
-- ``time`` -- Optional
-- ``quantity`` -- Optional
-- ``energy`` -- Optional. Used for lateral interactions.
-- ``act_energy`` -- Optional. Used for activation energies and BEP
-  relationships.
-- ``pressure`` -- Optional
-- ``mass`` -- Optional
+- ``length``
+- ``time``
+- ``quantity``
+- ``energy`` -- Used for lateral interactions.
+- ``act_energy`` -- Used for activation energies and BEP relationships.
+- ``pressure``
+- ``mass``
 
 Below, we show a sample ``units`` directive.
 
@@ -715,7 +723,9 @@ common, which uses a modified Arrhenius expression.
 $$ k = A T^\beta \exp(-\frac {E_a}{RT})$$
 
 where $$k$$ is the rate constant, $$A$$ is the pre-exponential factor,
-$T$ is the temperature, $$\beta$$ adds explicit temperature dependence to the pre-exponential parameter, $$E_a$$ is the activation energy, and $R$ is the molar.
+$$T$$ is the temperature, $$\beta$$ adds explicit temperature dependence to the
+pre-exponential parameter, $$E_a$$ is the activation energy, and $R$ is the
+molar gas constant.
 
 For surface reactions, $$A$$ is typically calculated using:
 
@@ -726,14 +736,14 @@ $$\sigma$$ is the site density, and $$m$$ is the number of surface species
 (including empty sites).
 
 If $$A$$ is represented this way, we typically replace $$E_a$$ with the 
-Gibbs energy of activation, $$\Delta G^{\ddag}$$, to include entropic effects
+Gibbs energy of activation, $$\Delta G^{TS}$$, to include entropic effects
 based on transition state theory.
 
-$$\Delta G^{\ddag} = \Delta H^{\ddag} - T \Delta S^{\ddag}$$
+$$\Delta G^{TS} = \Delta H^{TS} - T \Delta S^{TS}$$
 
-where $$\Delta G^{\ddag}$$ is the Gibbs energy of activation,
-$$\Delta H^{\ddag}$$ is the enthalpy of activation, $$T$$ is the temperature,
-and $$\Delta S^{\ddag}$$ is the entropy of activation.
+where $$\Delta G^{TS}$$ is the Gibbs energy of activation,
+$$\Delta H^{TS}$$ is the enthalpy of activation, $$T$$ is the temperature,
+and $$\Delta S^{TS}$$ is the entropy of activation.
 
 ```python
 surface_reaction("CH4(S) + M(S) <=> CH3(S) + H(S) + M(B)", # Reaction string
