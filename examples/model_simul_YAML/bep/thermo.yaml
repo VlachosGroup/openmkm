@@ -1,0 +1,420 @@
+generator: ctml2yaml
+cantera-version: 2.5.0a4
+date: Wed, 13 May 2020 11:01:14 -0400
+input-files: [thermo.xml]
+
+phases:
+- name: gas
+  elements: [H, N, Ar]
+  species: [N2, NH3, H2, Ar]
+  thermo: ideal-gas
+  state: {T: 300.0 K, P: 1.01325e+05 bar}
+  kinetics: gas
+  reactions: none
+- name: bulk
+  elements: [Ru]
+  species: [RU(B)]
+  thermo: fixed-stoichiometry
+  state: {T: 300.0 K, P: 1.01325e+05 bar}
+- name: terrace
+  elements: [H, Ru, N]
+  species: [N2(T), N(T), H(T), NH3(T), NH2(T), NH(T), RU(T)]
+  thermo: surface-lateral-interaction
+  interactions: declared-species
+  site-density: 2.1671e-09 mol/cm^2
+  kinetics: surface
+  reactions: declared-species
+  bep: all
+  state: {T: 300.0 K, coverages: {RU(T): 1.0}}
+- name: step
+  elements: [H, Ru, N]
+  species: [N2(S), N(S), H(S), NH3(S), NH2(S), NH(S), RU(S)]
+  thermo: surface-lateral-interaction
+  site-density: 4.4385e-10 mol/cm^2
+  interactions: declared-species
+  kinetics: surface
+  reactions: declared-species
+  bep: all
+  state: {T: 300.0 K, coverages: {RU(S): 1.0}}
+
+species:
+- name: N2
+  composition: {N: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 1791.36584, 25.241034]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 1791.36584, 25.241034]
+- name: NH3
+  composition: {N: 1.0, H: 3.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 533.6326530612245, 800.0]
+    data:
+    - [4.5712468, -6.89724277e-03, 2.70972941e-05, -3.44331645e-08, 1.6256843e-11,
+      -8536.30392, -1.78236482]
+    - [3.29427463, 2.57481517e-03, 5.20883059e-07, -1.00678313e-09, 3.5935618e-13,
+      -8397.39729, 3.59518179]
+- name: H2
+  composition: {H: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 3609.3131, 17.8017452]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 3609.3131, 17.8017452]
+- name: N2(T)
+  composition: {N: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 482.40816326530614, 800.0]
+    data:
+    - [0.440553502, 0.029775995, -8.47698148e-05, 1.16195177e-07, -6.12938589e-11,
+      -6817.13036, -1.6753585]
+    - [3.42605836, 5.03710708e-03, -6.92689694e-06, 6.03246113e-09, -2.18862675e-12,
+      -7109.08593, -13.9234158]
+- name: N(T)
+  composition: {N: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 502.8979591836735, 800.0]
+    data:
+    - [-5.23174593, 0.0611537184, -1.47762309e-04, 1.74618161e-07, -8.21997526e-11,
+      -1.05501788e+04, 18.865539]
+    - [-0.829107669, 0.0264469843, -4.38832016e-05, 3.47600781e-08, -1.0781931e-11,
+      -1.10025322e+04, 0.584860624]
+- name: H(T)
+  composition: {H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 461.9183673469388, 800.0]
+    data:
+    - [-1.41307531, 0.0100687718, 1.09758988e-06, -2.55216914e-08, 2.17566538e-11,
+      -6129.91563, 5.64663049]
+    - [-2.11302416, 0.0172572991, -2.60046478e-05, 1.92388088e-08, -5.68363784e-12,
+      -6077.14366, 8.35375655]
+- name: NH3(T)
+  composition: {N: 1.0, H: 3.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 461.9183673469388, 800.0]
+    data:
+    - [1.16759533, 0.020573217, -3.66958772e-05, 4.56112325e-08, -2.49628744e-11,
+      -1.42311185e+04, -4.80504278]
+    - [1.58312977, 0.0157753291, -1.71587153e-05, 1.15414255e-08, -3.21958978e-12,
+      -1.42567384e+04, -6.35076167]
+- name: NH2(T)
+  composition: {N: 1.0, H: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 523.3877551020408, 800.0]
+    data:
+    - [-2.56305506, 0.0384726874, -7.73503504e-05, 8.09903199e-08, -3.43595838e-11,
+      -1.17458655e+04, 8.90806366]
+    - [-0.686530719, 0.0243298826, -3.68705157e-05, 2.88483783e-08, -8.8696366e-12,
+      -1.19475373e+04, 1.03191178]
+- name: NH(T)
+  composition: {N: 1.0, H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 543.8775510204082, 800.0]
+    data:
+    - [-3.73687435, 0.0405226889, -8.44226964e-05, 8.65932632e-08, -3.53036247e-11,
+      -1.46202196e+04, 13.7781588]
+    - [-1.33660645, 0.02331066, -3.77180253e-05, 2.97486446e-08, -9.12157176e-12,
+      -1.4890341e+04, 3.58875263]
+- name: TS1_NH3(T)
+  composition: {N: 1.0, H: 3.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 451.67346938775506, 800.0]
+    data:
+    - [0.0496418515, 0.0215674671, -2.75604959e-05, 2.23225323e-08, -8.79255935e-12,
+      -2504.69914, -1.46480767]
+    - [0.052122104, 0.0211615812, -2.49542203e-05, 1.66204937e-08, -4.59897868e-12,
+      -2500.90675, -1.43098814]
+- name: TS2_NH2(T)
+  composition: {N: 1.0, H: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [-2.58881424, 0.0343781302, -5.87419101e-05, 5.18321984e-08, -1.87340797e-11,
+      -5758.28326, 8.95651588]
+    - [-1.48538501, 0.0267287608, -3.86606417e-05, 2.81558194e-08, -8.15140597e-12,
+      -5886.76392, 4.2347857]
+- name: TS3_NH(T)
+  composition: {N: 1.0, H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 482.40816326530614, 800.0]
+    data:
+    - [-1.80701218, 0.0307479132, -6.9681687e-05, 8.30020912e-08, -4.08170225e-11,
+      -2371.20889, 5.6977636]
+    - [-0.124242592, 0.0165859456, -2.43704704e-05, 1.77594067e-08, -5.19878424e-12,
+      -2533.50782, -1.18098922]
+- name: TS4_N2(T)
+  composition: {N: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 482.40816326530614, 800.0]
+    data:
+    - [-1.75107618, 0.0412189598, -1.09828935e-04, 1.41320046e-07, -7.17404084e-11,
+      2.18956564e+04, 4.8238577]
+    - [1.52431744, 0.0140315985, -2.40821843e-05, 1.96281604e-08, -6.24114074e-12,
+      2.15756709e+04, -8.60900953]
+- name: RU(T)
+  composition: {Ru: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: N2(S)
+  composition: {N: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 492.65306122448976, 800.0]
+    data:
+    - [-2.61113029, 0.0430280784, -1.00995865e-04, 1.19786985e-07, -5.75841652e-11,
+      -8736.3688, 8.24537861]
+    - [0.0786915518, 0.0211483916, -3.33140389e-05, 2.54979807e-08, -7.72804711e-12,
+      -9004.72791, -2.84148395]
+- name: N(S)
+  composition: {N: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 502.8979591836735, 800.0]
+    data:
+    - [-2.74170137, 0.030926202, -7.40012939e-05, 8.66964232e-08, -4.04996423e-11,
+      -1.22881492e+04, 9.9915716]
+    - [-0.550172452, 0.0137232473, -2.27404363e-05, 1.799476e-08, -5.57731485e-12,
+      -1.2514215e+04, 0.882855257]
+- name: H(S)
+  composition: {H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 461.9183673469388, 800.0]
+    data:
+    - [-1.41307531, 0.0100687718, 1.09758988e-06, -2.55216914e-08, 2.17566538e-11,
+      -6129.91563, 5.64663049]
+    - [-2.11302416, 0.0172572991, -2.60046478e-05, 1.92388088e-08, -5.68363784e-12,
+      -6077.14366, 8.35375655]
+- name: NH3(S)
+  composition: {N: 1.0, H: 3.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 461.9183673469388, 800.0]
+    data:
+    - [1.14054296, 0.0211528629, -3.941135e-05, 5.04119756e-08, -2.79498362e-11, -1.71372331e+04,
+      -4.81930148]
+    - [1.66079448, 0.0153778585, -1.64435153e-05, 1.09730315e-08, -3.04769119e-12,
+      -1.71718653e+04, -6.78171189]
+- name: NH2(S)
+  composition: {N: 1.0, H: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 513.1428571428571, 800.0]
+    data:
+    - [-2.26986613, 0.0369783572, -7.37914233e-05, 7.69637123e-08, -3.26409225e-11,
+      -1.82944702e+04, 7.98342065]
+    - [-0.594719805, 0.0242276179, -3.69256529e-05, 2.89797307e-08, -8.92777368e-12,
+      -1.8472735e+04, 0.969000209]
+- name: NH(S)
+  composition: {N: 1.0, H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 533.6326530612245, 800.0]
+    data:
+    - [-3.67269046, 0.0412908126, -8.83354768e-05, 9.30708814e-08, -3.90095812e-11,
+      -1.35450272e+04, 13.4062488]
+    - [-1.16677718, 0.0229677564, -3.75818066e-05, 2.99430978e-08, -9.26414211e-12,
+      -1.382189e+04, 2.81582251]
+- name: TS1_NH3(S)
+  composition: {N: 1.0, H: 3.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 461.9183673469388, 800.0]
+    data:
+    - [-0.2157118, 0.0223671232, -2.90792507e-05, 2.46217683e-08, -1.04098955e-11,
+      -8985.14743, 0.118397898]
+    - [-0.241469187, 0.0219587885, -2.57139612e-05, 1.67995163e-08, -4.53990713e-12,
+      -8975.9056, 0.29619786]
+- name: TS2_NH2(S)
+  composition: {N: 1.0, H: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 482.40816326530614, 800.0]
+    data:
+    - [-1.29806321, 0.0333296291, -7.49082969e-05, 9.09398161e-08, -4.50950303e-11,
+      -5206.63944, 3.68685183]
+    - [0.660409671, 0.0169840135, -2.30811277e-05, 1.70174943e-08, -5.12349549e-12,
+      -5396.92076, -4.33432757]
+- name: TS3_NH(S)
+  composition: {N: 1.0, H: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 482.40816326530614, 800.0]
+    data:
+    - [-3.19849368, 0.0408355096, -1.0478999e-04, 1.36204946e-07, -7.03581093e-11,
+      -3959.25686, 11.2114765]
+    - [0.0210817763, 0.0138454046, -1.89560044e-05, 1.3577584e-08, -4.02213306e-12,
+      -4270.23844, -1.95813214]
+- name: TS4_N2(S)
+  composition: {N: 2.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 492.65306122448976, 800.0]
+    data:
+    - [-4.02990616, 0.0510850629, -1.27788869e-04, 1.55874918e-07, -7.55559553e-11,
+      -2232.0929, 14.165365]
+    - [-0.246781062, 0.0206356563, -3.46960019e-05, 2.78040159e-08, -8.71443394e-12,
+      -2612.99814, -1.46528582]
+- name: RU(S)
+  composition: {Ru: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: RU(B)
+  composition: {Ru: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.0, 554.1224489795918, 800.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  equation-of-state:
+    model: constant-volume
+    density: 12.4 g/cm^3
+- name: Ar
+  composition: {Ar: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 6000.0]
+    data:
+    - [20.786, 2.825911e-07, -1.464191e-07, 1.092131e-08, -3.661371e-08, -6.19735,
+      179.999]
+
+reactions:
+- equation: H2 + 2 RU(T) <=> 2 H(T) + 2 RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: H2
+  Motz-Wise: true
+- equation: N2 + RU(T) <=> N2(T) + RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: N2
+  Motz-Wise: true
+- equation: NH3 + RU(T) <=> NH3(T) + RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: NH3
+  Motz-Wise: true
+- id: NH2-H_cle_0001
+  equation: NH3(T) + RU(T) <=> NH2(T) + H(T) + RU(B)
+  rate-constant: {A: 9.61497e+17, b: 1.0, Ea: 17.6804 kcal/mol}
+  Motz-Wise: true
+- id: NH-H_cle_0001
+  equation: NH2(T) + RU(T) <=> NH(T) + H(T) + RU(B)
+  rate-constant: {A: 9.61497e+17, b: 1.0, Ea: 10.15 kcal/mol}
+  Motz-Wise: true
+- id: N-H_cle_0001
+  equation: NH(T) + RU(T) <=> N(T) + H(T) + RU(B)
+  rate-constant: {A: 9.61497e+17, b: 1.0, Ea: 22.0771 kcal/mol}
+  Motz-Wise: true
+- equation: 2 N(T) + RU(B) <=> N2(T) + RU(T)
+  rate-constant: {A: 9.61497e+17, b: 1.0, Ea: 86.4725 kcal/mol}
+  Motz-Wise: true
+- equation: H2 + 2 RU(S) <=> 2 H(S) + 2 RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: H2
+  Motz-Wise: true
+- equation: N2 + RU(S) <=> N2(S) + RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: N2
+  Motz-Wise: true
+- equation: NH3 + RU(S) <=> NH3(S) + RU(B)
+  sticking-coefficient: {A: 0.5, b: 0.0, Ea: 0.0 kcal/mol}
+  sticking-species: NH3
+  Motz-Wise: true
+- id: NH2-H_cle_0002
+  equation: NH3(S) + RU(S) <=> NH2(S) + H(S) + RU(B)
+  rate-constant: {A: 4.69452e+18, b: 1.0, Ea: 12.6026 kcal/mol}
+  Motz-Wise: true
+- id: NH-H_cle_0002
+  equation: NH2(S) + RU(S) <=> NH(S) + H(S) + RU(B)
+  rate-constant: {A: 4.69452e+18, b: 1.0, Ea: 18.012 kcal/mol}
+  Motz-Wise: true
+- id: N-H_syn_0001
+  equation: N(S) + H(S) + RU(B) <=> NH(S) + RU(S)
+  rate-constant: {A: 4.69452e+18, b: 1.0, Ea: 26.0809 kcal/mol}
+  Motz-Wise: true
+- equation: 2 N(S) + RU(B) <=> N2(S) + RU(S)
+  rate-constant: {A: 4.69452e+18, b: 1.0, Ea: 44.5992 kcal/mol}
+  Motz-Wise: true
+
+interactions:
+    - species: ["N(T)", "N(T)"]
+      strength: [-52.6 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0000"
+    - species: ["N(T)", "H(T)"]
+      strength: [-17.7 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0001"
+    - species: ["H(T)", "N(T)"]
+      strength: [-17.7 kcal/mol]
+      coverage_threshold: [0, 1]
+      id: "i0002"
+    - species: ["H(T)", "H(T)"]
+      strength: [-3.0 kcal/mol]
+      coverage_threshold: [0, 1]
+      id: "i0003"
+    - species: ["NH2(T)", "N(T)"]
+      strength: [-20.7 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0004"
+    - species: ["N(S)", "N(S)"]
+      strength: [-52.6 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0005"
+    - species: ["N(S)", "H(S)"]
+      strength: [-17.7 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0006"
+    - species: ["H(S)", "N(S)"]
+      strength: [-17.7 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0007"
+    - species: ["H(S)", "H(S)"]
+      strength: [-3.0 kcal/mol] 
+      coverage_threshold: [0, 1]
+      id: "i0008"
+    - species: ["NH2(S)", "N(S)"]
+      strength: [-20.7 kcal/mol]
+      coverage_threshold: [0, 1]
+      id: "i0009"
+
+bep:
+    - id: "NH2-H"
+      alpha: 0.71
+      beta: 23.69 kcal/mol
+      direction: "cleavage"
+      cleavage_reactions: ["NH2-H_cle_0001", "NH2-H_cle_0002"]
+
+    - id: "NH-H"
+      alpha: 0.52
+      beta: 19.78 kcal/mol
+      direction: "cleavage"
+      cleavage_reactions: ["NH-H_cle_0001", "NH-H_cle_0002"]
+
+    - id: "N-H"
+      alpha: 0.29
+      beta: 23.23 kcal/mol
+      direction: "cleavage"
+      cleavage_reactions: ["N-H_cle_0001"]
+      synthesis_reactions: ["N-H_syn_0001"]
+
