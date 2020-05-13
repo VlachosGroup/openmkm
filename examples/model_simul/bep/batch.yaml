@@ -1,0 +1,29 @@
+reactor:                
+    type: batch          
+    mode: "isothermal"
+    volume: "1 cm3"
+    temperature:  1001   
+    pressure:  "1 atm"  
+    cat_abyv: "200 /cm"
+
+simulation:
+    end_time: 3600
+    stepping: "logarithmic"
+    init_step: 1e-5
+    transient: true
+    solver:
+        atol: 1e-10         
+        rtol: 1e-8          
+
+phases:                     
+    gas: 
+    name: gas            
+        initial_state: "NH3:1, Ar:1" 
+    bulk:
+        name: bulk
+    surfaces:
+        - name: terrace
+          initial_state: "RU(T):1"
+        - name: step
+          initial_state: "RU(S):1"
+
