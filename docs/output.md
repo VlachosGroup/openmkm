@@ -31,15 +31,16 @@ species in gas phase, followed by species in bulk phase and surface phases.
 coverage (if a surface species)
 
 2. **Hform.out**:
-   - Lists the dimensionless formation enthalpies (H/RT) of the
-species at the input temperature.
-   - These are calculated from the NASA polynomials specified in the input.
-   - Note: These values are calculated assuming no coverage effects.
+   - List each species dimensionless formation enthalpies (H/RT)
+   - Calculated from the NASA polynomials at the input temperature and 
+   **BLANK** pressure.
+   - **Note**: These values are calculated assuming no coverage effects.
 
 3. **Sform.out**:
-   - Lists the dimensionless standard entropies (S/R) of the species.
-   - These are calculated from the NASA polynomials specified in the input.
-   - Note: These values are calculated assuming no coverage effects.
+   - Lists each species dimensionless formation entropies (S/R).
+   - Calculated from the NASA polynomials specified at the input temperature 
+   and **BLANK** pressure.
+   - **Note**: These values are calculated assuming no coverage effects.
 
 ## Reaction data
 
