@@ -400,20 +400,20 @@ interactions:
 
 bep:
     - id: "NH2-H"
-      alpha: 0.71
-      beta: 23.69 kcal/mol
+      slope: 0.71
+      intercept: 23.69 kcal/mol
       direction: "cleavage"
       cleavage_reactions: ["NH2-H_cle_0001", "NH2-H_cle_0002"]
 
     - id: "NH-H"
-      alpha: 0.52
-      beta: 19.78 kcal/mol
+      slope: 0.52
+      intercept: 19.78 kcal/mol
       direction: "cleavage"
       cleavage_reactions: ["NH-H_cle_0001", "NH-H_cle_0002"]
 
     - id: "N-H"
-      alpha: 0.29
-      beta: 23.23 kcal/mol
+      slope: 0.29
+      intercept: 23.23 kcal/mol
       direction: "cleavage"
       cleavage_reactions: ["N-H_cle_0001"]
       synthesis_reactions: ["N-H_syn_0001"]
