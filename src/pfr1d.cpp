@@ -628,7 +628,6 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
     if (!kin_ind) {
         kin = m_gas;
     } else {
-        //kin = dynamic_cast<Cantera::Kinetics>(m_surf_kins[kin_ind-1]);
         kin = m_surf_kins[kin_ind-1];
     }
 
@@ -661,6 +660,73 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
         SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
     */
 }
+
+void PFR1d::addSensitivitySpecies(std::string& species_name)
+{
+    // Find the phase to which the species belongs to
+    // Start with gas phase
+    int ph_no = -1;
+    cout << "species " << species_name << " added to sensitivity list " << endl;
+    auto sp_ind = m_gas->speciesIndex(species_name);
+    if (sp_ind < m_gas->nSpecies()){// Found in gas phase
+        ph_no = 0;
+        addSensitivitySpeciesEnthalpy(ph_no, sp_ind);
+    } else {
+        for (size_t j = 0; j < m_surf_phases.size(); j++) {
+            auto phase = m_surf_phases[j];
+            sp_ind = phase->speciesIndex(species_name);
+            if (sp_ind < phase->nSpecies()){
+                ph_no = j+1;
+                addSensitivitySpeciesEnthalpy(ph_no, sp_ind);
+                break;
+            }
+        }
+    }
+    if (ph_no < 0){
+        throw CanteraError("PFR1d::addSensitivitySpecies",
+                           "Species {} not found ", species_name);
+    }
+}
+
+void PFR1d::addSensitivitySpeciesEnthalpy(size_t ph_ind, size_t sp_ind)
+{
+    ThermoPhase* ph = nullptr;
+    if (!ph_ind) {
+        ph = m_gas;
+    } else {
+        ph = m_surf_phases[ph_ind-1];
+    }
+
+    //Chemistry enabling option not added to PFR
+    if (sp_ind >= ph->nSpecies()) {
+        throw CanteraError("Reactor::addSensitivitySpeciesEnthalpy",
+                           "Species number out of range ({})", sp_ind);
+    }
+
+    m_paramNames.push_back(ph->speciesName(sp_ind)); 
+    m_sens_params.push_back(0.0);
+    m_paramScales.push_back(GasConstant * 298.15);
+
+    if (ph_ind >= m_sensParams.size()){
+        for (size_t i = 0; i <= ph_ind - m_sensParams.size() + 1; i++){
+            vector<SensitivityParameter> sensParams;
+            m_sensParams.emplace_back(sensParams);
+        }
+    }
+    //vector<SensitivityParameter> curr_sensParams = m_sensParams[kin_ind];
+    m_sensParams[ph_ind].emplace_back(
+            SensitivityParameter{sp_ind, m_sens_params.size()-1, 
+                                 ph->Hf298SS(sp_ind),
+                                 SensParameterType::enthalpy});
+
+    /*
+    size_t p = network().registerSensitivityParameter(
+        name()+": "+m_kin->reactionString(rxn), 1.0, 1.0);
+    m_sensParams.emplace_back(
+        SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
+    */
+}
+
 
 /*
 void PFR1d::addSensitivitySpeciesEnthalpy(size_t k)
@@ -707,12 +773,16 @@ void PFR1d::applySensitivity()
 
     for (size_t i = 0; i < m_surf_kins.size(); i++){
         for (auto& p : m_sensParams[i+1]) {
-            p.value = m_surf_kins[i]->multiplier(p.local);
-            //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
-            //double bias = 0.0 ;
-            //m_surf_kins[i]->setMultiplier(p.local, p.value * (params[p.global] + bias));
-            //m_surf_kins[i]->setMultiplier(p.local, p.value * params[p.global]);
-            m_surf_kins[i]->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
+            if (p.type == SensParameterType::reaction) {
+                p.value = m_surf_kins[i]->multiplier(p.local);
+                //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
+                //double bias = 0.0 ;
+                //m_surf_kins[i]->setMultiplier(p.local, p.value * (params[p.global] + bias));
+                //m_surf_kins[i]->setMultiplier(p.local, p.value * params[p.global]);
+                m_surf_kins[i]->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
+            } else if (p.type == SensParameterType::enthalpy) {
+                m_gas->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
+            }
         }
     }
 

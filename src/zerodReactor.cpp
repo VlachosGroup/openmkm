@@ -148,7 +148,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
         inlet_mfc->setMassFlowRate(mfr);
         outlet->setMaster(inlet_mfc.get());
-        outlet->setPressureCoeff(0.00001);
+        outlet->setPressureCoeff(1e-10);
         in_rsrv->insert(*gas);
         exhst->insert(*gas);
         inlet_mfc->install(*in_rsrv, *rctr);

@@ -157,6 +157,7 @@ public:
     double getSensitivityAtol();
     double getSensitivityRtol();
     std::vector<std::string> getSensitivityReactions();
+    std::vector<std::string> getSensitivitySpecies();
 
 
     //! Parametric study 
