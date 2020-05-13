@@ -609,4 +609,16 @@ vector<string> ReactorParser::getSensitivityReactions()
     return rxn_ids;
 }
 
+vector<string> ReactorParser::getSensitivitySpecies()
+{
+    vector<string> sp_names;
+    vector<string> kids {"species", "sensitivity"};
+    auto SArxn_nd = getChildNode(m_simul_nd, "simulation", kids);
+    for(YAML::const_iterator it = SArxn_nd.begin(); it != SArxn_nd.end(); ++it) {
+        sp_names.push_back(it->as<string>());
+    }
+    return sp_names;
+}
+
+
 }

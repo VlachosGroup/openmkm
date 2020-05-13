@@ -140,24 +140,31 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     // Read the sensitivity coefficients 
     bool sens_on = rctr_parser.isSensitivityAnalysisEnabled();
     bool full_sens = rctr_parser.isfullSensitivityAnalysis();
-    vector<std::string> rxnids;
+    vector<std::string> sens_ids;
     int nquad;
     if (sens_on) {
         if (!full_sens){ 
             // Read the sensitivity equations and enable them
-            rxnids = rctr_parser.getSensitivityReactions();
-            for (auto& id : rxnids) {
+            sens_ids = rctr_parser.getSensitivityReactions();
+            for (auto& id : sens_ids) {
                 pfr.addSensitivityReaction(id);
             }
-        }  else { // Full sens enabling dealt below. Here all rxnids are counted
+            auto sp_names = rctr_parser.getSensitivitySpecies();
+            for (auto& sp : sp_names) {
+                pfr.addSensitivitySpecies(sp);
+            }
+            sens_ids.insert(sens_ids.end(),
+                            make_move_iterator(sp_names.begin()),
+                            make_move_iterator(sp_names.end()));
+        }  else { // Full sens enabled. Here all rxnids are counted and species are ignored
             nquad = gas->nReactions();
             for (int i = 0; i < gas->nReactions(); i++){
-                rxnids.push_back(gas->reaction(i)->id);
+                sens_ids.push_back(gas->reaction(i)->id);
             }
             for (auto kin : ikin){
                 nquad += kin->nReactions();
                 for (int i = 0; i < kin->nReactions(); i++){
-                    rxnids.push_back(kin->reaction(i)->id);
+                    sens_ids.push_back(kin->reaction(i)->id);
                 }
             }
         }
@@ -298,10 +305,10 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                     string sep = (file_ext == "csv") ? "," : "\t";
                     if (!full_sens)
                         pfr_solver.writeSensitivityData(
-                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                                (out_dir / ("1d_pfr_sensitivity_reactions." + file_ext)).string(), sens_ids, sep);
                     else
                         pfr_solver.writeFisherInformationMatrixDiag(
-                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), rxnids, sep);
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), sens_ids, sep);
                 }
 
                 // Print final rpa data

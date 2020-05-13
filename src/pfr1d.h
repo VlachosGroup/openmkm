@@ -309,8 +309,8 @@ public:
     void addSensitivityReaction(std::string& rxn_id);
 
     //! Add a sensitivity parameter associated with the enthalpy formation of
-    //! species *k* (in the homogeneous phase)
-    //virtual void addSensitivitySpeciesEnthalpy(size_t k);
+    //! species *species_name* 
+    void addSensitivitySpecies(std::string& species_name);
 
 protected:
     //! Pointer to the gas phase object.
@@ -320,6 +320,11 @@ protected:
     std::vector<Cantera::InterfaceKinetics*> m_surf_kins;
 
     void addSensitivityReaction(size_t kin_ind, size_t rxn_id);
+
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* in the kth phase 
+    //! (gas phase index at 0, surf phase index starts at 1)
+    void addSensitivitySpeciesEnthalpy(size_t phase_ind, size_t k);
 
     //! Surface phases objects.
     //! Both surface kinetics and phases have to refer

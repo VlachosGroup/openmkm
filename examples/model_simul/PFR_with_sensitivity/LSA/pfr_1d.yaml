@@ -48,6 +48,7 @@ simulation:
             - 0025
             - 0026
             - 0027
+        species: ["CH4", "CHCH"]
             
 phases:
     gas:
