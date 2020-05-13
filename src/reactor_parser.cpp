@@ -195,7 +195,7 @@ vector<shared_ptr<Solution>> ReactorParser::getSurfaceSolutions(
         auto surf_name = surf_nd["name"].as<string>();
         auto surf = newSolution(phase_filename, surf_name, "", gb_solns);
         auto surf_init_state = surf_nd["initial_state"].as<string>();
-        auto surf_phase = dynamic_cast<SurfLatIntPhase*>(surf->thermo().get());
+        auto surf_phase = dynamic_cast<SurfPhase*>(surf->thermo().get());
         surf_phase->setState_TP(m_T, m_P);
         surf_phase->setCoveragesByName(surf_init_state);
         m_surf_X.push_back(surf_init_state);
