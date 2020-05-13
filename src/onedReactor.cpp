@@ -449,9 +449,9 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                             make_move_iterator(sp_names.begin()),
                             make_move_iterator(sp_names.end()));
         }  else { // Full sens enabled. Here all rxnids are counted and species are ignored
-            nquad = gas->nReactions();
-            for (int i = 0; i < gas->nReactions(); i++){
-                sens_ids.push_back(gas->reaction(i)->id);
+            nquad = gas->kinetics()->nReactions();
+            for (int i = 0; i < gas->kinetics()->nReactions(); i++){
+                sens_ids.push_back(gas->kinetics()->reaction(i)->id);
             }
             for (auto kin : ikin){
                 nquad += kin->nReactions();
@@ -585,7 +585,16 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 pfr_solver.writeStateData((out_dir / "1d_pfr_state.out").string());
                 pfr_solver.writeGasData((out_dir / "1d_pfr_gas.out").string());
                 pfr_solver.writeSurfaceData((out_dir / "1d_pfr_surface.out").string());
-                pfr_solver.writeSensitivityData((out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), sens_ids);
+                if (sens_on){
+                    string sep = (file_ext == "csv") ? "," : "\t";
+                    if (!full_sens)
+                        pfr_solver.writeSensitivityData(
+                                (out_dir / ("1d_pfr_sensitivity_reactions." + file_ext)).string(), sens_ids, sep);
+                    else
+                        pfr_solver.writeFisherInformationMatrixDiag(
+                                (out_dir / ("1d_pfr_sensitivity." + file_ext)).string(), sens_ids, sep);
+                }
+
 
                 // Print final rpa data
                 rates_out.precision(6);

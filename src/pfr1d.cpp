@@ -396,8 +396,8 @@ int PFR1d::evalQuadRhs(const double t, const double* const y,
                        const double* const ydot, double* const rhsQ)
 {
     size_t loc = 0;
-    m_gas->getNetRatesOfProgress(rhsQ);
-    loc += m_gas->nReactions();
+    m_gas->kinetics()->getNetRatesOfProgress(rhsQ);
+    loc += m_gas->kinetics()->nReactions();
     
     for (auto kin : m_surf_kins) {
         kin->getNetRatesOfProgress(rhsQ + loc);
@@ -667,8 +667,8 @@ void PFR1d::addSensitivitySpecies(std::string& species_name)
     // Start with gas phase
     int ph_no = -1;
     cout << "species " << species_name << " added to sensitivity list " << endl;
-    auto sp_ind = m_gas->speciesIndex(species_name);
-    if (sp_ind < m_gas->nSpecies()){// Found in gas phase
+    auto sp_ind = m_gas->thermo()->speciesIndex(species_name);
+    if (sp_ind < m_gas->thermo()->nSpecies()){// Found in gas phase
         ph_no = 0;
         addSensitivitySpeciesEnthalpy(ph_no, sp_ind);
     } else {
@@ -692,7 +692,7 @@ void PFR1d::addSensitivitySpeciesEnthalpy(size_t ph_ind, size_t sp_ind)
 {
     ThermoPhase* ph = nullptr;
     if (!ph_ind) {
-        ph = m_gas;
+        ph = m_gas->thermo().get();
     } else {
         ph = m_surf_phases[ph_ind-1];
     }
@@ -781,7 +781,7 @@ void PFR1d::applySensitivity()
                 //m_surf_kins[i]->setMultiplier(p.local, p.value * params[p.global]);
                 m_surf_kins[i]->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
             } else if (p.type == SensParameterType::enthalpy) {
-                m_gas->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
+                m_gas->thermo()->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
             }
         }
     }
