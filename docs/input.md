@@ -77,8 +77,10 @@ indicates whether this field is nested under another.
   font-family:Arial, sans-serif;font-size:14px;overflow:hidden;padding:10px 5px;word-break:normal;}
 .tg th{background-color:#7fbe41;border-color:#aaa;border-style:solid;border-width:1px;color:#fff;
   font-family:Arial, sans-serif;font-size:14px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
-.tg .tg-0lax{text-align:left;vertical-align:top}
+.tg .tg-7d57{background-color:#E2E2E2;border-color:inherit;text-align:left;vertical-align:top}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
 .tg .tg-dg7a{background-color:#E2E2E2;text-align:left;vertical-align:top}
+.tg .tg-0lax{text-align:left;vertical-align:top}
 </style>
 <table class="tg">
 <thead>
@@ -154,7 +156,7 @@ indicates whether this field is nested under another.
     <td class="tg-dg7a">float</td>
     <td class="tg-dg7a">N</td>
     <td class="tg-dg7a">Temperature ramp. Only required if reactor.mode='tpd'</td>
-    <td class="tg-dg7a"></td>
+    <td class="tg-dg7a">K/s</td>
   </tr>
   <tr>
     <td class="tg-0lax"></td>
@@ -163,7 +165,7 @@ indicates whether this field is nested under another.
     <td class="tg-0lax">float</td>
     <td class="tg-0lax">N</td>
     <td class="tg-0lax">Temperature to end temperature ramp. Only required if mode='tpd'</td>
-    <td class="tg-0lax"></td>
+    <td class="tg-0lax">K</td>
   </tr>
   <tr>
     <td class="tg-7d57"></td>
