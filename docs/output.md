@@ -124,7 +124,7 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
    - Mole fractions of gas species.
 
 2. **gas\_mass**:
- - Mass fractions of gas species.
+   - Mass fractions of gas species.
 
 3. **gas_msdot**: 
    - Production rates (units of **BLANK**) of the gas species on the catalyst surface
@@ -167,18 +167,19 @@ Description how to run a sensitivity analysis:
 
 2. Run and analyze the results of a LSA run:
    - Only include reactions identified in the FIM run
-   - In the output file containing “_sensitivity” in the filename, there are **BLANK** 
+   - In the output file containing “_sensitivity” in the filename, there are **BLANK**
+
 
 Description of additional files printed out in FIM and LSA runs:
 
 1.	Filename containing “_gas”:
-- Identical information to gas_mass_ss file
+   - Identical information to gas_mass_ss file
 
 2.	Filename containing “_surface”:
-- Identical information to surf_cov_ss file
+   - Identical information to surf_cov_ss file
 
 3.	Filename containing “_state”:
-- Please fill this in, it is not the same information as in rctr_state_ss from the files I saw.
+   - Please fill this in, it is not the same information as in rctr_state_ss from the files I saw.
 
 4.	Filename containing “_sensitivity”:
    - For FIM run: the reaction and corresponding Fischer information matrix diagonal value (FIM_Diag)
