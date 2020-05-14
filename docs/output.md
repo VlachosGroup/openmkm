@@ -165,7 +165,7 @@ Description how to run a sensitivity analysis:
 
 2. Run and analyze the results of a LSA run:
    - Only include reactions identified in the FIM run
-   - In the output file containing “_sensitivity” in the filename, there are **BLANK**
+   - In the output file containing “_sensitivity” in the filename, computed sensitivity coefficients are printed. 
 
 Description of additional files printed out in FIM and LSA runs:
 
@@ -179,5 +179,9 @@ Description of additional files printed out in FIM and LSA runs:
    - Please fill this in, it is not the same information as in rctr_state_ss from the files I saw.
 
 4.	Filename containing “_sensitivity”:
-   - For FIM run: the reaction and corresponding Fischer information matrix diagonal value (FIM_Diag)
-   - For LSA run: the reaction, **BLANK**
+   - FIM run: the reaction and corresponding Fischer information matrix 
+diagonal value (FIM_Diag). Any reaction with a relatively (when compared to the FIM diagonal element with highest value) small value of FIM diagonal matrix element is not crucial. 
+   - Local Sensitivity Analysis (LSA) run: the sensitivity coefficients of all 
+the species with respect to the specified reactions and species are given. 
+Each row corresponds to the reactions and species input for LSA. Each column indicates the sensitivity coefficients of one species. First row lists the species and first column lists the LSA input reactions and species.
+
