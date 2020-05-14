@@ -33,13 +33,13 @@ coverage (if a surface species)
 2. **Hform.out**:
    - List each species dimensionless formation enthalpies (H/RT)
    - Calculated from the NASA polynomials at the input temperature and 
-   **BLANK** pressure.
+input pressure.
    - **Note**: These values are calculated assuming no coverage effects.
 
 3. **Sform.out**:
    - Lists each species dimensionless formation entropies (S/R).
    - Calculated from the NASA polynomials specified at the input temperature 
-   and **BLANK** pressure.
+   and input pressure.
    - **Note**: These values are calculated assuming no coverage effects.
 
 ## Reaction data
@@ -75,7 +75,7 @@ coverage (if a surface species)
 
 6. **kf.out**:
    - Lists the forward rate constants, **k<sub>f</sub>**, of the reactions
-   - Calculated at the reactor inlet temperature and **BLANK** pressure or calculated at the
+   - Calculated at the reactor inlet temperature and input pressure or calculated at the
    reactor outlet temperature and pressure.
    - Formulas:
       1. Adsorption reaction:
