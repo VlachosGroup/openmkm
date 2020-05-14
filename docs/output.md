@@ -155,16 +155,16 @@ execution time, and any warnings and error messages.
 
 ## Sensitivity Analysis Data
 
-Description how to run a sensitivity analysis:
+How to run a sensitivity analysis:
 
-1. Run and analyze the results of a FIM run:
+1. Run and analyze the results of a FIM run (typically for large mechanisms):
    - Used as a quick, first look to identify the important reactions to be examined in the slower, LSA run
    - In output file containing “_sensitivity” in the filename, there are two columns: rxnid (the reaction) and FIM_Diag
    (the corresponding FIM value). Identify the reactions with the largest FIM-Diag values (user defined as to what is
     “large”), and consider only these reactions for the LSA run
 
 2. Run and analyze the results of a LSA run:
-   - Only include reactions identified in the FIM run
+   - Include reactions identified in the FIM run
    - In the output file containing “_sensitivity” in the filename, computed sensitivity coefficients are printed. 
 
 Description of additional files printed out in FIM and LSA runs:
@@ -183,5 +183,5 @@ Description of additional files printed out in FIM and LSA runs:
 diagonal value (FIM_Diag). Any reaction with a relatively (when compared to the FIM diagonal element with highest value) small value of FIM diagonal matrix element is not crucial. 
    - Local Sensitivity Analysis (LSA) run: the sensitivity coefficients of all 
 the species with respect to the specified reactions and species are given. 
-Each row corresponds to the reactions and species input for LSA. Each column indicates the sensitivity coefficients of one species. First row lists the species and first column lists the LSA input reactions and species.
+Each row corresponds to the reactions and species input for LSA. Each column indicates the sensitivity coefficients of one species. First row lists the species and first column lists the LSA input reactions and species. A positive value indicates that the concentration of the output species increases with an increase in rate constant of the input reaction, where as a negative value indicates opposite.
 
