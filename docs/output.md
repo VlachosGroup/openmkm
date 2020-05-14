@@ -75,8 +75,7 @@ input pressure.
 
 6. **kf.out**:
    - Lists the forward rate constants, **k<sub>f</sub>**, of the reactions
-   - Calculated at the reactor inlet temperature and input pressure or calculated at the
-   reactor outlet temperature and pressure.
+   - Calculated at the reactor inlet temperature and input pressure.
    - Formulas:
       1. Adsorption reaction:
       2. Surface reaction:
@@ -87,10 +86,9 @@ input pressure.
 
 ## Reactor State data
 
-These file specified below have either *_ss.out* or *_tr.out* extensions. For
-clarity, the extensions are omitted.
+The files specified below have either a *.csv* or *.dat* extension depending on the output file format selected in *reactor.yaml*. Further they may be qualified with *_ss.* or *_tr.* suffix indicating steady state or transient state respecitively. For clarity, the extensions are omitted at some places, but are implied.
 
-Files with _ss.out extension:
+Files with _ss.csv extension:
 1. **Batch reactor**:
    - 1<sup>st</sup> column values are **BLANK**
 
@@ -105,7 +103,7 @@ Files with _ss.out extension:
    - The first change in volume is different from all the others because of **BLANK**
    - 1<sup>st</sup> column values are **BLANK**
 
-Files with _tr.out extension:
+Files with _tr.csv extension:
 1. **Batch reactor**:
    - 1<sup>st</sup> column values are **BLANK**
 
@@ -132,7 +130,7 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
 4. **rctr\_state**:
    - Temperature (in K), pressure (in Pascals), density
    (in kg/m<sup>3</sup>) and either specific internal energy (units of J/kg) or specific enthalpy
-   (units og **BLANK**) depending on the type of reactor.
+   (units of **BLANK**) depending on the type of reactor.
 
 5. **surf\_cov**:
    - Coverage fractions in the range of [0,1] of the surface species.
