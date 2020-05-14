@@ -154,3 +154,30 @@ execution time, and any warnings and error messages.
 2. **console or screen**:
    - Status of the simulation such as execution time, and
    any run time messages, warnings and error messages.
+
+## Sensitivity Analysis Data
+
+Description how to run a sensitivity analysis:
+
+1. Run and analyze the results of a FIM run:
+   - Used as a quick, first look to identify the important reactions to be examined in the slower, LSA run
+   - In output file containing “_sensitivity” in the filename, there are two columns: rxnid (the reaction) and FIM_Diag (the corresponding FIM value). Identify the reactions with the largest FIM-Diag values (user defined as to what is “large”), and consider only these reactions for the LSA run
+
+2.	Run and analyze the results of a LSA run:
+   - Only include reactions identified in the FIM run
+   - In the output file containing “_sensitivity” in the filename, there are **BLANK** 
+
+Description of additional files printed out in FIM and LSA runs:
+
+1.	Filename containing “_gas”:
+   - Identical information to gas_mass_ss file
+
+2.	Filename containing “_surface”:
+   - Identical information to surf_cov_ss file
+
+3.	Filename containing “_state”:
+   - Please fill this in, it is not the same information as in rctr_state_ss from the files I saw.
+
+4.	Filename containing “_sensitivity”:
+   - For FIM run: the reaction and corresponding Fischer information matrix diagonal value (FIM_Diag) 
+   - For LSA run: the reaction, **BLANK**
