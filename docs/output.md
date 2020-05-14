@@ -169,7 +169,6 @@ Description how to run a sensitivity analysis:
    - Only include reactions identified in the FIM run
    - In the output file containing “_sensitivity” in the filename, there are **BLANK**
 
-
 Description of additional files printed out in FIM and LSA runs:
 
 1.	Filename containing “_gas”:
