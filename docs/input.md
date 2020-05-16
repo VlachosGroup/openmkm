@@ -901,7 +901,7 @@ units:
     time: s
     quantity: mol
     energy: kcal
-    act_energy: kcal/mol
+    activation-energy: kcal/mol
     pressure: atm
     mass: g
 ```
