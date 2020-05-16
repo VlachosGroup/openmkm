@@ -339,7 +339,7 @@ void print_rxn_kr(vector<Kinetics*> kinetic_mgrs, string output_file)
 
 void print_omkm_header(std::ostream& out) {
     out << "-----------------------------------------------------------\n" 
-        << "OpenMKM: version 0.3.0\n" 
+        << "OpenMKM: version 0.6.0\n" 
         << "-----------------------------------------------------------\n\n" 
         << "OpenMKM is a multiphysics, multiscale, and open source software \n"
         << "aimed at modelng chemical kinetics. It can run pure gas phase \n"
