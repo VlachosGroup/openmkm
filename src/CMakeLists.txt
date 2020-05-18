@@ -10,14 +10,14 @@
 #   - yaml-cpp (or using embedded internal build from source)
 #
 CMAKE_MINIMUM_REQUIRED (VERSION 3.11)
-PROJECT (OpenMKM VERSION 0.40.0 LANGUAGES CXX)
+PROJECT (OpenMKM VERSION 0.6.0 LANGUAGES CXX)
 SET (CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_BUILD_TYPE RELEASE)
 #set(CMAKE_CXX_FLAGS_DEBUG "put your flags")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "-O0")
+#set(CMAKE_CXX_FLAGS_MINSIZEREL "-O0")
 #set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "put your flags")
-set(CMAKE_CXX_FLAGS_RELEASE "-O0")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 #set(CMAKE_CXX_FLAGS "-O0")
 
 # Must use GNUInstallDirs to install libraries into correct
@@ -122,8 +122,14 @@ ENDIF ()
 SET(BOOST_ROOT "" CACHE PATH "Boost is installed under this directory")
 SET(BOOST_INCLUDEDIR "" CACHE PATH "Boost header files are found in this directory")
 SET(BOOST_LIBRARYDIR "" CACHE PATH "Boost libraries are found in this directory")
+set (Boost_USE_STATIC_LIBS OFF CACHE BOOL "use static libraries from Boost")
 FIND_PACKAGE(Boost 1.67.0 REQUIRED COMPONENTS filesystem system)
 
+if (WIN32)
+	add_definitions( -DBOOST_ALL_NO_LIB )
+	
+	add_definitions ( -DBOOST_ALL_DYN_LINK )
+endif()
 #
 # Locate the yaml-cpp library _or_ build a copy of it:
 #
