@@ -101,7 +101,7 @@ sudo dnf groupinstall "Development Tools"
 sudo dnf install git-all cmake scons
 ```
 
-3: OpenSUSE
+3. OpenSUSE
 ```bash
 sudo zypper in -t pattern devel_basis
 sudo zypper in cmake scons
