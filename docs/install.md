@@ -88,18 +88,20 @@ SUNDIALS and Eigen can be downloaded and installed as part of cantera installati
 Refer to cantera installation steps below.
 
 #### Basics
-First install gcc, git, scons, and cmake using OS package managers. For Ubuntu, run
+First install gcc, git, scons, and cmake using OS package managers. This can be quickly accomplished using software patterns.
+
+1. Ubuntu:
 ```bash
 sudo apt-get install build-essential git-all cmake scons
 ```
 
-For Fedora, run
+2. Fedora: 
 ```bash
 sudo dnf groupinstall "Development Tools"
 sudo dnf install git-all cmake scons
 ```
 
-For OpenSUSE, run
+3: OpenSUSE
 ```bash
 sudo zypper in -t pattern devel_basis
 sudo zypper in cmake scons
