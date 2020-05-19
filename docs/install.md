@@ -19,38 +19,14 @@ omkm batch.yaml grimech30.xml
 which should create lot of new files.
 
 
-## Dependencies
-OpenMKM source code depends on Cantera, SUNDIALS, Eigen, yaml-cpp, and Boost libraries. Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux machines), git, scons, and cmake software packages.
- Here are the
-steps that can be used to install dependencies and OpenMKM.
+## Linux
 
-## Basics
-First install gcc, git, scons, and cmake using OS package managers. For Ubuntu, run
-```bash
-sudo apt-get install build-essential git-all cmake scons
-```
+### Using conan package manager (The Easy Way)
+To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. 
+Conan package manger has many prebuilt binaries compatible with OS and compiler versions. 
+If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
 
-For Fedora, run
-```bash
-sudo dnf groupinstall "Development Tools"
-sudo dnf install git-all cmake scons
-```
-
-For OpenSUSE, run
-```bash
-sudo zypper in -t pattern devel_basis
-sudo zypper in cmake scons
-```
-
-After installing the packages, check the version of gcc installed.
-```bash
-gcc --version
-```
-
-## Using conan package manager (The Easy Way)
-To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. Conan package manger has many prebuilt binaries compatible with OS and compiler versions. If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
-
-### Installing and configuring conan
+#### Installing and configuring conan
 Conan can be installed simply by running 
 ```bash 
 pip install conan
@@ -88,7 +64,8 @@ Now install OpenMKM by running
 ```bash
 conan install openmkm/0.4@dei/vklab -g virtualenv --build missing
 ```
-Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
+Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. 
+Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
 ```bash
 source activate.sh
 ```
@@ -96,23 +73,56 @@ Now typing
 ```bash
 which omkm
 ```
-should show the location of OpenMKM executable. Notice the long path of the openmkm executable. The root location of OpenMKM is one folder above the executable location. 
+should show the location of OpenMKM executable. Notice the long path of the openmkm executable. 
+The root location of OpenMKM is one folder above the executable location. 
 
-## Manual compiling
-### Boost, Eigen (optional), & YAML-CPP
-Boost and Eigen are C++ template libraries and often are distributed with Linux. Similarly yaml-cpp is available on most of the Linux distros.
+
+### Manual compiling (the hard way)
+
+#### Dependencies
+OpenMKM source code depends on Cantera, SUNDIALS, Eigen, yaml-cpp, and Boost libraries. 
+Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux machines), 
+git, scons, and cmake software packages. Here are the
+steps that can be used to install dependencies and OpenMKM.
+SUNDIALS and Eigen can be downloaded and installed as part of cantera installation. 
+Refer to cantera installation steps below.
+
+#### Basics
+First install gcc, git, scons, and cmake using OS package managers. For Ubuntu, run
+```bash
+sudo apt-get install build-essential git-all cmake scons
+```
+
+For Fedora, run
+```bash
+sudo dnf groupinstall "Development Tools"
+sudo dnf install git-all cmake scons
+```
+
+For OpenSUSE, run
+```bash
+sudo zypper in -t pattern devel_basis
+sudo zypper in cmake scons
+```
+
+After installing the packages, check the version of gcc installed.
+```bash
+gcc --version
+```
+
+
+#### Boost, Eigen (optional), & YAML-CPP 
+Boost and Eigen are C++ template libraries and often are distributed with Linux. 
+Similarly yaml-cpp is available on most of the Linux distros.
 Refer to distro package manager documentation on how to obtain them. 
 
-### SUNDIALS (optional) installation
+#### SUNDIALS (optional) installation
 [SUNDIALS][sundials_page] is a numerical solver suite from Lawrence Livermore
-National Lab. OpenMKM is tested with SUNDIALS 3.1.1. For Linux, SUNDIALS is
+National Lab. **OpenMKM v0.6.0** is tested with SUNDIALS 4.1. For Linux, SUNDIALS is
 often available from distro package managers. Check if the version of the distro 
-supplied SUNDIALS matches with 3.1. If the required version is not
-supplied with distro, one can download v3.1.1 of [SUNDIALS][sundials_download] and follow
+supplied SUNDIALS matches with 4.1. If the required version is not
+supplied with distro, one can download v4.1.1 of [SUNDIALS][sundials_download] and follow
 the supplied instructions to install. 
-
-#### Note:
-SUNDIALS and Eigen can be downloaded and installed as part of cantera installation. Refer to cantera installation steps below.
 
 ### Cantera installation
 To install OpenMKM, Cantera needs to be built from source. Download the source
@@ -176,7 +186,7 @@ Now SUNDIALS library is included within the cantera library. The headers of Eige
 
     * Adjust the CCFLAGS and LINKFLAGS variables to make sure the compiler and
       linker options are consistent with those generated by scons during
-      Cantera building stage. However **don't add optimization flags** to CCFLAGS.
+      Cantera building stage. 
 
 3. Run ```scons```  
 
