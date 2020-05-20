@@ -13,14 +13,10 @@ data on the species such as formation enthalpies and on reactions such as rate
 constants, equilibrium constants, reaction enthalpies, etc. 
 
 The data is printed into different output files to aid the user in sorting the
-generated data. The output files have *.out* extension. In these files, the
-data points corresponding to a single variable is presented in a single column
-and the columns are separated by white space. Output files containing the
-steady state data end with *_ss.out*. Similarly, output files containing the
-transient state data end with *_tr.out*. Elementary data such as species
-formation enthalpies and reaction rate constants do not contain *_ss* or *_tr*
-before *.out*.
+generated data. The output files have either of *.out*, *.dat*, and *.csv* extensions. 
 
+In the *.out* files, the data points corresponding to a single variable is 
+presented in a single column and the columns are separated by white space.
 
 ## Species data
 
@@ -29,6 +25,7 @@ before *.out*.
 species in gas phase, followed by species in bulk phase and surface phases.
    - Provides specie's name, phase, atomic composition, and fractional surface
 coverage (if a surface species)
+   - This file acts as input to RenView.
 
 2. **Hform.out**:
    - List each species dimensionless formation enthalpies (H/RT)
@@ -40,7 +37,6 @@ input pressure.
    - Lists each species dimensionless formation entropies (S/R).
    - Calculated from the NASA polynomials specified at the input temperature 
    and input pressure.
-   - **Note**: These values are calculated assuming no coverage effects.
 
 ## Reaction data
 
