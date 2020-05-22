@@ -620,7 +620,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
         inlet_mfc->setMassFlowRate(mfr);
         outlet->setMaster(inlet_mfc.get());
-        outlet->setPressureCoeff(0.00001);
+        outlet->setPressureCoeff(1e-14);
         in_rsrv->insert(gas);
         exhst->insert(gas);
         inlet_mfc->install(*in_rsrv, *rctr);
@@ -705,8 +705,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     }
 
     vector<double> times;
-    bool transient_log = rctr_parser.logTransient();
-    if (transient_log && rctr_nos == 1){ // Only for singler CSTR or a batch reactor
+    bool transient = rctr_parser.logTransient();
+    bool transient_log = transient && (rctr_nos == 1);
+    if (transient){ 
         auto step_size = rctr_parser.getInitStep();
         cout << "Simulation Step size " << step_size << endl;
 
