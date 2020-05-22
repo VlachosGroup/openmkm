@@ -48,7 +48,7 @@ errors.[This site][yaml_validator] will show errors and can even reformat
 your file.
 
 
-### OpenMKM YAML Format
+### OpenMKM Reactor YAML Format
 
 Quantities with units can be specified in the YAML file as a float or a string.
 If a float is entered, OpenMKM assumes it is in SI units. If a string is 
@@ -872,7 +872,7 @@ bep(id='C-H', # Used by phases to identify the BEPs present
 
 ## OpenMKM Thermochemistry YAML Format
 
-The OpenMKM YAML format is based on
+The YAML format for thermochemistry is based on
 [Cantera's YAML format][cantera_yaml_ref]. Their documentation has a lot of
 useful information about specifying types and the syntax. 
 
@@ -915,8 +915,9 @@ For example, the ``units`` directive above specifies ``quantity="mol"`` and
 1.e15 molecules/cm2. This can be done using:
 
 ```yaml
-site_density: 1.e15 molec/cm2
+site-density: 1.e15 molec/cm^2
 ```
+**Note: In the thermochemistry yaml format, the powers are denoted with ^. So instead of writing cm2 to denote centimeter squared,  use cm^2.** 
 
 ### Phases
 
