@@ -859,7 +859,7 @@ specify BEP relationships, use the ``bep`` directive, which takes the following:
   is given, a numerical 4 digit integer starting with ``0001`` is used to
   distinguish the BEP relationships
 - ``cleavage_reactions`` -- List of associated reaction ids where a bond is broken
-- ``synthsis_reactions`` -- List of associated reaction ids where a bond is formed
+- ``synthesis_reactions`` -- List of associated reaction ids where a bond is formed
 
 ``` python
 bep(id='C-H', # Used by phases to identify the BEPs present
@@ -1113,7 +1113,7 @@ Below is an example defintion for lateral interaction .
 interactions:
     - species:[H(S), C(S)] # Species i, Species j
       strength: [0.0 kcal/mol, -19.0 kcal/mol] # Slope of lateral interaction
-      coverage_threshold: [0, 0.11, 1] # Intervals to change 
+      coverage-threshold: [0, 0.11, 1] # Intervals to change 
       id: "i001")
 ```
 
@@ -1134,8 +1134,8 @@ specify BEP relationships, use the ``bep`` directive, which takes the following:
 - ``id`` -- Optional argument to distinguish the BEP relationship. If no value
   is given, a numerical 4 digit integer starting with ``0001`` is used to
   distinguish the BEP relationships
-- ``cleavage_reactions`` -- List of associated reaction ids where a bond is broken
-- ``synthsis_reactions`` -- List of associated reaction ids where a bond is formed
+- ``cleavage-reactions`` -- List of associated reaction ids where a bond is broken
+- ``synthesis-reactions`` -- List of associated reaction ids where a bond is formed
 
 ``` yaml
 bep: 
@@ -1143,7 +1143,7 @@ bep:
       slope: 1.02               # Slope
       intercept: 24.44 kcal/mol # Intercept
       direction: cleavage       # Direction (cleavage or synthesis)
-      cleavage_reactions: [r0003, r0005, r0007, r0009, r0008, r0013, r0014, r0015, r0016, r0017]
+      cleavage-reactions: [r0003, r0005, r0007, r0009, r0008, r0013, r0014, r0015, r0016, r0017]
       # No synthesis reactions
 ```
 
