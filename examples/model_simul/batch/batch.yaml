@@ -9,6 +9,7 @@ simulation:
     end_time: 0.001
     stepping: regular
     init_step: 1e-5
+    transient: true
     solver:
         atol: 1e-10         
         rtol: 1e-8          
