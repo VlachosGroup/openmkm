@@ -479,6 +479,11 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         auto rel_tol = rctr_parser.get_rtol();
         pfr_solver.setTolerances(rel_tol, abs_tol);
     }
+
+    // Full sensitivity is set through PFR solver
+    if (sens_on && full_sens){
+        pfr_solver.setQuadratureSize(nquad);
+    }
     if (rctr_parser.solverInitStepSizeDefined()){
         pfr_solver.setInitialStepSize(rctr_parser.getSolverInitStepSize());
     }
