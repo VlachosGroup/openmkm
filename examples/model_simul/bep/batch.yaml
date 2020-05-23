@@ -17,7 +17,7 @@ simulation:
 
 phases:                     
     gas: 
-    name: gas            
+        name: gas            
         initial_state: "NH3:1, Ar:1" 
     bulk:
         name: bulk
