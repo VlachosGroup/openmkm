@@ -359,43 +359,43 @@ reactions:
 interactions:
     - species: ["N(T)", "N(T)"]
       strength: [-52.6 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0000"
     - species: ["N(T)", "H(T)"]
       strength: [-17.7 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0001"
     - species: ["H(T)", "N(T)"]
       strength: [-17.7 kcal/mol]
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0002"
     - species: ["H(T)", "H(T)"]
       strength: [-3.0 kcal/mol]
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0003"
     - species: ["NH2(T)", "N(T)"]
       strength: [-20.7 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0004"
     - species: ["N(S)", "N(S)"]
       strength: [-52.6 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0005"
     - species: ["N(S)", "H(S)"]
       strength: [-17.7 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0006"
     - species: ["H(S)", "N(S)"]
       strength: [-17.7 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0007"
     - species: ["H(S)", "H(S)"]
       strength: [-3.0 kcal/mol] 
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0008"
     - species: ["NH2(S)", "N(S)"]
       strength: [-20.7 kcal/mol]
-      coverage_threshold: [0, 1]
+      coverage-threshold: [0, 1]
       id: "i0009"
 
 bep:
@@ -403,18 +403,18 @@ bep:
       slope: 0.71
       intercept: 23.69 kcal/mol
       direction: "cleavage"
-      cleavage_reactions: ["NH2-H_cle_0001", "NH2-H_cle_0002"]
+      cleavage-reactions: ["NH2-H_cle_0001", "NH2-H_cle_0002"]
 
     - id: "NH-H"
       slope: 0.52
       intercept: 19.78 kcal/mol
       direction: "cleavage"
-      cleavage_reactions: ["NH-H_cle_0001", "NH-H_cle_0002"]
+      cleavage-reactions: ["NH-H_cle_0001", "NH-H_cle_0002"]
 
     - id: "N-H"
       slope: 0.29
       intercept: 23.23 kcal/mol
       direction: "cleavage"
-      cleavage_reactions: ["N-H_cle_0001"]
-      synthesis_reactions: ["N-H_syn_0001"]
+      cleavage-reactions: ["N-H_cle_0001"]
+      synthesis-reactions: ["N-H_syn_0001"]
 
