@@ -275,100 +275,100 @@ interactions:
 - id: "a001"
   species:  [N(S1), N(S1)]
   strength: [-4.701790000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a002"
   species:  [N(S1), H(S1)]
   strength: [-1.775450000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a003"
   species:  [N(S1), NH3(S1)]
   strength: [-2.516310000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a004"
   species:  [N(S1), NH2(S1)]
   strength: [-2.076200000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a005"
   species:  [N(S1), NH(S1)]
   strength: [-4.878230000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a006"
   species:  [H(S1), H(S1)]
   strength: [-6.704300000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a007"
   species:  [H(S1), NH3(S1)]
   strength: [-9.501900000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a008"
   species:  [H(S1), NH2(S1)]
   strength: [-7.840000000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a009"
   species:  [H(S1), NH(S1)]
   strength: [-1.842080000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a010"
   species:  [NH3(S1), NH3(S1)]
   strength: [-1.346680000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a011"
   species:  [NH3(S1), NH2(S1)]
   strength: [-1.111150000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a012"
   species:  [NH3(S1), NH(S1)]
   strength: [-2.610740000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a013"
   species:  [NH2(S1), NH2(S1)]
   strength: [-9.168100000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a014"
   species:  [NH2(S1), NH(S1)]
   strength: [-2.154120000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a015"
   species:  [NH(S1), NH(S1)]
   strength: [-5.061290000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a016"
   species:  [H(S1), N(S1)]
   strength: [-1.775450000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a017"
   species:  [NH3(S1), N(S1)]
   strength: [-2.516310000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a018"
   species:  [NH3(S1), H(S1)]
   strength: [-9.501900000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a019"
   species:  [NH2(S1), N(S1)]
   strength: [-2.076200000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a020"
   species:  [NH2(S1), H(S1)]
   strength: [-7.840000000E+00 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a021"
   species:  [NH2(S1), NH3(S1)]
   strength: [-1.111150000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a022"
   species:  [NH(S1), N(S1)]
   strength: [-4.878230000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a023"
   species:  [NH(S1), H(S1)]
   strength: [-1.842080000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a024"
   species:  [NH(S1), NH3(S1)]
   strength: [-2.610740000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
 - id: "a025"
   species:  [NH(S1), NH2(S1)]
   strength: [-2.154120000E+01 kcal/mol]
-  coverage_threshold: [0.000000000E+00, 1.000000000E+00]
+  coverage-threshold: [0.000000000E+00, 1.000000000E+00]
