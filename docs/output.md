@@ -31,7 +31,7 @@ coverage (if a surface species)
    - List each species dimensionless formation enthalpies (H/RT)
    - Calculated from the NASA polynomials at the input temperature and 
 input pressure.
-   - **Note**: These values are calculated assuming no coverage effects.
+   - **Note**: For surface species, these values are calculated assuming no coverage effects.
 
 3. **Sform.out**:
    - Lists each species dimensionless formation entropies (S/R).
