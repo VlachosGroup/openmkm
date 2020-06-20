@@ -86,31 +86,32 @@ The files specified below have either a *.csv* or *.dat* extension depending on 
 
 Files with _ss.csv extension:
 1. **Batch reactor**:
-   - 1<sup>st</sup> column values are **BLANK**
+   - 1<sup>st</sup> column values are time (units of seconds).
 
 2. **CSTR**:
-   - 1<sup>st</sup> column values are **BLANK**
+   - 1<sup>st</sup> column values are time (units of seconds).
 
-3. **PFR**:
+3. **PFR, numerical**:
    - 1<sup>st</sup> column values are volumes (units of m<sup>3</sup>) correseponding to the amount of
    volume through which the reaction has occurred at that point
    - Number of rows will equal the number of nodes for the calculation
    - Each volume can be considered an individual CSTR
-   - The first change in volume is different from all the others because of **BLANK**
-   - 1<sup>st</sup> column values are **BLANK**
+   - The first change in volume is different from all the others because half of volume is used (to represent center of CSTR).
+
+4. **PFR, analytical**:
+   - 1<sup>st</sup> column values are length (units of m) of
+   the PFR at which the values are sampled
+
 
 Files with _tr.csv extension:
 1. **Batch reactor**:
-   - 1<sup>st</sup> column values are **BLANK**
+   - 1<sup>st</sup> column values are time (units of seconds).
 
 2. **CSTR**:
-   - 1<sup>st</sup> column values are **BLANK**
+   - 1<sup>st</sup> column values are time (units of seconds).
 
 3. **PFR, numerical**:
-   - 1<sup>st</sup> column values are **BLANK**
-
-4. **PFR, analytical**:
-   - 1<sup>st</sup> column values are **BLANK**
+   - 1<sup>st</sup> column values are time (units of seconds).
 
 Description of specific files referring to values in all but the 1<sup>st</sup> column
 
@@ -120,20 +121,23 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
 2. **gas\_mass**:
    - Mass fractions of gas species.
 
-3. **gas_msdot**: 
-   - Production rates (units of **BLANK**) of the gas species on the catalyst surface
+3. **gas\_msdot**: 
+   - Production rates (units of kmol/s) of the gas species on the catalyst surface
 
 4. **rctr\_state**:
    - Temperature (in K), pressure (in Pascals), density
    (in kg/m<sup>3</sup>) and either specific internal energy (units of J/kg) or specific enthalpy
-   (units of **BLANK**) depending on the type of reactor.
+   (units of J/kg) depending on the type of reactor.
 
 5. **surf\_cov**:
    - Coverage fractions in the range of [0,1] of the surface species.
 
-6. **rates**:
-   - Forward, reverse, and net rates of progress in (units of mol/s) and partial
-   equilibrium index of the reactions Specif reaction listed in rightmost column).
+5. **surf\_msdot**:
+   - Production rates (units of kmol/s) of the surface species on the catalyst surface.
+
+6. **rates\_ss**:
+   - Forward, reverse, and net rates of progress in (units of kmol/s) and partial
+   equilibrium index of the specific reaction listed in rightmost column).
    - Partial equilibrium formula: (forward rate)/(forward rate + reverse rate)
    - Displayed quatities are the values at the reactor outlet
 
