@@ -135,7 +135,7 @@ void print_0d_rctr_state(double z, Cantera::Reactor* rctr,
                           std::vector<Cantera::SurfPhase*> surfaces,
                           std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
                           std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
-                          std::ofstream& state_var_out);
+                          std::ofstream& surf_msdot_out, std::ofstream& state_var_out);
 
 }
 #endif

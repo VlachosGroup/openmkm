@@ -397,7 +397,7 @@ void print_rxn_rates_hdr(ofstream& out)
  */
 void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
                           ofstream& gas_mole_out, ofstream& gas_mass_out,
-                          ofstream& gas_msdot_out, ofstream& surf_cov_out,
+                          ofstream& gas_sdot_out, ofstream& surf_cov_out,
                           ofstream& state_var_out)
 {
 
@@ -442,7 +442,7 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
     gas_var_print(gas_mass_out);
 
     rctr->getSurfaceProductionRates(work.data());
-    gas_var_print(gas_msdot_out);
+    gas_var_print(gas_sdot_out);
     
     surf_cov_out << scientific;
     if (data_format == OutputFormat::CSV) {
@@ -469,8 +469,8 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
 
 void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
                          ofstream& gas_mole_out, ofstream& gas_mass_out,
-                         ofstream& gas_msdot_out, ofstream& surf_cov_out,
-                         ofstream& state_var_out)
+                         ofstream& gas_sdot_out, ofstream& surf_cov_out,
+                         ofstream& surf_msdot_out, ofstream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
@@ -516,7 +516,7 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
     gas_var_print(gas_mass_out);
 
     rctr->getSurfaceProductionRates(work.data());
-    gas_var_print(gas_msdot_out);
+    gas_var_print(gas_sdot_out);
 
     surf_cov_out << scientific;
     if (data_format == OutputFormat::CSV) {
@@ -539,6 +539,29 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
         }
     }
     surf_cov_out << endl;
+
+    surf_msdot_out << scientific;
+    if (data_format == OutputFormat::CSV) 
+        surf_msdot_out << z;
+    else //if (data_format == OutputFormat::DAT) {
+        surf_msdot_out << setw(16) << left << z;
+
+    for (size_t j = 0;  j <  surfaces.size(); j++) {
+        auto kin = rctr->surface(j)->kinetics();
+        work.resize(kin->nTotalSpecies());
+        kin->getNetProductionRates(work.data());    
+        auto ns = kin->surfacePhaseIndex();
+        auto nk = surfaces[j]->nSpecies();
+        auto surfloc = kin->kineticsSpeciesIndex(0, ns);
+        for (size_t k = 0; k < nk; k++) {
+            if (data_format == OutputFormat::CSV) 
+                surf_msdot_out << "," << work[k+surfloc];
+            else 
+                surf_msdot_out << setw(16) << left << work[k+surfloc];
+        }
+    }
+    surf_msdot_out << endl;
+
 }
 
 
