@@ -12,6 +12,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+//#include <ostream>
 #include <memory>
 
 #include "cantera/base/config.h"
@@ -113,29 +114,34 @@ void print_omkm_header(std::ostream& out);
 /**
  * Utility function to print reaction rates
  */
-void print_rxn_rates(Cantera::Kinetics* kin, std::ofstream& out);
+void print_rxn_rates(Cantera::Kinetics* kin, std::ostream& out);
 
 /**
  * Utility function to print header before printing reaction rates
  */
-void print_rxn_rates_hdr(std::ofstream& out);
+void print_rxn_rates_hdr(std::ostream& out);
+
+/**
+ * Utility function to print header before printing reactor state 
+ */
+void print_state_var_hdr(std::ostream& out, std::string ind0);
 
 /**
  * Utility function to print (1d) PFR reactor state at given distance from inlet
  */
 void print_pfr_rctr_state(double z, PFR1d* rctr, 
                           std::vector<Cantera::SurfPhase*> surfaces,
-                          std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
-                          std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
-                          std::ofstream& state_var_out);
+                          std::ostream& gas_mole_out, std::ostream& gas_mass_out,
+                          std::ostream& gas_msdot_out, std::ostream& surf_cov_out,
+                          std::ostream& state_var_out);
 /**
  * Utility function to print 0d reactor state at given distance from inlet
  */
 void print_0d_rctr_state(double z, Cantera::Reactor* rctr, 
                           std::vector<Cantera::SurfPhase*> surfaces,
-                          std::ofstream& gas_mole_out, std::ofstream& gas_mass_out,
-                          std::ofstream& gas_msdot_out, std::ofstream& surf_cov_out,
-                          std::ofstream& surf_msdot_out, std::ofstream& state_var_out);
+                          std::ostream& gas_mole_out, std::ostream& gas_mass_out,
+                          std::ostream& gas_msdot_out, std::ostream& surf_cov_out,
+                          std::ostream& surf_msdot_out, std::ostream& state_var_out);
 
 }
 #endif

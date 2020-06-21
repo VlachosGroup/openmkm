@@ -356,7 +356,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 // of PFR
                 auto rpa_flag = rctr_parser.RPA();
 
-                auto state_var_print_hdr = [data_format](ostream& out, const string ind0) -> void
+                auto print_state_var_hdr = [data_format](ostream& out, const string ind0) -> void
                 {
                     if (data_format == OutputFormat::CSV) {
                         out << ind0 << ","//"z(m)"
@@ -400,13 +400,13 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_print_specie_header("z(m)", gas_ss_mass_out);
                     gas_print_specie_header("z(m)", gas_ss_msdot_out);
                     surf_print_hdr(surf_cov_ss_out, "z(m)");
-                    state_var_print_hdr(state_var_ss_out, "z(m)");
+                    print_state_var_hdr(state_var_ss_out, "z(m)");
                 } else {
                     gas_print_specie_header("t(s)", gas_ss_mole_out);
                     gas_print_specie_header("t(s)", gas_ss_mass_out);
                     gas_print_specie_header("t(s)", gas_ss_msdot_out);
                     surf_print_hdr(surf_cov_ss_out, "t(s)");
-                    state_var_print_hdr(state_var_ss_out, "t(s)");
+                    print_state_var_hdr(state_var_ss_out, "t(s)");
                 }
                     //
                     //surf_cov_ss_out 
@@ -444,7 +444,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_print_specie_header("t(s)", gas_tr_mass_out);
                     gas_print_specie_header("t(s)", gas_tr_msdot_out);
                     surf_print_hdr(surf_cov_tr_out, "t(s)");
-                    state_var_print_hdr(state_var_tr_out, "t(s)");
+                    print_state_var_hdr(state_var_tr_out, "t(s)");
                 }
 
                 vector<double> gas_X(gas->thermo()->nSpecies()); // Temporary work array
@@ -828,7 +828,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 // of PFR
                 auto rpa_flag = rctr_parser.RPA();
 
-                auto state_var_print_hdr = [data_format](ostream& out, const string ind0) -> void
+                /*
+                auto print_state_var_hdr = [data_format](ostream& out, const string ind0) -> void
                 {
                     if (data_format == OutputFormat::CSV) {
                         out << ind0 << ","//"z(m)"
@@ -845,7 +846,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                             << setw(16) << left << "U(J/kg)" 
                             << endl;
                     }
-                };
+                };*/
 
                 auto surf_print_hdr = [&](ostream& out, const string ind0) -> void
                 {
@@ -873,14 +874,14 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_print_specie_header("z(m^3)", gas_ss_msdot_out);
                     surf_print_hdr(surf_cov_ss_out, "z(m^3)");
                     surf_print_hdr(surf_sdot_ss_out, "z(m^3)");
-                    state_var_print_hdr(state_var_ss_out, "z(m^3)");
+                    print_state_var_hdr(state_var_ss_out, "z(m^3)");
                 } else {
                     gas_print_specie_header("t(s)", gas_ss_mole_out);
                     gas_print_specie_header("t(s)", gas_ss_mass_out);
                     gas_print_specie_header("t(s)", gas_ss_msdot_out);
                     surf_print_hdr(surf_cov_ss_out, "t(s)");
                     surf_print_hdr(surf_sdot_ss_out, "t(s)");
-                    state_var_print_hdr(state_var_ss_out, "t(s)");
+                    print_state_var_hdr(state_var_ss_out, "t(s)");
                 }
                     /*
                     surf_cov_ss_out 
@@ -922,7 +923,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_print_specie_header("t(s)", gas_tr_msdot_out);
                     surf_print_hdr(surf_cov_tr_out, "t(s)");
                     surf_print_hdr(surf_sdot_tr_out, "t(s)");
-                    state_var_print_hdr(state_var_tr_out, "t(s)");
+                    print_state_var_hdr(state_var_tr_out, "t(s)");
                 }
 
                 vector<double> gas_X(gas->thermo()->nSpecies()); // Temporary work array

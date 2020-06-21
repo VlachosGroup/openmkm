@@ -351,7 +351,7 @@ void print_omkm_header(std::ostream& out) {
 /**
  * Utility function to print reaction rates
  */
-void print_rxn_rates(Kinetics* kin, ofstream& out)
+void print_rxn_rates(Kinetics* kin, ostream& out)
 {
     vector<double> fwd_rts;
     vector<double> rev_rts;
@@ -379,7 +379,7 @@ void print_rxn_rates(Kinetics* kin, ofstream& out)
 /**
  * Utility function to print header before printing reaction rates
  */
-void print_rxn_rates_hdr(ofstream& out)
+void print_rxn_rates_hdr(ostream& out)
 {
     out //<< hdr << endl
         //<< setw(16) << left << "Reaction No."
@@ -396,9 +396,9 @@ void print_rxn_rates_hdr(ofstream& out)
  * Utility function to print PFR state at given distance z from inlet
  */
 void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
-                          ofstream& gas_mole_out, ofstream& gas_mass_out,
-                          ofstream& gas_sdot_out, ofstream& surf_cov_out,
-                          ofstream& state_var_out)
+                          ostream& gas_mole_out, ostream& gas_mass_out,
+                          ostream& gas_sdot_out, ostream& surf_cov_out,
+                          ostream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
@@ -467,13 +467,50 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
     surf_cov_out << endl;
 }
 
+void print_state_var_hdr(ostream& out, std::string ind0)
+{
+    if (data_format == OutputFormat::CSV) {
+        out << ind0 << ","
+            << "Temperature" << "," 
+            << "Pressure" << "," 
+            << "Density" << "," 
+            << "Mass" << "," 
+            << "Volume" << "," 
+            << "InternalEnergy" 
+            << "mdot_in" << "," 
+            << "mdot_out" << "," 
+            << "mdot_surf" << "," 
+            << "mdot" << "," 
+            << endl;
+    } else {     
+        out << setw(16) << left << ind0 
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "Mass(kg)" 
+            << setw(16) << left << "Volume(m3)" 
+            << setw(16) << left << "InternalEnergy(J/kg)" 
+            << setw(16) << left << "mdot_in(kg/s)" 
+            << setw(16) << left << "mdot_out(kg/s)" 
+            << setw(16) << left << "mdot_surf(kg/s)" 
+            << setw(16) << left << "mdot(kg/s)" 
+            << endl;
+    }            
+}
+
 void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
-                         ofstream& gas_mole_out, ofstream& gas_mass_out,
-                         ofstream& gas_sdot_out, ofstream& surf_cov_out,
-                         ofstream& surf_msdot_out, ofstream& state_var_out)
+                         ostream& gas_mole_out, ostream& gas_mass_out,
+                         ostream& gas_sdot_out, ostream& surf_cov_out,
+                         ostream& surf_msdot_out, ostream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
+
+    auto  mdot_in = rctr->getInletMassFlowRate(); 
+    auto mdot_out = rctr->getOutletMassFlowRate();
+    auto mdot_surf = rctr->getSurfaceMassProductionRate();
+    auto mdot = rctr->getMassProductionRate();
+
 
     state_var_out << scientific;
     if (data_format == OutputFormat::CSV) {
@@ -481,14 +518,26 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
                       << rctr->temperature() << ","
                       << rctr->pressure()  << ","
                       << rctr->density()  << ","
+                      << rctr->mass() << ","
+                      << rctr->volume() << ","
                       << rctr->intEnergy_mass() 
+                      << mdot_in << ","
+                      << mdot_out << ","
+                      << mdot_surf << ","
+                      << mdot << ","
                       << endl;
     }  else { //if (data_format == OutputFormat::DAT) {
         state_var_out << setw(16) << left  << z
                       << setw(16) << left  << rctr->temperature()
                       << setw(16) << left  << rctr->pressure() 
                       << setw(16) << left  << rctr->density() 
+                      << setw(16) << left  << rctr->mass() 
+                      << setw(16) << left  << rctr->volume() 
                       << setw(16) << left  << rctr->intEnergy_mass() 
+                      << setw(16) << left  << mdot_in
+                      << setw(16) << left  << mdot_out
+                      << setw(16) << left  << mdot_surf
+                      << setw(16) << left  << mdot
                       << endl;
     } 
 
