@@ -673,9 +673,9 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
         auto rs0 = 1.0/surf->siteDensity();
         for (size_t k = 0; k < nk; k++) {
             if (data_format == OutputFormat::CSV) 
-                surf_sdot_out << "," << work[k+surfloc] * rs0 * surf->size(k);
+                surf_sdot_out << "," << work[k+surfloc];
             else 
-                surf_sdot_out << setw(16) << left << work[k+surfloc] * rs0 * surf->size(k);
+                surf_sdot_out << setw(16) << left << work[k+surfloc];
         }
     }
     surf_sdot_out << endl;
