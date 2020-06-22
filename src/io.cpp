@@ -433,6 +433,7 @@ void print_gas_species_hdr(ostream& out, const ThermoPhase* gas, const string in
         }   
     }   
     out << endl;
+    out.precision(8);
 }
 
 void print_surface_species_hdr(ostream&out, const vector<shared_ptr<Solution>>& surfaces, const string ind_var)
@@ -453,6 +454,7 @@ void print_surface_species_hdr(ostream&out, const vector<shared_ptr<Solution>>& 
         }
     }
     out << endl;
+    out.precision(8);
 }
 
 
@@ -660,17 +662,20 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
         surf_sdot_out << setw(16) << left << z;
 
     for (size_t j = 0;  j <  surfaces.size(); j++) {
-        auto kin = rctr->surface(j)->kinetics();
+        auto S = rctr->surface(j);
+        auto surf = S->thermo();
+        auto kin = S->kinetics();
         work.resize(kin->nTotalSpecies());
         kin->getNetProductionRates(work.data());    
         auto ns = kin->surfacePhaseIndex();
-        auto nk = surfaces[j]->nSpecies();
+        auto nk = surf->nSpecies();
         auto surfloc = kin->kineticsSpeciesIndex(0, ns);
+        auto rs0 = 1.0/surf->siteDensity();
         for (size_t k = 0; k < nk; k++) {
             if (data_format == OutputFormat::CSV) 
-                surf_sdot_out << "," << work[k+surfloc];
+                surf_sdot_out << "," << work[k+surfloc] * rs0 * surf->size(k);
             else 
-                surf_sdot_out << setw(16) << left << work[k+surfloc];
+                surf_sdot_out << setw(16) << left << work[k+surfloc] * rs0 * surf->size(k);
         }
     }
     surf_sdot_out << endl;

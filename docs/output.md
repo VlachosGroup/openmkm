@@ -126,14 +126,15 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
 
 4. **rctr\_state**:
    - Temperature (in K), pressure (in Pascals), density
-   (in kg/m<sup>3</sup>) and either specific internal energy (units of J/kg) or specific enthalpy
-   (units of J/kg) depending on the type of reactor.
+   (in kg/m<sup>3</sup>), mass (in kg), volume (in m<sup>3</sup>), either specific internal energy (units of J/kg) or specific enthalpy
+   (units of J/kg) depending on the type of reactor, mass flow rate into the reactor (in kg/s), mass flow rate out of the reactor (kg/s), mass produced from the surface (in kg/s), net rate of change of mass (kg/s) in the reactor.
+   - **Note**: Mass flow rate out of the reactor is printed as -ve value. Similarly, if mass produced from surface is -ve, it means surface absorbs more mass than the mass released.
 
 5. **surf\_cov**:
    - Coverage fractions in the range of [0,1] of the surface species.
 
 5. **surf\_sdot**:
-   - Production rates (units of kmol/s) of the surface species on the catalyst surface.
+   - Production rates (units of kmol/cm<sup>2</sup>/s) of the surface species on the catalyst surface.
 
 6. **rates\_ss**:
    - Forward, reverse, and net rates of progress in (units of kmol/s) and partial
