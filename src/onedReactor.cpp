@@ -269,12 +269,12 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 print_rxn_rates_hdr(rates_out);
 
                 if (data_format == OutputFormat::DAT) {
-                    gas_mole_out << "#Gas Mole fractions\n";
-                    gas_mass_out << "#Gas Mass fractions\n";
-                    gas_sdot_out << "#Surface Production Rates of  Gas Species (units of kg/s)\n";
-                    surf_cov_out << "#Surace Coverages\n";
-                    surf_sdot_out << "#Production Rates of Surface Species (units of kmol/s) \n";
-                    state_var_out << "#Steady State Reactor State\n";
+                    gas_mole_out << "# Gas Mole fractions\n";
+                    gas_mass_out << "# Gas Mass fractions\n";
+                    gas_sdot_out << "# Surface Production Rates of  Gas Species (units of kmol/s)\n";
+                    surf_cov_out << "# Surace Coverages\n";
+                    surf_sdot_out << "# Production Rates of Surface Species (units of kmol/m2/s) \n";
+                    state_var_out << "# Steady State Reactor State\n";
                 }
 
                 print_gas_species_hdr(gas_mole_out, gas->thermo().get(), "z(m)");

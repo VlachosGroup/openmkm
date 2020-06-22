@@ -350,7 +350,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_mass_ss_out << "# Gas Mass fractions at Steady State\n";
                     gas_sdot_ss_out << "# Surface Production Rates of  Gas Species (units of kmol/s) at Steady State\n";
                     surf_cov_ss_out << "# Surface Coverages of Surface Species at Steady State\n"; 
-                    surf_sdot_ss_out << "# Production Rates of Surface Species (units of kmol/s) at Steady State\n"; 
+                    surf_sdot_ss_out << "# Production Rates of Surface Species (units of kmol/m2/s) at Steady State\n"; 
                     state_var_ss_out << "# Steady State Reactor State\n";
                 }
                 
@@ -449,7 +449,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         gas_mass_tr_out << "# Transient Gas Mass fractions"  << endl;
                         gas_sdot_tr_out << "# Transient Surface Production Rates of Gas Species (units of kmol/s)"  << endl;
                         surf_cov_tr_out << "# Transient Surface Coverages of Surface Species"  << endl;
-                        surf_sdot_tr_out << "# Transient Production Rates of Surface Species (units of kmol/s)"  << endl;
+                        surf_sdot_tr_out << "# Transient Production Rates of Surface Species (units of kmol/m2/s)"  << endl;
                     }
                     print_gas_species_hdr(gas_mole_tr_out, gas->thermo().get(), "t(s)");
                     print_gas_species_hdr(gas_mass_tr_out, gas->thermo().get(), "t(s)");
