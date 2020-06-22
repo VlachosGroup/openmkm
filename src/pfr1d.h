@@ -294,6 +294,12 @@ public:
         return *(m_gas->thermo());
     }
 
+    //! Return the number of surface phases connected to the PFR
+    size_t nSurfaces()
+    {
+        return m_surf_phases.size();
+    }
+
     //! Return a reference to the *n*-th SurfPhase connected to the PFR
     Cantera::SurfPhase* surface(size_t n) 
     {

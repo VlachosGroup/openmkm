@@ -326,7 +326,6 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
     //double mdot_surf = s();
     vector_fp work(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    double mdot_surf = 0.0; // net mass flux from surface
 
     loc = m_nsp;
     for (size_t i = 0; i < m_surf_phases.size(); i++) {
@@ -346,8 +345,12 @@ int PFR1d::evalResidNJ(const double t, const double delta_t,
 
         for (size_t k = 0; k < m_nsp; k++) {
             m_sdot[k] += work[k];
-            mdot_surf += m_sdot[k] * m_W[k];
+            //mdot_surf += m_sdot[k] * m_W[k];
         }
+    }
+    double mdot_surf = 0.0; // net mass flux from surface
+    for (size_t k = 0; k < m_nsp; k++) {
+        mdot_surf += m_sdot[k] * m_W[k];
     }
 
 
@@ -524,7 +527,6 @@ double PFR1d::evalSurfaces()
 {
     vector_fp work(m_nsp);
     fill(m_sdot.begin(), m_sdot.end(), 0.0);
-    double mdot_surf = 0.0; // net mass flux from surface
 
 
     for (size_t i = 0; i < m_surf_phases.size(); i++) {
@@ -537,10 +539,14 @@ double PFR1d::evalSurfaces()
 
         for (size_t k = 0; k < m_nsp; k++) {
             m_sdot[k] += work[k];
-            mdot_surf += m_sdot[k] * m_W[k];
+            //mdot_surf += m_sdot[k] * m_W[k];
         }
     }
 
+    double mdot_surf = 0.0; // net mass flux from surface
+    for (size_t k = 0; k < m_nsp; k++) {
+        mdot_surf += m_sdot[k] * m_W[k];
+    }
     return mdot_surf;
 }
 
