@@ -204,7 +204,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         simul_init_step = rctr_parser.getInitStep();
     }
     auto rpa_flag = rctr_parser.RPA();
-    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); //Use the same function to get z steps
+    vector<double> zvals = get_log10_intervals(rctr_len, simul_init_step); 
 
     vector<double> T_params = rctr_parser.Ts();
     vector<double> P_params = rctr_parser.Ps();
@@ -261,23 +261,41 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
                 ofstream gas_mole_out((out_dir / ("gas_mole_ss." + file_ext)).string(), ios::out);
                 ofstream gas_mass_out((out_dir / ("gas_mass_ss." + file_ext)).string(), ios::out);
-                ofstream gas_msdot_out((out_dir / ("gas_msdot_ss." + file_ext)).string(), ios::out);
+                ofstream gas_sdot_out((out_dir / ("gas_sdot_ss." + file_ext)).string(), ios::out);
                 ofstream surf_cov_out((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
+                ofstream surf_sdot_out((out_dir / ("surf_sdot_ss." + file_ext)).string(), ios::out);
                 ofstream state_var_out((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
                 ofstream rates_out((out_dir / "rates_ss.out").string(), ios::out);
                 print_rxn_rates_hdr(rates_out);
 
+                if (data_format == OutputFormat::DAT) {
+                    gas_mole_out << "#Gas Mole fractions\n";
+                    gas_mass_out << "#Gas Mass fractions\n";
+                    gas_sdot_out << "#Surface Production Rates of  Gas Species (units of kg/s)\n";
+                    surf_cov_out << "#Surace Coverages\n";
+                    surf_sdot_out << "#Production Rates of Surface Species (units of kmol/s) \n";
+                    state_var_out << "#Steady State Reactor State\n";
+                }
+
+                print_gas_species_hdr(gas_mole_out, gas->thermo().get(), "z(m)");
+                print_gas_species_hdr(gas_mass_out, gas->thermo().get(), "z(m)");
+                print_gas_species_hdr(gas_sdot_out, gas->thermo().get(), "z(m)");
+                print_surface_species_hdr(surf_cov_out, surfaces, "z(m)");
+                print_surface_species_hdr(surf_sdot_out, surfaces, "z(m)");
+                print_pfr_state_hdr(state_var_out);
+
                 gas_mole_out.precision(6);
                 gas_mass_out.precision(6);
-                gas_msdot_out.precision(6);
+                gas_sdot_out.precision(6);
                 surf_cov_out.precision(6);
+                surf_sdot_out.precision(6);
                 state_var_out.precision(6);
                 rates_out.precision(6);
 
                 for (const auto& z : zvals) {
                     pfr_solver.solve(z);
-                    print_pfr_rctr_state(z, &pfr, surf_ph, gas_mole_out, gas_mass_out, 
-                                         gas_msdot_out, surf_cov_out, state_var_out);
+                    print_pfr_rctr_state(z, &pfr, gas_mole_out, gas_mass_out, 
+                                         gas_sdot_out, surf_cov_out, surf_sdot_out, state_var_out);
                     if (rpa_flag) {
                         string rpa_file_name = "rates_z-";
                         rpa_file_name += to_string(z);
@@ -318,8 +336,9 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
                 gas_mole_out.close();
                 gas_mass_out.close();
-                gas_msdot_out.close();
+                gas_sdot_out.close();
                 surf_cov_out.close();
+                surf_sdot_out.close();
                 state_var_out.close();
                 rates_out.close();
             }

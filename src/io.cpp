@@ -392,12 +392,76 @@ void print_rxn_rates_hdr(ostream& out)
 }
 
 
+void print_pfr_state_hdr(ostream& out)
+{
+    if (data_format == OutputFormat::CSV) {
+        out << "z(m)" << ","
+            << "Temperature" << "," 
+            << "Pressure" << "," 
+            << "Density" << "," 
+            << "Specific Enthalpy" 
+            //<< "mdot_in" << "," 
+            //<< "mdot_out" << "," 
+            //<< "mdot_surf" << "," 
+            //<< "mdot" << "," 
+            << endl;
+    } else {     
+        out << setw(16) << left << "z(m)" 
+            << setw(16) << left << "Temperature(K)" 
+            << setw(16) << left << "Pressure(Pa)" 
+            << setw(16) << left << "Density(kg/m3)" 
+            << setw(16) << left << "Specific Enthalpy(J/kg)" 
+            //<< setw(16) << left << "mdot_in(kg/s)" 
+            //<< setw(16) << left << "mdot_out(kg/s)" 
+            //<< setw(16) << left << "mdot_surf(kg/s)" 
+            //<< setw(16) << left << "mdot(kg/s)" 
+            << endl;
+    }            
+}
+
+void print_gas_species_hdr(ostream& out, const ThermoPhase* gas, const string ind_var)
+{   
+    if (data_format == OutputFormat::CSV) {
+        out << ind_var;
+        for (const auto & sp_name : gas->speciesNames()) {
+            out << "," << sp_name;
+        }   
+    } else {
+        out << setw(16) << left << ind_var;
+        for (const auto & sp_name : gas->speciesNames()) {
+            out << setw(16) << left << sp_name;
+        }   
+    }   
+    out << endl;
+}
+
+void print_surface_species_hdr(ostream&out, const vector<shared_ptr<Solution>>& surfaces, const string ind_var)
+{
+    if (data_format == OutputFormat::CSV) {
+        out << ind_var;
+        for (const auto surf : surfaces) {
+            for (const auto & sp_name : surf->thermo()->speciesNames()) {
+                out << "," << sp_name;
+            }
+        }
+    } else {
+        out << setw(16) << left << ind_var;
+        for (const auto surf : surfaces) {
+            for (const auto & sp_name : surf->thermo()->speciesNames()) {
+                out << setw(16) << left << sp_name;
+            }
+        }
+    }
+    out << endl;
+}
+
+
 /**
  * Utility function to print PFR state at given distance z from inlet
  */
-void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
-                          ostream& gas_mole_out, ostream& gas_mass_out,
-                          ostream& gas_sdot_out, ostream& surf_cov_out,
+void print_pfr_rctr_state(double z, PFR1d* rctr, //vector<SurfPhase*> surfaces,
+                          ostream& gas_mole_out, ostream& gas_mass_out, ostream& gas_sdot_out, 
+                          ostream& surf_cov_out, ostream& surf_sdot_out,
                           ostream& state_var_out)
 {
 
@@ -409,12 +473,14 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
                       << rctr->contents().temperature() << ","
                       << rctr->contents().pressure() << ","
                       << rctr->contents().density() 
+                      << rctr->contents().enthalpy_mass() 
                       << endl;
     } else {
         state_var_out << setw(16) << left  << z
                       << setw(16) << left  << rctr->contents().temperature()
                       << setw(16) << left  << rctr->contents().pressure()
                       << setw(16) << left  << rctr->contents().density()
+                      << setw(16) << left  << rctr->contents().enthalpy_mass()
                       << endl;
     }
 
@@ -447,19 +513,16 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
     surf_cov_out << scientific;
     if (data_format == OutputFormat::CSV) {
         surf_cov_out << z;
-        for (size_t j = 0;  j <  surfaces.size(); j++) {
-            work.resize(surfaces[j]->nSpecies());
-            rctr->surface(j)->getCoverages(work.data());
-            for (size_t k = 0; k < work.size(); k++) {
-                surf_cov_out << "," << work[k];
-            }
-        }
     } else {
         surf_cov_out << setw(16) << left << z;
-        for (size_t j = 0;  j <  surfaces.size(); j++) {
-            work.resize(surfaces[j]->nSpecies());
-            rctr->surface(j)->getCoverages(work.data());
-            for (size_t k = 0; k < work.size(); k++) {
+    }
+    for (size_t j = 0;  j <  rctr->nSurfaces(); j++) {
+        work.resize(rctr->surface(j)->nSpecies());
+        rctr->surface(j)->getCoverages(work.data());
+        for (size_t k = 0; k < work.size(); k++) {
+            if (data_format == OutputFormat::CSV) {
+                surf_cov_out << ", " << work[k];
+            } else {
                 surf_cov_out << setw(16) << left << work[k];
             }
         }
@@ -467,7 +530,7 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, vector<SurfPhase*> surfaces,
     surf_cov_out << endl;
 }
 
-void print_state_var_hdr(ostream& out, std::string ind0)
+void print_0d_rctr_state_hdr(ostream& out, std::string ind0)
 {
     if (data_format == OutputFormat::CSV) {
         out << ind0 << ","
@@ -476,7 +539,7 @@ void print_state_var_hdr(ostream& out, std::string ind0)
             << "Density" << "," 
             << "Mass" << "," 
             << "Volume" << "," 
-            << "InternalEnergy" 
+            << "IntEnergy" 
             << "mdot_in" << "," 
             << "mdot_out" << "," 
             << "mdot_surf" << "," 
@@ -489,7 +552,7 @@ void print_state_var_hdr(ostream& out, std::string ind0)
             << setw(16) << left << "Density(kg/m3)" 
             << setw(16) << left << "Mass(kg)" 
             << setw(16) << left << "Volume(m3)" 
-            << setw(16) << left << "InternalEnergy(J/kg)" 
+            << setw(16) << left << "IntEnergy(J/kg)" 
             << setw(16) << left << "mdot_in(kg/s)" 
             << setw(16) << left << "mdot_out(kg/s)" 
             << setw(16) << left << "mdot_surf(kg/s)" 
@@ -498,10 +561,11 @@ void print_state_var_hdr(ostream& out, std::string ind0)
     }            
 }
 
+
 void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
                          ostream& gas_mole_out, ostream& gas_mass_out,
                          ostream& gas_sdot_out, ostream& surf_cov_out,
-                         ostream& surf_msdot_out, ostream& state_var_out)
+                         ostream& surf_sdot_out, ostream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
@@ -589,11 +653,11 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
     }
     surf_cov_out << endl;
 
-    surf_msdot_out << scientific;
+    surf_sdot_out << scientific;
     if (data_format == OutputFormat::CSV) 
-        surf_msdot_out << z;
+        surf_sdot_out << z;
     else //if (data_format == OutputFormat::DAT) {
-        surf_msdot_out << setw(16) << left << z;
+        surf_sdot_out << setw(16) << left << z;
 
     for (size_t j = 0;  j <  surfaces.size(); j++) {
         auto kin = rctr->surface(j)->kinetics();
@@ -604,12 +668,12 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
         auto surfloc = kin->kineticsSpeciesIndex(0, ns);
         for (size_t k = 0; k < nk; k++) {
             if (data_format == OutputFormat::CSV) 
-                surf_msdot_out << "," << work[k+surfloc];
+                surf_sdot_out << "," << work[k+surfloc];
             else 
-                surf_msdot_out << setw(16) << left << work[k+surfloc];
+                surf_sdot_out << setw(16) << left << work[k+surfloc];
         }
     }
-    surf_msdot_out << endl;
+    surf_sdot_out << endl;
 
 }
 

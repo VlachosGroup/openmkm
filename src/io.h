@@ -122,18 +122,34 @@ void print_rxn_rates(Cantera::Kinetics* kin, std::ostream& out);
 void print_rxn_rates_hdr(std::ostream& out);
 
 /**
- * Utility function to print header before printing reactor state 
+ * Utility function to print header before printing gas species values
  */
-void print_state_var_hdr(std::ostream& out, std::string ind0);
+void print_gas_species_hdr(std::ostream& out, const Cantera::ThermoPhase* gas, const std::string ind_var);
+
+/**
+ * Utility function to print header before printing surface species values
+ */
+void print_surface_species_hdr(std::ostream& out, const std::vector<std::shared_ptr<Cantera::Solution>>& gas, 
+                               const std::string ind_var);
+
+/**
+ * Utility function to print header before printing 0d reactor state 
+ */
+void print_0d_rctr_state_hdr(std::ostream& out, std::string ind0);
+
+/**
+ * Utility function to print header before printing pfr state 
+ */
+void print_pfr_state_hdr(std::ostream& out);
 
 /**
  * Utility function to print (1d) PFR reactor state at given distance from inlet
  */
 void print_pfr_rctr_state(double z, PFR1d* rctr, 
-                          std::vector<Cantera::SurfPhase*> surfaces,
+                          //std::vector<Cantera::SurfPhase*> surfaces,
                           std::ostream& gas_mole_out, std::ostream& gas_mass_out,
-                          std::ostream& gas_msdot_out, std::ostream& surf_cov_out,
-                          std::ostream& state_var_out);
+                          std::ostream& gas_sdot_out, std::ostream& surf_cov_out,
+                          std::ostream& surf_sdot_out, std::ostream& state_var_out);
 /**
  * Utility function to print 0d reactor state at given distance from inlet
  */
