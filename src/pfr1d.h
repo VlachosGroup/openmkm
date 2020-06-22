@@ -24,10 +24,10 @@
 #include <boost/math/interpolators/barycentric_rational.hpp>
 
 #include "cantera/zeroD/ReactorBase.h"
-#include "cantera/IdealGasMix.h"
+//#include "cantera/IdealGasMix.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
-#include "cantera/thermo/SurfLatIntPhase.h"
+//#include "cantera/thermo/SurfLatIntPhase.h"
 #include "cantera/numerics/eigen_dense.h"
 #include "cantera/numerics/ResidEval.h"
 #include "cantera/numerics/ResidJacEval.h"
@@ -71,21 +71,17 @@ class PFR1d : public Cantera::ResidJacEval
 public:
     //! Constructor
     /*!
-     * @param gas Gas phase (IdealGasMix object) containing both thermo 
+     * @param gas Gas phase (Solution object) containing both thermo 
      *            properties and kinetics manager to initialize the class.
-     * @param surf_kins Kinetics managers of the surfaces. These have to 
-     *                  instances of either Interface or InterfaceInteractions 
-     *                  classes. Supply them as vector<InterfaceKinetics*>
+     * @param surf_kins Kinetics managers of the surfaces. 
+     *            Supply them as vector<InterfaceKinetics*>
      * @param surf_phases Surface phases corresponding to the interface kinetics
-     *                    managers. These have to instances of either Interface 
-     *                    or InterfaceInteractions classes. Supply the same 
-     *                    objects used for surf_kins. Supply them as 
-     *                    vector<SurfPhase*>.
-     * @param pfr_xc_area PFR Cross section area
-     * @param cat_abyv    Catalyst area given w.r.t. pfr volume
+     *            managers. Supply them as vector<SurfPhase*>.
+     * @param pfr_xc_area   PFR cross section area
+     * @param cat_abyv      Catalyst area given w.r.t. pfr volume
      * @param gas_velocity  Velocity of the gas entering the reactor
-     *                    Convert flow rates, residence times and mass flow rates
-     *                    into velocity using the reactor size and density
+     *                      Convert flow rates, residence times and mass flow rates
+     *                      into velocity using the reactor size and density
      */
     PFR1d(Cantera::Solution *gas, 
           std::vector<Cantera::InterfaceKinetics*> surf_kins,       

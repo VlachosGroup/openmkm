@@ -6,10 +6,10 @@
 #include <chrono>
 
 #include "cantera/base/stringUtils.h"
-#include "cantera/IdealGasMix.h"
-#include "cantera/thermo/StoichSubstance.h"
-#include "cantera/InterfaceLatInt.h"
-#include "cantera/Interface.h"
+//#include "cantera/IdealGasMix.h"
+//#include "cantera/thermo/StoichSubstance.h"
+//#include "cantera/InterfaceLatInt.h"
+//#include "cantera/Interface.h"
 
 #include "io.h"
 #include "run_reactor.h"

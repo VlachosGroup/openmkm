@@ -1,5 +1,7 @@
+#include <iostream>
+
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/thermo/SurfLatIntPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/stringUtils.h"
 
 #include "omkmexceptions.h"
@@ -86,6 +88,7 @@ bool ReactorParser::gasPhaseDefined(string phase_filename)
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"name", "gas"});
 }
 
+/*
 shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
 {
     auto gas_name_nd = getChildNode(m_phase_nd, "tube.phases", 
@@ -96,7 +99,7 @@ shared_ptr<IdealGasMix> ReactorParser::getGasPhase(string phase_filename)
     m_gas_X = getGasPhaseComposition();
     gas->setState_TPX(m_T, m_P, m_gas_X);
     return gas;
-}
+}*/
 
 shared_ptr<Solution> ReactorParser::getGasSolution(string phase_filename)
 {
@@ -126,6 +129,7 @@ bool ReactorParser::bulkPhaseDefined(string phase_filename)
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"name", "bulk"});
 }
 
+/*
 shared_ptr<StoichSubstance> ReactorParser::getBulkPhase(string phase_filename)
 {
     auto blk_name_nd = getChildNode(m_phase_nd, "tube.phases", 
@@ -135,6 +139,7 @@ shared_ptr<StoichSubstance> ReactorParser::getBulkPhase(string phase_filename)
     blk->setState_TP(m_T, m_P);
     return blk;
 }
+*/
 
 shared_ptr<Solution> ReactorParser::getBulkSolution(string phase_filename)
 {
@@ -151,6 +156,7 @@ bool ReactorParser::surfacePhasesDefined(string phase_filename)
     return IsChildNodeAvailable(m_phase_nd, vector<string>{"surfaces"});
 }
 
+/*
 vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
         string phase_filename, vector<ThermoPhase*> gb_phases)
 {
@@ -178,6 +184,7 @@ vector<shared_ptr<InterfaceInteractions>> ReactorParser::getSurfPhases(
 
     return surf_phases;
 }
+*/
 
 vector<shared_ptr<Solution>> ReactorParser::getSurfaceSolutions(
         string phase_filename, vector<shared_ptr<Solution>>& gb_solns)

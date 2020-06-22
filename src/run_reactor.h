@@ -14,8 +14,8 @@
 #include <memory>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
-#include "cantera/IdealGasMix.h"
-#include "cantera/InterfaceLatInt.h"
+//#include "cantera/IdealGasMix.h"
+//#include "cantera/InterfaceLatInt.h"
 
 #include "reactor_parser.h"
 

@@ -11,10 +11,10 @@
 #include <memory>
 #include <yaml-cpp/yaml.h>
 
-#include "cantera/IdealGasMix.h"
-#include "cantera/InterfaceLatInt.h"
-#include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/SurfLatIntPhase.h"
+//#include "cantera/IdealGasMix.h"
+//#include "cantera/InterfaceLatInt.h"
+//#include "cantera/thermo/StoichSubstance.h"
+//#include "cantera/thermo/SurfLatIntPhase.h"
 
 #include "omkmexceptions.h"
 
@@ -76,25 +76,25 @@ public:
 
     std::string getGasPhaseComposition();
 
-    std::shared_ptr<Cantera::IdealGasMix> getGasPhase(
-            std::string phase_filename);
+    //std::shared_ptr<Cantera::IdealGasMix> getGasPhase(
+    //        std::string phase_filename);
 
     std::shared_ptr<Cantera::Solution> getGasSolution(
             std::string phase_filename);
 
     bool bulkPhaseDefined(std::string phase_filename);
 
-    std::shared_ptr<Cantera::StoichSubstance> getBulkPhase(
-            std::string phase_filename);
+    //std::shared_ptr<Cantera::StoichSubstance> getBulkPhase(
+    //        std::string phase_filename);
 
     std::shared_ptr<Cantera::Solution> getBulkSolution(
             std::string phase_filename);
 
     bool surfacePhasesDefined(std::string phase_filename);
 
-    std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> getSurfPhases(
-            std::string phase_filename, 
-            std::vector<Cantera::ThermoPhase*> gb_phases);
+    //std::vector<std::shared_ptr<Cantera::InterfaceInteractions>> getSurfPhases(
+    //        std::string phase_filename, 
+    //        std::vector<Cantera::ThermoPhase*> gb_phases);
 
     std::vector<std::shared_ptr<Cantera::Solution>> getSurfaceSolutions(
             std::string phase_filename, 
