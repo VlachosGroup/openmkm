@@ -561,6 +561,7 @@ void print_0d_rctr_state_hdr(ostream& out, std::string ind0)
             << setw(16) << left << "mdot(kg/s)" 
             << endl;
     }            
+    out.precision(8);
 }
 
 

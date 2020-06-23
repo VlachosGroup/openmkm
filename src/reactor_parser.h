@@ -35,6 +35,11 @@ enum RctrType {
     PFR
 };
 
+enum RctrPressureMode {
+    ISOBARIC,
+    ISOCHORIC
+};
+
 enum OutputFormat {
     DAT,
     CSV
@@ -116,9 +121,10 @@ public:
     //! Reactor volume for 0d reactors 
     double getVolume();
 
-    //! # CSTRs to use for 0d PFR
+    //! Number of CSTRs to use for 0d PFR
     size_t getNodes();
 
+    //! Catalyst parameters
     bool catalystAreaDefined();
     double getCatalystAbyV();
 
@@ -131,15 +137,16 @@ public:
     double getMassFlowRate();
     double getResidenceTime();
 
-    // Reactor Operational Modes
-
-    std::string getMode();
+    //! Reactor Operational Modes
+    std::string getMode();      // Deprecated. use getTMode
+    std::string getTMode();
+    RctrPressureMode getPMode();
     std::map<double, double> getTProfile();
     double getWallHeatTransferCoeff();
     double getWallSpecificArea();
     double getExternalTemp();
 
-    // User defined numerical solver options 
+    //! User defined numerical solver options 
     bool tolerancesDefined();
     double get_atol();
     double get_rtol();
@@ -148,8 +155,7 @@ public:
     bool solverMaxStepsDefined();
     double getSolverMaxSteps();
 
-    // Simulation output flags & parameters
-    
+    //! Simulation output flags & parameters
     bool initStepDefined();
     bool logTransient();
     double getInitStep();
@@ -157,11 +163,11 @@ public:
     double getEndTime();
     bool RPA();
 
-    // Simulation flags for TPD
+    //! Simulation flags for TPD
     double getTPDTempRamp();
     double getTPDEndTemp();
 
-    // Sensitivity Analysis
+    //! Sensitivity Analysis
     bool isSensitivityAnalysisEnabled();
     bool isfullSensitivityAnalysis();
     double getSensitivityAtol();

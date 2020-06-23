@@ -25,6 +25,7 @@
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/flowControllers.h"
+#include "cantera/zeroD/ReactorFactory.h"
 
 #include "IdealGasTRampReactor.h"
 #include "util.h"
@@ -56,7 +57,22 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     ofstream& gen_info_out) 
 {
     //Define the reactor based on the input file
-    auto rctr = make_shared<IdealGasTRampReactor>();
+    //auto rctr = make_shared<IdealGasTRampReactor>();
+    
+    auto pressure_mode = rctr_parser.getPMode();
+    string rctr_ptype;
+    switch (pressure_mode) {
+        case RctrPressureMode::ISOBARIC:
+            rctr_ptype = "IdealGasConstPressureReactor";
+            break;
+        case RctrPressureMode::ISOCHORIC:
+            rctr_ptype = "IdealGasReactor";
+        default:
+            rctr_ptype = "IdealGasReactor";
+    }
+    //shared_ptr<Reactor> rctr(dynamic_cast<Reactor*>(newReactor("IdealGasReactor")));
+    shared_ptr<Reactor> rctr(dynamic_cast<Reactor*>(newReactor(rctr_ptype)));
+
     rctr->insert(gas);
     //rctr->setThermoMgr(*(gas->thermo()));
     //rctr->setKineticsMgr(*(gas->kinetics()));
@@ -159,20 +175,20 @@ void run_0d_reactor(ReactorParser& rctr_parser,
 
     rctr->setChemistry();
 
-    // Read the reactor mode and set corresponding parameters
-    string mode = rctr_parser.getMode();
-    cout << "Reactor temperature mode: " << mode << endl;
-    gen_info_out << "Reactor Temperature mode: "  << mode << endl;
+    // Read the reactor temperature mode and set corresponding parameters
+    auto temp_mode = rctr_parser.getTMode();
+    cout << "Reactor temperature mode: " << temp_mode << endl;
+    gen_info_out << "Reactor temperature mode: "  << temp_mode << endl;
 
     // heat_rsrv and wall are nominally defined.
     // They are used if heat transfer is required.
     auto heat_rsrv = make_shared<Reservoir>(); 
     auto wall = make_shared<Wall>();
-    if (mode == "isothermal" || mode == "tpd")  
+    if (temp_mode == "isothermal" || temp_mode == "tpd")  
         rctr->setEnergy(0);
     else {
         rctr->setEnergy(1);
-        if (mode == "heat"){
+        if (temp_mode == "heat"){
             double htc = rctr_parser.getWallHeatTransferCoeff();  // htc
             double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
             double ext_temp = rctr_parser.getExternalTemp();      // Text
@@ -221,7 +237,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     }
     // Read simulation parameters
     double end_time = 0;
-    if (mode == "tpd"){
+    if (temp_mode == "tpd"){
         auto beg_temp = rctr_parser.T();
         auto end_temp = rctr_parser.getTPDEndTemp();
         auto temp_ramp = rctr_parser.getTPDTempRamp();

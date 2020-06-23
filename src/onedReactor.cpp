@@ -114,7 +114,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
     auto pfr = PFR1d(gas.get(), ikin, surf_ph, rctr_xc_area, cat_abyv, velocity);
     
     //string mode = rctr_node["mode"].as<string>();
-    string mode = rctr_parser.getMode();
+    string mode = rctr_parser.getTMode();
     cout << "Reactor temperature mode: " << mode << endl;
     gen_info << "Reactor temperature mode: "  << mode << endl;
     if (mode == "isothermal") {

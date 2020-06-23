@@ -19,6 +19,11 @@ std::map<std::string, RctrType> RctrTypeMap = {{"batch", BATCH},
                                                {"pfr_0d", PFR_0D},
                                                {"pfr", PFR}};
 
+std::map<std::string, RctrPressureMode> RctrPModeMap = {{"isobaric", ISOBARIC},
+                                               {"isochoric", ISOCHORIC},
+                                               {"isometric", ISOCHORIC},
+                                               {"isovolumetric", ISOCHORIC}};
+
 // The descendents are specified in reverse order
 Node getChildNode(Node& p_nd, string p_name, vector<string> rev_descendants)
 {
@@ -348,6 +353,7 @@ OutputFormat ReactorParser::printFormat()
 }
 
 //! Get Reactor Operational Modes
+//! Note: Deprecated. Use TMode instead
 //! The implemented modes are 
 //! "isothermal" -- isothermal operation, 
 //! "Tprofile"   -- Temperature profile along PFR 
@@ -359,6 +365,44 @@ string ReactorParser::getMode()
     auto mode_nd = getChildNode(m_rctr_nd, "tube.reactor",
                                 vector<string>{"mode"});
     return mode_nd.as<string>();
+}
+
+//! Get the temperature mode of the Reactor
+//! The options available are 
+//! "isothermal" -- Constant temperature operation, 
+//! "Tprofile"   -- Temperature profile along PFR 
+//! "TPD"        -- Temperature increased as a function of time 
+//! "adiabatic"  -- Adiabatic operation,
+//! "heat"       -- Heat conducting Walls
+string ReactorParser::getTMode()
+{
+    if(IsChildNodeAvailable(m_rctr_nd, vector<string>{"temperature_mode"})) {
+        auto Tmode_nd = getChildNode(m_rctr_nd, "tube.reactor", 
+                                     vector<string>{"temperature_mode"});
+        return Tmode_nd.as<string>();
+    } else {
+        cout << "'mode' keyword deprecated. Use 'temperature_mode' instead" << endl;
+        return getMode();
+    }
+}
+
+//! Get the pressure mode of the Reactor
+//! The options available are 
+//! "isobaric"   -- Constant pressure operation, 
+//! "isochoric"  -- Constant volume operation
+//! "isometric"  -- Equivalent to isochoric. Constant volume 
+RctrPressureMode ReactorParser::getPMode()
+{
+    string p_mode;
+    if(IsChildNodeAvailable(m_rctr_nd, vector<string>{"pressure_mode"})) {
+        auto Pmode_nd = getChildNode(m_rctr_nd, "tube.reactor",
+                                    vector<string>{"pressure_mode"});
+        p_mode = Pmode_nd.as<string>();
+    } else {
+        cout << "Pressure mode not supplied. Using constant volume (isochoric) mode" << endl; 
+        p_mode = "isochoric";
+    }
+    return RctrPModeMap[p_mode];
 }
 
 //! Get Temperature Profile imposed on PFR
@@ -519,7 +563,7 @@ bool ReactorParser::logTransient()
         transient_flag = transient_nd.as<bool>();
     }
     if (!transient_flag) {// Enable if tpd is enabled
-        if(getMode() == "tpd"){
+        if(getTMode() == "tpd"){
             transient_flag = true;
             cout << "Simulation in TPD Mode: " << endl
                  << "Enabling printing varaibles at transient state" << endl;
@@ -531,7 +575,7 @@ bool ReactorParser::logTransient()
 //! Parses the flag to enable transient output 
 string ReactorParser::steppingType()
 {
-    if(getMode() == "tpd"){
+    if(getTMode() == "tpd"){
         cout << "Simulation in TPD Mode: Regular stepping." << endl;
         return "regular";
     }
