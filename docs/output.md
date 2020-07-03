@@ -121,7 +121,7 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
 2. **gas\_mass**:
    - Mass fractions of gas species.
 
-3. **gas\_sdot**: 
+3. **gas\_msdot**: 
    - Production rates (units of kmol/s) of the gas species on the catalyst surface. Due to the possibility of multiple surfaces, per unit surface area is not used.
 
 4. **rctr\_state**:
