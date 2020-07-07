@@ -541,11 +541,11 @@ void print_0d_rctr_state_hdr(ostream& out, std::string ind0)
             << "Density" << "," 
             << "Mass" << "," 
             << "Volume" << "," 
-            << "IntEnergy" 
+            << "IntEnergy" << "," 
             << "mdot_in" << "," 
             << "mdot_out" << "," 
             << "mdot_surf" << "," 
-            << "mdot" << "," 
+            << "mdot" 
             << endl;
     } else {     
         out << setw(16) << left << ind0 
