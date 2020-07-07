@@ -165,6 +165,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
         }
 
         inlet_mfc->setMassFlowRate(mfr);
+        cout << "Mass Flow rate : " << inlet_mfc->getMassFlowCoeff() << endl;
         outlet->setMaster(inlet_mfc.get());
         outlet->setPressureCoeff(1e-14);
         in_rsrv->insert(gas);
@@ -314,7 +315,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
     vector<double> fr_params = rctr_parser.FRs();
     if (!fr_params.size()){
         if (rctr_type != BATCH) {
-            auto mfr = inlet_mfc->massFlowRate();
+            auto mfr = inlet_mfc->massFlowRate(0.0);
             fr_params.push_back(mfr/gas->thermo()->density());
         }
         else {
