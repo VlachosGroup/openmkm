@@ -125,7 +125,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
         pfr.setTProfile(rctr_parser.getTProfile());
     } 
     else {
-        pfr.setEnergy(1);
+        pfr.setEnergy(1); //TODO: explicitly check for adiabatic or heat modes
         if (mode == "heat") {
             double htc = rctr_parser.getWallHeatTransferCoeff();  // htc 
             double wall_abyv = rctr_parser.getWallSpecificArea(); // wall_abyv
