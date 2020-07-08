@@ -125,10 +125,12 @@ Description of specific files referring to values in all but the 1<sup>st</sup> 
    - Production rates (units of kmol/s) of the gas species on the catalyst surface. Due to the possibility of multiple surfaces, per unit surface area is not used.
 
 4. **rctr\_state**:
-   - Temperature (in K), pressure (in Pascals), density
+   - For batch, CSTR, or pfr_0d reactors, the following quantities are printed: temperature (in K), pressure (in Pascals), density
    (in kg/m<sup>3</sup>), mass (in kg), volume (in m<sup>3</sup>), either specific internal energy (units of J/kg) or specific enthalpy
    (units of J/kg) depending on the type of reactor, mass flow rate into the reactor (in kg/s), mass flow rate out of the reactor (kg/s), mass produced from the surface (in kg/s), net rate of change of mass (kg/s) in the reactor.
    - **Note**: Mass flow rate out of the reactor is printed as negative value. Similarly, if mass produced from surface is negative, it means surface absorbs more mass than the mass released.
+   - For PFR reactor, the following quantities are printed: temperature (in K), pressure (in Pascals), density
+   (in kg/m<sup>3</sup>), specific enthalpy (units of J/kg) 
 
 5. **surf\_cov**:
    - Coverage fractions in the range of [0,1] of the surface species.
@@ -177,7 +179,7 @@ Description of additional files printed out in FIM and LSA runs:
    - Identical information to surf_cov_ss file
 
 3.	Filename containing “_state”:
-   - Please fill this in, it is not the same information as in rctr_state_ss from the files I saw.
+   - Identical information to rctr_state_ss file
 
 4.	Filename containing “_sensitivity”:
    - FIM run: the reaction and corresponding Fischer information matrix 
