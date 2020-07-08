@@ -115,11 +115,20 @@ indicates whether this field is nested under another.
   </tr>
   <tr>
     <td class="tg-7d57"></td>
-    <td class="tg-7d57">mode</td>
+    <td class="tg-7d57">temperature_mode</td>
     <td class="tg-7d57"></td>
     <td class="tg-7d57">string</td>
     <td class="tg-7d57">Y</td>
-    <td class="tg-7d57">Operation of the reactor. Supported options:<br>- 'isothermal' (constant temperature)<br>- 'adiabatic' (no heat flow)<br>- 'tpd' (temperature programmed desorption)<br></td>
+    <td class="tg-7d57">Thermal mode of operation of the reactor. Supported options:<br>- 'isothermal' (constant temperature)<br>- 'heat' (heat transfer with external heat source or sink)<br>- 'adiabatic' (no heat flow)<br>- 'tpd' (temperature programmed desorption, applicable for CSTR/batch reactors only)<br>- 'tprofile' (preset temperature profile along the PFR length, applicable for PFR only)<br></td>
+    <td class="tg-7d57">-</td>
+  </tr>
+  <tr>
+    <td class="tg-7d57"></td>
+    <td class="tg-7d57">pressure_mode</td>
+    <td class="tg-7d57"></td>
+    <td class="tg-7d57">string</td>
+    <td class="tg-7d57">Y</td>
+    <td class="tg-7d57">Pressure mode of the reactor. Valid only for batch, CSTR or pfr_0d reactor models. Supported options:<br>- 'isobaric' (constant pressure)<br>- 'isochoric' or 'isometric' or 'isovolumetric' (constant volume)<br></td>
     <td class="tg-7d57">-</td>
   </tr>
   <tr>
