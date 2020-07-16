@@ -72,6 +72,10 @@ PFR1d::PFR1d(Solution *gas, vector<InterfaceKinetics*> surf_kins,
             m_var.push_back(sp_nm[i]);
         }
     }
+    auto sens_param_v_size = surf_kins.size() + 1;
+    for (auto i = 0; i < sens_param_v_size; i++){
+        m_sensParams.emplace_back(vector<SensitivityParameter>()); 
+    }
 
     m_T0 = gas->thermo()->temperature();
     m_P0 = gas->thermo()->pressure();
@@ -766,10 +770,6 @@ void PFR1d::applySensitivity()
     for (auto& p : m_sensParams[0]) {
         if (p.type == SensParameterType::reaction) {
             p.value = m_gas->kinetics()->multiplier(p.local);
-            //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
-            //double bias = 0.0 ;
-            //m_gas->setMultiplier(p.local, p.value * (params[p.global] + bias));
-            //m_gas->setMultiplier(p.local, p.value * params[p.global]);
             m_gas->kinetics()->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
         } else if (p.type == SensParameterType::enthalpy) {
             m_gas->thermo()->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
