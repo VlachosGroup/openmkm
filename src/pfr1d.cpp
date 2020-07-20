@@ -658,17 +658,9 @@ void PFR1d::addSensitivityReaction(size_t kin_ind, size_t rxn)
             m_sensParams.emplace_back(sensParams);
         }
     }
-    //vector<SensitivityParameter> curr_sensParams = m_sensParams[kin_ind];
     m_sensParams[kin_ind].emplace_back(
             SensitivityParameter{rxn, m_sens_params.size()-1, 1.0,
                                  SensParameterType::reaction});
-
-    /*
-    size_t p = network().registerSensitivityParameter(
-        name()+": "+m_kin->reactionString(rxn), 1.0, 1.0);
-    m_sensParams.emplace_back(
-        SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
-    */
 }
 
 void PFR1d::addSensitivitySpecies(std::string& species_name)
@@ -773,7 +765,6 @@ void PFR1d::applySensitivity()
             m_gas->kinetics()->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
         } else if (p.type == SensParameterType::enthalpy) {
             m_gas->thermo()->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
-            //m_gas->modifyOneHf298SS(p.local, p.value + params[p.global]);
         }       
     }
 
@@ -781,23 +772,15 @@ void PFR1d::applySensitivity()
         for (auto& p : m_sensParams[i+1]) {
             if (p.type == SensParameterType::reaction) {
                 p.value = m_surf_kins[i]->multiplier(p.local);
-                //double bias = ((params[p.global] == 1.0) ? 0.0 : 0.05);
-                //double bias = 0.0 ;
-                //m_surf_kins[i]->setMultiplier(p.local, p.value * (params[p.global] + bias));
-                //m_surf_kins[i]->setMultiplier(p.local, p.value * params[p.global]);
                 m_surf_kins[i]->setMultiplier(p.local, p.value * sensitivityParameter(p.global));
             } else if (p.type == SensParameterType::enthalpy) {
-                m_gas->thermo()->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
+                m_surf_phases[i]->modifyOneHf298SS(p.local, p.value + sensitivityParameter(p.global));
             }
         }
     }
 
-    //(dynamic_cast<Phase *>(m_gas))->invalidateCache();
-    //if (m_gas) {
-    //(dynamic_cast<Kinetics *>(m_gas))->invalidateCache();
     m_gas->thermo()->invalidateCache();
     m_gas->kinetics()->invalidateCache();
-    //}   
 }
 
 void PFR1d::resetSensitivity()
@@ -815,7 +798,11 @@ void PFR1d::resetSensitivity()
 
     for (size_t i = 0; i < m_surf_kins.size(); i++){
         for (auto& p : m_sensParams[i+1]) {
-            m_surf_kins[i]->setMultiplier(p.local, p.value);
+            if (p.type == SensParameterType::reaction) {
+                m_surf_kins[i]->setMultiplier(p.local, p.value);
+            } else if (p.type == SensParameterType::enthalpy) {
+                m_surf_phases[i]->resetHf298(p.local);
+            }
         }
     }
 
