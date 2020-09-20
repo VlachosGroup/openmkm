@@ -27,11 +27,14 @@ Conan package manger has many prebuilt binaries compatible with OS and compiler 
 If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
 
 #### Installing and configuring conan
-Conan can be installed simply by running 
+*Conan* can be installed by running 
 ```bash 
 pip install conan
 ```
-However, you may want to use anaconda virtual environment to install conan without polluting your system python. 
+The above command tries to install conan into your system python on Linux. However, you may want to use anaconda virtual environment to install conan without polluting your system python. *CMake* and *scons* are also required most of the times. You can install them using pip by running
+```bash
+pip install cmake scons
+```
 
 After conan is installed, configure it by running 
 ```bash
@@ -62,7 +65,7 @@ mkdir openmkm; cd openmkm
 ```
 Now install OpenMKM by running
 ```bash
-conan install openmkm/0.4@dei/vklab -g virtualenv --build missing
+conan install openmkm/0.6@dei/vklab -g virtualenv --build missing
 ```
 Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. 
 Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
