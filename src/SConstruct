@@ -1,6 +1,6 @@
 env = Environment(CPPPATH=[
-		           "/home/mbkumar/Software/cantera/install1/include",
-		           "/home/mbkumar/Software/cantera/install1/include/cantera/ext",
+		           "/cantera/include",
+		           "/cantera/include/cantera/ext",
                            #"/home/mbkumar/Research/Software/cantera/include", 
                            #"/home/mbkumar/Software/cantera/include", 
                            #"/home/mbkumar/Research/Software/cantera/ext/eigen",
@@ -24,6 +24,6 @@ env.Program(target="omkm", source=sources,
             #      "sundials_kinsol", "sundials_nvecserial",  "yaml-cpp", 
                   "boost_filesystem", "boost_system"],
             #LIBPATH=["/home/mbkumar/Software/cantera/install/lib64", "/usr/local/lib" ])
-            LIBPATH=["/home/mbkumar/Software/cantera/install1/lib64"])
+            LIBPATH=["/cantera/lib64"])
             #LIBPATH=["/home/mbkumar/Research/Software/cantera/build/lib", 
             #         "/usr/local/lib"])
