@@ -9,6 +9,13 @@
 # 
 # If you want to mount a volume run
 #     docker run -v /path/to/folder:/target/path -it omkm
+#
+# To run omkm on files in current directory
+#    docker run --rm -i --user="$(id -u):$(id -g)" -v "$PWD":/temp -w /temp omkm omkm file1.yaml file2.xml
+# 
+# To make omkm alias for direct exececution of omkm
+#    alias omkm='docker run --rm -i --user="$(id -u):$(id -g)" -v "$PWD":/temp -w /temp omkm omkm "$@"'
+
 
 # MAINTAINER Francesca L. Bleken, francescalb
 
@@ -31,32 +38,32 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 FROM dependencies AS build
 
 # Create and become normal user
-RUN useradd -ms /bin/bash user
-USER user
+# RUN useradd -ms /bin/bash user
+# USER user
 
 # Install Cantera, openmkm-version
-RUN mkdir -p /home/user/sw
-RUN cd /home/user/sw && git clone https://github.com/SINTEF/cantera.git
-RUN cd /home/user/sw/cantera && git checkout openmkm && scons build optimize=False python_package=n f90_interface=n doxygen_docs=n system_eigen=n system_sundials=n prefix=/home/user/sw/cantera_install use_rpath_linkage=False && scons install
+RUN mkdir -p /sw
+RUN cd /sw && git clone https://github.com/SINTEF/cantera.git
+RUN cd /sw/cantera && git checkout openmkm && scons build optimize=False python_package=n f90_interface=n doxygen_docs=n system_eigen=n system_sundials=n prefix=/sw/cantera_install use_rpath_linkage=False && scons install
 
 # Set up OpenMKM
 
-RUN mkdir -p /home/user/sw/openmkm
+RUN mkdir -p /sw/openmkm
 
-COPY --chown=user:user docs /home/user/sw/openmkm/docs
-COPY --chown=user:user examples /home/user/sw/openmkm/examples
-COPY --chown=user:user hetero_ct /home/user/sw/openmkm/hetero_ct
-COPY --chown=user:user scripts /home/user/sw/openmkm/scripts
-COPY --chown=user:user src /home/user/sw/openmkm/src
-COPY --chown=user:user test_files /home/user/sw/openmkm/test_files
+COPY docs /sw/openmkm/docs
+COPY examples /sw/openmkm/examples
+COPY hetero_ct /sw/openmkm/hetero_ct
+COPY scripts /sw/openmkm/scripts
+COPY src /sw/openmkm/src
+COPY test_files /sw/openmkm/test_files
 
-RUN /bin/bash -c "source /home/user/sw/cantera_install/bin/setup_cantera; cd /home/user/sw/openmkm/src; scons"
+RUN /bin/bash -c "source /sw/cantera_install/bin/setup_cantera; cd /sw/openmkm/src; scons"
 
-ENV PATH="/home/user/sw/openmkm/src:${PATH}"
+ENV PATH="/sw/openmkm/src:${PATH}"
 
-WORKDIR /home/user
+#WORKDIR /home
 
 # Default command
 
-CMD ["/bin/bash"]
+#CMD ["/bin/bash"]
 
