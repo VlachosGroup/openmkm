@@ -37,10 +37,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 ##########################################
 FROM dependencies AS build
 
-# Create and become normal user
-# RUN useradd -ms /bin/bash user
-# USER user
-
 # Install Cantera, openmkm-version
 RUN mkdir -p /sw
 RUN cd /sw && git clone https://github.com/SINTEF/cantera.git
@@ -56,6 +52,8 @@ COPY hetero_ct /sw/openmkm/hetero_ct
 COPY scripts /sw/openmkm/scripts
 COPY src /sw/openmkm/src
 COPY test_files /sw/openmkm/test_files
+
+RUN chmod 777 /sw/openmkm/src
 
 RUN /bin/bash -c "source /sw/cantera_install/bin/setup_cantera; cd /sw/openmkm/src; scons"
 
