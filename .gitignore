@@ -119,3 +119,4 @@ venv.bak/
 *.dat
 *.png
 
+.vscode/settings.json
