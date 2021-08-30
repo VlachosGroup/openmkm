@@ -146,10 +146,10 @@ void print_formation_enthalpy(vector<shared_ptr<ThermoPhase>> phases, string out
 {
     vector<doublereal> hform; 
     ofstream out (output_file);
-    out << "#Dimensionless formation enthalpies of species (H/RT)\n" << endl;
+    out << "#Dimensionless formation enthalpies of species (H/RT) at Reference Pressure of 1 bar\n" << endl;
     for  (const auto phase: phases){
         hform.resize(phase->nSpecies());
-        phase->getEnthalpy_RT(hform.data());
+        phase->getEnthalpy_RT_ref(hform.data());
         for (size_t k = 0; k < phase->nSpecies(); k++) {
             out.width(12); 
             out << std::left << phase->speciesName(k); 
@@ -163,10 +163,10 @@ void print_formation_entropy(vector<shared_ptr<ThermoPhase>> phases, string outp
 {
     vector<doublereal> sform; 
     ofstream out (output_file);
-    out << "#Dimensionless formation entropies of species (S/R)\n" << endl;
+    out << "#Dimensionless formation entropies of species (S/R) at Reference Pressure of 1 bar\n" << endl;
     for  (const auto phase: phases){
         sform.resize(phase->nSpecies());
-        phase->getEntropy_R(sform.data());
+        phase->getEntropy_R_ref(sform.data());
         for (size_t k = 0; k < phase->nSpecies(); k++) {
             out.width(12); 
             out << std::left << phase->speciesName(k); 
@@ -198,12 +198,12 @@ void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string out
 {
     vector<doublereal> hrxn;
     ofstream out (output_file);
-    out << "#Dimensionless enthalpies of reactions (H/RT)\n" << endl;
+    out << "#Dimensionless enthalpies of reactions (H/RT) at Reference Pressure 1bar\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
         if (size > 0) {
             hrxn.resize(size);
-            mgr->getDeltaEnthalpy(hrxn.data());
+            mgr->getDeltaSSEnthalpy(hrxn.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(16);
                 out << scientific << std::left << hrxn[k]/(GasConstant*T) ;
@@ -217,19 +217,24 @@ void print_rxn_enthalpy(vector<Kinetics*> kinetic_mgrs, doublereal T, string out
 void print_rxn_entropy(vector<Kinetics*> kinetic_mgrs, string output_file)
 {
     vector<doublereal> sRxn;
+    vector<doublereal> sRxnRef;
     ofstream out (output_file);
-    out << "#Dimensionless entropies of reactions (S/R)\n" << endl;
+    out << "#Dimensionless entropies of reactions (S/R) at Reactor & Ref. Pressure (1bar)\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
         if (size > 0) {
             sRxn.resize(size);
+            sRxnRef.resize(size);
             mgr->getDeltaSSEntropy(sRxn.data());
+            mgr->getDeltaRefEntropy(sRxnRef.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(16);
                 out << scientific << std::left << sRxn[k]/GasConstant ;
                 out.width(16);
+                out << scientific << std::left << sRxnRef[k] / GasConstant;
                 out << scientific << std::left << mgr->reactionString(k) << endl;
             }
+
         }
     }
 }
@@ -258,18 +263,22 @@ void print_rxn_eq_consts(vector<Kinetics*> kinetic_mgrs, string output_file)
 void print_rxn_gibbs(vector<Kinetics*> kinetic_mgrs, doublereal T,  
         string output_file)
 {
-    vector<doublereal> muRxn; 
+    vector<doublereal> muRxn;
+    vector<doublereal> muRxnRef;
     ofstream out (output_file);
-    out << "#Dimensionless Gibbs Energies of reactions (G/RT)\n" << endl;
+    out << "#Dimensionless Gibbs Energies of reactions (G/RT) at Reactor & Ref. Pressure (1bar)\n" << endl;
     for  (const auto mgr: kinetic_mgrs){
         size_t size = mgr->nReactions();
         if (size > 0) {
             muRxn.resize(size);
+            muRxnRef.resize(size);
             mgr->getDeltaSSGibbs(muRxn.data());
+            mgr->getDeltaRefGibbs(muRxnRef.data());
             for (size_t k = 0; k < size; k++) {
                 out.width(16); 
-                out << scientific << std::left << muRxn[k]/(GasConstant*T) ;
+                out << scientific << std::left << muRxn[k] / (GasConstant*T) ;
                 out.width(16); 
+                out << scientific << std::left << muRxnRef[k] / (GasConstant * T);
                 out << std::left << mgr->reactionString(k) << endl;
             }
         }

@@ -8,7 +8,7 @@
 //#include "application.h"
 #include "cantera/base/global.h"
 
-#include "hctexceptions.h"
+#include "omkmexceptions.h"
 
 namespace OpenMKM
 {
