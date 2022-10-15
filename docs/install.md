@@ -4,197 +4,188 @@ layout: default
 
 # OpenMKM Installation Guide
 
-## Windows
-On Windows machines, a [GUI OpenMKM installer][OpenMKM_installer] is available. 
-After installing the OpenMKM, open the "Start Menu", browse to OpenMKM, and click on "OpenMKM CmdLine". 
-This will open a new command line windows with OpenMKM added to the path. To test, type and run "omkm" in the command line 
-which should print description about OpenMKM. 
+## Windows Linux or Mac OS (The easy way)
+### Windows 
+On Windows machines, the easiest way to install and test OpenMKM is by using [Docker](https://www.docker.com/products/docker-desktop/) containers. The latest build of OpenMKM is avaialble at the [VlachosGroup DockerHub repository](https://hub.docker.com/u/vlachosgroup).
 
-To test further, open the "Start Menu", browse to OpenMKM, and click on *Examples*. This will open a new explorer window containing folder *examples*.
-Switch to *examples\model_simul* and copy the *batch* folder to some directory lets say *C:\Users\_your_user_name\tmp*. Switch to 
-*C:\Users\_your_user_name\tmp\batch* in the previously opened command line prompt and run 
-```bash
-omkm batch.yaml grimech30.xml
+1) First [install](https://docs.docker.com/desktop/windows/install/) Docker Desktop app to access the Docker API. 
+2) You could use Windows Command Prompt or Windows Powershell to run the Docker command line utilities. (Optional) Use Microsoft Terminal for a more seamless experience. 
+3) Install the OpenMKM container in one-line
+``` 
+docker pull vlachosgroup/openmkm
+``` 
+4) In the terminal or command prompt change directory to the path where you want to run your simulation, let's say *C:\Users\_your_user_name\tmp*. Then Copy the reactor specification `reactor.yaml` and thermodynamic specification `thermo.xml` to the current working directory. You can find example input files in the *examples\model_simul*. 
+5) Run the omkm executable from within the docker container at the location with input files to generate results in the current folder. This should create a lot of new files in the current folder. For help with `docker run` please read [documentation](https://docs.docker.com/engine/reference/commandline/run/). Example command for Linux is: 
 ```
-which should create lot of new files.
-
-
-## Linux
-
-### Using conan package manager (The Easy Way)
-To reduce the complications associated with compiling so many dependencies, OpenMKM can be installed with conan package manager. 
-Conan package manger has many prebuilt binaries compatible with OS and compiler versions. 
-If prebuilt binaries are not available for any of the dependencies, they will be compiled and built during OpenMKM installation.
-
-#### Installing and configuring conan
-*Conan* can be installed by running 
-```bash 
-pip install conan
-```
-The above command tries to install conan into your system python on Linux. However, you may want to use anaconda virtual environment to install conan without polluting your system python. *CMake* and *scons* are also required most of the times. You can install them using pip by running
-```bash
-pip install cmake scons
+docker run --rm -it -v $(pwd):/data  --workdir="/data" openmkm /bin/bash -c "omkm reactor.yaml thermo.xml"
 ```
 
-After conan is installed, configure it by running 
-```bash
-conan profile new default --detect 
-```
-If you are using gcc compiler suite, and its version is >= 5.1 (from the output of gcc --version command), run
-```bash
-conan profile update settings.compiler.libcxx=libstdc++11 default
-```
+### Linux 
+1) Use the appropriate instructions for your linux flavor to [install Docker Desktop](https://docs.docker.com/desktop/linux/install/).
+2. Rest of the instructions are similar to Windows. You can simply use Linux Terminal.  
 
-Configure the conan remotes
-```bash
-conan remote add vklab https://api.bintray.com/conan/dei/vklab 
-```
-Here vklab is the name given to the remote specified in the url. The name is arbitrary and you can use any name you like. Running 
-```bash
-conan remote list 
-```
-should now show
-```bash
-conan-center: https://conan.bintray.com [Verify SSL: True]
-vklab: https://api.bintray.com/conan/dei/vklab [Verify SSL: True]
-```
+### Mac OS 
+1) Use the appropriate instructions for your Mac OS (Intel or Apple silicon) to [install Docker Desktop](https://docs.docker.com/desktop/mac/install/).
+2. Rest of the instructions are similar to Windows. You can simply use Mac OS Terminal.  
 
-To install OpenMKM, first create a directory and change the working directory to the newly created directory.
-```bash
-mkdir openmkm; cd openmkm
-```
-Now install OpenMKM by running
-```bash
-conan install openmkm/0.6@dei/vklab -g virtualenv --build missing
-```
-Installation may take anywhere between a minute to 30 minutes or even longer depending on various factors. 
-Once the step is completed, there will be two files activate.sh, deactivate.sh in the directory. Run
-```bash
-source activate.sh
-```
-Now typing 
-```bash
-which omkm
-```
-should show the location of OpenMKM executable. Notice the long path of the openmkm executable. 
-The root location of OpenMKM is one folder above the executable location. 
+## Compiling the source-code and all the dependencies (The Hard Way)
 
+### Dependencies
 
-### Manual compiling (the hard way)
+OpenMKM source code depends on Cantera, yaml-cpp, and Boost libraries. Cantera depends on a lot of other libraries which can be automatically installed using it's internal build tool called scons. Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux/Mac machines, or MSVC for Windows machines). In addition to these we need general development build tools such as git, scons, and cmake software packages. Refer to cantera installation steps below.
 
-#### Dependencies
-OpenMKM source code depends on Cantera, SUNDIALS, Eigen, yaml-cpp, and Boost libraries. 
-Additionally compiling OpenMKM requries  users to install a compiler (typically gcc on Linux machines), 
-git, scons, and cmake software packages. Here are the
-steps that can be used to install dependencies and OpenMKM.
-SUNDIALS and Eigen can be downloaded and installed as part of cantera installation. 
-Refer to cantera installation steps below.
-
-#### Basics
+### Instructions for Linux
+#### Install Dev-Tools  
 First install gcc, git, scons, and cmake using OS package managers. This can be quickly accomplished using software patterns.
+  - For Example in Ubuntu `sudo apt-get install build-essential git-all cmake scons wget python3-setuptools`
+  
+  - After installing the packages, check the version of gcc installed with: `gcc --version`
+  - Fedora: 
+  ```
+  sudo dnf groupinstall "Development Tools"
+  sudo dnf install git-all cmake scons
+  ```
+  - OpenSUSE
+  ```
+  sudo zypper in -t pattern devel_basis
+  sudo zypper in cmake scons
+  ```
 
-1. Ubuntu:
-```bash
-sudo apt-get install build-essential git-all cmake scons
+#### Install Boost 
+Boost is a C++ template library that is often distributed with Linux. Refer to distro package manager documentation on how to obtain them. Example instructions for Ubuntu: `sudo apt-get install libboost-all-dev`. If you install boost using apt-get, you need to figure out the path of the boost header files and boost libraries. Typically, they are installed at /usr/lib/x86_64-linux-gnu/ or /usr/lib. Please search online to figure out where where boost is installed on you machine.   
+
+However, if you want to install boost headers and libraries to your local install folder, you could do something like this. 
+- Download version 1.71.0 [Boost library](https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.gz) directly from Boost website. Or to look at a list of version [Boost Versions](https://sourceforge.net/projects/boost/files/boost/). 
+- Make sure to download and install boost to a known location. 
+- Assuming you are working in your `HOME` software directory. 
+- Make sure you explicitly set the `prefix` directory which is where you install boost headers and libs. You need this path. 
+
+``` 
+cd $HOME/software
+mkdir boost/
+wget https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.gz
+tar -xzf boost_1_71_0.tar.gz
+cd boost_1_71_0
+./bootstrap.sh -prefix=/home/software/boost/boost-install && \
+./b2 && \
+./b2 install && \
+``` 
+
+#### Cantera installation
+To install OpenMKM, Cantera needs to be built from source. Download the source-code from Bharat's fork on GitHub. With git this can be accomplished by the first line. Then checking out  the *openmkm* branch which contains modifications to official version of Cantera to support coverage effects.
 ```
-
-2. Fedora: 
-```bash
-sudo dnf groupinstall "Development Tools"
-sudo dnf install git-all cmake scons
-```
-
-3. OpenSUSE
-```bash
-sudo zypper in -t pattern devel_basis
-sudo zypper in cmake scons
-```
-
-After installing the packages, check the version of gcc installed.
-```bash
-gcc --version
-```
-
-
-#### Boost, Eigen (optional), & YAML-CPP 
-Boost and Eigen are C++ template libraries and often are distributed with Linux. 
-Similarly yaml-cpp is available on most of the Linux distros.
-Refer to distro package manager documentation on how to obtain them. 
-
-#### SUNDIALS (optional) installation
-[SUNDIALS][sundials_page] is a numerical solver suite from Lawrence Livermore
-National Lab. **OpenMKM v0.6.0** is tested with SUNDIALS 4.1. For Linux, SUNDIALS is
-often available from distro package managers. Check if the version of the distro 
-supplied SUNDIALS matches with 4.1. If the required version is not
-supplied with distro, one can download v4.1.1 of [SUNDIALS][sundials_download] and follow
-the supplied instructions to install. 
-
-### Cantera installation
-To install OpenMKM, Cantera needs to be built from source. Download the source
-code from Bharat's fork on GitHub. With git this can be accomplished by 
-``` bash
+cd <path to your local software folder>
 git clone https://github.com/mbkumar/cantera.git
-```
-and then checking out  the *openmkm* branch which contains modifications 
-to official version of Cantera to support coverage effects.
-``` bash
 cd cantera
 git checkout openmkm
 ```
-Alternatively, one could select the openmkm branch and down the source code as a zip file.
 Both Cantera and OpenMKM use *scons*, a Python based build tool that is
-functionally similar to *cmake*, for build purposes. The following command
-could be used to compile Cantera on Linux machines, where SUNDIALS is pre-installed.
-``` bash
-scons build optimize=False python_package=n f90_interface=n doxygen_docs=n \
-system_eigen=y system_sundials=y sundials_libdir=/usr/lib64 \
-python_cmd=~/anaconda3/envs/<env_name>/bin/python \
-python_prefix=~/anaconda3/envs/<env_name>/lib/python3.7/site-packages \
-prefix=~/cantera_install use_rpath_linkage=False \
-extra_inc_dirs="/usr/include/eigen3:/usr/include"
+functionally similar to *cmake*, for build purposes. The following command could be used to compile Cantera on Linux machines. Please edit the `prefix` to describe where to install cantera and `extra_inc_dirs` to point to your local or system specific boost include location. 
+```
+scons build optimize=False python_package=n f90_interface=n \ doxygen_docs=n \
+prefix=/home/software/cantera-install
+extra_inc_dirs="/home/software/boost/boost-install/include"
 ```
 
-A few points on the above Cantera compilation command:
-1. System supplied SUNDIALS and Eigen3 software packages are preinstalled.
-   SUNDIALS is installed in /usr/lib64 folder, and Eigen3 is installed at
-   /usr/include/eigen3. Note that Eigen3 is a header only package. 
-
-2. Use python_cmd and python_prefix to specify the Python command and the
-   Python library paths. In the above command, instead of system Python,
-   anaconda Python is used. \<env_name\> represents the virtual environment
-   name and python3.7 is the version of Python used. 
-
-3. cantera is installed at *~/cantera_install* folder.
-
-Another way of installation is to install SUNDIALS and Eigen while installing cantera.
-``` bash
-scons build optimize=False python_package=n f90_interface=n doxygen_docs=n \
-system_eigen=n system_sundials=n \
-python_cmd=~/anaconda3/envs/<env_name>/bin/python \
-python_prefix=~/anaconda3/envs/<env_name>/lib/python3.7/site-packages 
-prefix=~/cantera_install use_rpath_linkage=False \
+Another way of installation is to create a cantera.conf file and update it with the options used by `scons`. This file is created by scons automatically if you followed the previous step. If this file exists, you could simple do `scons build` and `scons install`. Example cantera.conf file based on previous options
 ```
-Now SUNDIALS library is included within the cantera library. The headers of Eigen and SUNDIALS are now available at *~/cantera_install/include/cantera/ext*.
-
-## OpenMKM installation
+python_package = 'n'
+f90_interface = 'n'
+boost_inc_dir = '/usr/local/include/'
+```
+#### OpenMKM installation
 
 1. Download OpenMKM from https://github.com/VlachosGroup/openmkm.
 
 2. Go to OpenMKM_ROOT/src folder, where OpenMKM_ROOT is the top level directory
    of OpenMKM package, and edit SConstruct file to specify the dependencies.
 
-    * Edit CPPPATH variable to specify the location of SUNDIALS, eigen3, and 
+    - Edit CPPPATH variable to specify the location of SUNDIALS, eigen3, and 
       cantera headers.
-
-    * Edit LIBPATH variable to specify the location of sundials and cantera
+    - Edit LIBPATH variable to specify the location of sundials and cantera
       libraries. If SUNDIALS is installed as part of cantera installation, no need to specify SUNDIALS location
-
-    * Adjust the CCFLAGS and LINKFLAGS variables to make sure the compiler and
+    - Adjust the CCFLAGS and LINKFLAGS variables to make sure the compiler and
       linker options are consistent with those generated by scons during
-      Cantera building stage. 
+      Cantera building stage.
+3. Example `Sconstruct` file for OpenMKM
+```
+env = Environment(CPPPATH=["/usr/local/include", "/usr/local/include/cantera/ext"],
+                  CCFLAGS=["-std=c++11", "-Wall", 
+                           "-g",
+                           "-fprofile-arcs", "-ftest-coverage", 
+                           "-pthread"],
+                  LINKFLAGS=["-fprofile-arcs", "-ftest-coverage", 
+                             "-pthread", "-g", "-std=c++11"])
+sources = ["main.cpp", "util.cpp", "zerodReactor.cpp", "onedReactor.cpp", 
+           "io.cpp", "pfr1d.cpp", "pfr1d_solver.cpp", 
+           "IdealGasTRampReactor.cpp", "reactor_parser.cpp",
+           "NonLinearSolver.cpp", "KIN_Solver.cpp", "ReactorNetHybrid.cpp"
+           ]
 
-3. Run ```scons```  
+env.Program(target="omkm", source=sources, 
+            LIBS=["cantera", 
+                  "boost_filesystem", "boost_system"],
+            LIBPATH=["/usr/local/lib"])
+```  
+4. Run ```scons```
+### Instructions for MacOS
+#### Install Dev-Tools  
+First install gcc, git, scons, and cmake using [HomeBrew](https://brew.sh/) or MacPorts. 
+  - For example using brew you can do like so 
+  ```brew install gcc
+  brew install cmake
+  brew install git 
+  brew intall scons
+  ```
+  - After installing the packages, check the version of gcc installed with: `gcc --version`
+#### Install Boost 
+Boost is a C++ template library that is often distributed with Linux. Refer to distro package manager documentation on how to obtain them. Example instructions for HomeBrew: `brew install boost`
 
-[sundials_page]: https://computation.llnl.gov/projects/sundials/
-[sundials_download]: https://computation.llnl.gov/projects/sundials/sundials-software
-[OpenMKM_installer]: https://github.com/VlachosGroup/openmkm/blob/master/OpenMKMInstaller-0.6.0-win64.exe
+#### Cantera installation
+To install OpenMKM, Cantera needs to be built from source. Download the source-code from Bharat's fork on GitHub. With git this can be accomplished by the first line. Then checking out  the *openmkm* branch which contains modifications to official version of Cantera to support coverage effects.
+```
+cd <path to your local software folder>
+git clone https://github.com/mbkumar/cantera.git
+cd cantera
+git checkout openmkm
+```
+Both Cantera and OpenMKM use *scons*, a Python based build tool that is
+functionally similar to *cmake*, for build purposes. The following command could be used to compile Cantera on Linux machines. Please edit the `prefix` to describe where to install cantera and `extra_inc_dirs` to point to your local or system specific boost include location. 
+```
+scons prefix=/Users/<yourusername>/software/cantera \
+python_package='n' \
+f90_interface='n' \
+doxygen_docs='n' \
+sphinx_docs='n' \
+system_eigen='n' \
+system_sundials='n' \
+build
+scons install 
+```
+
+Another way of installation is to create a cantera.conf file and update it with the options used by `scons`. This file is created by scons automatically if you followed the previous step. If this file exists, you could simple do `scons build` and `scons install`. Example cantera.conf file based on previous options
+```
+prefix = '/Users/<yourusername>/software/cantera'
+python_package = 'n'
+f90_interface = 'n'
+system_eigen = 'n'
+system_sundials = 'n'
+```
+#### OpenMKM installation
+
+1. Download OpenMKM from https://github.com/VlachosGroup/openmkm.
+
+2. Go to OpenMKM_ROOT/src folder, where OpenMKM_ROOT is the top level directory
+   of OpenMKM package, and use CMAKE to compile OpenMKM.
+   ```
+   CC=gcc CXX=g++ cmake -S . -B build \
+   -DCMAKE_INSTALL_PREFIX=/Users/<yourusername>/software/openmkm \
+   -DCANTERA_PREFIX=<cantera-install-path-from-previous-step> \
+   -DBOOST_ROOT=/opt/homebrew/Cellar/boost@1.76/1.76.0_1   #location of boost
+   make 
+   make install
+   ```
+3. Check the installation by running the examples. 
+
+### Instructions for Windows
+MS Visual Studio based installation will be added in the future. 
