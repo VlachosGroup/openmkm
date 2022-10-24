@@ -154,9 +154,6 @@ SET(omkm_SOURCES
 # Define the omkm target:
 #
 ADD_EXECUTABLE(omkm ${omkm_SOURCES})
-IF ( NOT USE_EXTERNAL_YAML_CPP )
-    ADD_DEPENDENCIES(omkm yaml-cpp)
-ENDIF ()
 IF ( THREADS_HAVE_PTHREAD_ARG )
     TARGET_COMPILE_OPTIONS(omkm PUBLIC "-pthread")
 ENDIF()
