@@ -148,9 +148,6 @@ SET(omkm_SOURCES
         "pfr1d_solver.cpp"
         "IdealGasTRampReactor.cpp"
         "reactor_parser.cpp"
-        "NonLinearSolver.cpp"
-        "KIN_Solver.cpp"
-        "ReactorNetHybrid.cpp"
     )
 
 #
