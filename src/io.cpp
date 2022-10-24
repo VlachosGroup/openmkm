@@ -596,7 +596,7 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
                       << rctr->density()  << ","
                       << rctr->mass() << ","
                       << rctr->volume() << ","
-                      << rctr->intEnergy_mass() 
+                      << rctr->intEnergy_mass() << ","
                       << mdot_in << ","
                       << mdot_out << ","
                       << mdot_surf << ","
