@@ -7,7 +7,6 @@
 #   - Cantera
 #   - sundials (if Cantera not built with bundled sundials)
 #   - kinsol (if Cantera not built with bundled sundials)
-#   - yaml-cpp (or using embedded internal build from source)
 #
 CMAKE_MINIMUM_REQUIRED (VERSION 3.11)
 PROJECT (OpenMKM VERSION 0.6.1 LANGUAGES CXX)
@@ -130,29 +129,6 @@ if (WIN32)
 	
 	add_definitions ( -DBOOST_ALL_DYN_LINK )
 endif()
-#
-# Locate the yaml-cpp library _or_ build a copy of it:
-#
-OPTION(USE_EXTERNAL_YAML_CPP "Do not use the embedded yaml-cpp library" FALSE)
-IF ( USE_EXTERNAL_YAML_CPP )
-    SET(YAML_CPP_PREFIX "/usr/local" CACHE PATH "yaml-cpp is installed under this directory")
-ENDIF ()
-IF ( USE_EXTERNAL_YAML_CPP )
-    FIND_PATH(yaml_cpp_INCLUDE_DIRS "yaml-cpp/yaml.h" HINTS "${YAML_CPP_PREFIX}/include")
-    IF ( NOT yaml_cpp_INCLUDE_DIRS )
-        MESSAGE(FATAL_ERROR "Could not find the yaml-cpp headers")
-    ENDIF ()
-    FIND_LIBRARY(yaml_cpp_LIBRARIES "yaml-cpp" HINTS "${YAML_CPP_PREFIX}/lib" "${YAML_CPP_PREFIX}/lib" ENV LD_LIBRARY_PATH)
-    IF ( NOT yaml_cpp_LIBRARIES )
-        MESSAGE(FATAL_ERROR "Could not find the yaml-cpp library")
-    ENDIF ()
-ELSE ()
-    #execute_process(COMMAND git submodule update --init -- yaml-cpp 
-    #                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    #SET(yaml_cpp_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/yaml-cpp/include
-    #CACHE PATH "yaml-cpp include directory")
-    ADD_SUBDIRECTORY(yaml-cpp)
-ENDIF ()
 
 #
 # Pthreads, please:
@@ -199,7 +175,6 @@ TARGET_INCLUDE_DIRECTORIES(omkm PUBLIC
         ${kinsol_INCLUDE_DIRS}
         ${eigen_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
-        ${yaml_cpp_INCLUDE_DIRS}
     )
 TARGET_LINK_LIBRARIES(omkm
         ${Cantera_LIBRARIES}
@@ -207,7 +182,6 @@ TARGET_LINK_LIBRARIES(omkm
         ${kinsol_LIBRARIES}
         #${Boost_LIBRARIES}
         Boost::filesystem Boost::system
-        ${yaml_cpp_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
     )
 
