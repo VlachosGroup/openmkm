@@ -32,7 +32,7 @@
 #include "run_reactor.h"
 #include "omkmexceptions.h"
 #include "io.h"
-#include "ReactorNetHybrid.h"
+//#include "ReactorNetHybrid.h"
 
 
 namespace OpenMKM 
