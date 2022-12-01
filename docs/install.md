@@ -15,9 +15,11 @@ On Windows machines, the easiest way to install and test OpenMKM is by using [Do
 docker pull vlachosgroup/openmkm
 ``` 
 4) In the terminal or command prompt change directory to the path where you want to run your simulation, let's say *C:\Users\_your_user_name\tmp*. Then Copy the reactor specification `reactor.yaml` and thermodynamic specification `thermo.xml` to the current working directory. You can find example input files in the *examples\model_simul*. 
-5) Run the omkm executable from within the docker container at the location with input files to generate results in the current folder. This should create a lot of new files in the current folder. For help with `docker run` please read [documentation](https://docs.docker.com/engine/reference/commandline/run/). Example command for Linux is: 
+5) Run the omkm executable from within the docker container at the location with input files to generate results in the current folder. This should create a lot of new files in the current folder. For help with `docker run` please read [documentation](https://docs.docker.com/engine/reference/commandline/run/). Example command for running from Windows Powershell. 
+  - Note 1: This does not work in Windows Command Prompt. 
+  - Note 2: In this command we are mounting the current directory `$(pwd)` containing the `reactor.yaml` and `thermo.xml` to be used within the Docker container at the location `/data`, when the omkm binary is executed. Because we using Docker `mount` the results of the simulation are written to the current directory. For more information see [docker mount](https://docs.docker.com/storage/bind-mounts/).
 ```
-docker run --rm -it -v $(pwd):/data  --workdir="/data" openmkm /bin/bash -c "omkm reactor.yaml thermo.xml"
+docker run --rm -it --mount type=bind,source="$(pwd)",target=/data --workdir="/data" openmkm /bin/bash -c "omkm reactor.yaml thermo.xml"
 ```
 
 ### Linux 
