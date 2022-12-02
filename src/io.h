@@ -155,9 +155,10 @@ void print_pfr_rctr_state(double z, PFR1d* rctr,
  */
 void print_0d_rctr_state(double z, Cantera::Reactor* rctr, 
                           std::vector<Cantera::SurfPhase*> surfaces,
+                          std::shared_ptr<Cantera::Solution> gas, 
                           std::ostream& gas_mole_out, std::ostream& gas_mass_out,
-                          std::ostream& gas_msdot_out, std::ostream& surf_cov_out,
-                          std::ostream& surf_msdot_out, std::ostream& state_var_out);
+                          std::ostream& gas_msdot_out, std::ostream& gas_gdot_out, 
+                          std::ostream& surf_cov_out, std::ostream& surf_msdot_out, std::ostream& state_var_out);
 
 }
 #endif
