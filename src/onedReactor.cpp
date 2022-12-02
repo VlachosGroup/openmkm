@@ -262,6 +262,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 ofstream gas_mole_out((out_dir / ("gas_mole_ss." + file_ext)).string(), ios::out);
                 ofstream gas_mass_out((out_dir / ("gas_mass_ss." + file_ext)).string(), ios::out);
                 ofstream gas_sdot_out((out_dir / ("gas_sdot_ss." + file_ext)).string(), ios::out);
+                ofstream gas_gdot_out((out_dir / ("gas_gdot_ss." + file_ext)).string(), ios::out);
                 ofstream surf_cov_out((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
                 ofstream surf_sdot_out((out_dir / ("surf_sdot_ss." + file_ext)).string(), ios::out);
                 ofstream state_var_out((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
@@ -272,6 +273,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                     gas_mole_out << "# Gas Mole fractions\n";
                     gas_mass_out << "# Gas Mass fractions\n";
                     gas_sdot_out << "# Surface Production Rates of  Gas Species (units of kmol/s)\n";
+                    gas_gdot_out << "# Gas Production Rates of Gas Species (units of kmol/s)\n";
                     surf_cov_out << "# Surace Coverages\n";
                     surf_sdot_out << "# Production Rates of Surface Species (units of kmol/m2/s) \n";
                     state_var_out << "# Steady State Reactor State\n";
@@ -280,6 +282,7 @@ void run_1d_reactor(ReactorParser& rctr_parser,
                 print_gas_species_hdr(gas_mole_out, gas->thermo().get(), "z(m)");
                 print_gas_species_hdr(gas_mass_out, gas->thermo().get(), "z(m)");
                 print_gas_species_hdr(gas_sdot_out, gas->thermo().get(), "z(m)");
+                print_gas_species_hdr(gas_gdot_out, gas->thermo().get(), "z(m)");
                 print_surface_species_hdr(surf_cov_out, surfaces, "z(m)");
                 print_surface_species_hdr(surf_sdot_out, surfaces, "z(m)");
                 print_pfr_state_hdr(state_var_out);
@@ -294,8 +297,9 @@ void run_1d_reactor(ReactorParser& rctr_parser,
 
                 for (const auto& z : zvals) {
                     pfr_solver.solve(z);
-                    print_pfr_rctr_state(z, &pfr, gas_mole_out, gas_mass_out, 
-                                         gas_sdot_out, surf_cov_out, surf_sdot_out, state_var_out);
+                    print_pfr_rctr_state(z, &pfr, gas, gas_mole_out, gas_mass_out, 
+                                         gas_sdot_out, gas_gdot_out, surf_cov_out, 
+                                         surf_sdot_out, state_var_out);
                     if (rpa_flag) {
                         string rpa_file_name = "rates_z-";
                         rpa_file_name += to_string(z);
