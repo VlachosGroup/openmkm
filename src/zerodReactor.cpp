@@ -357,6 +357,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 ofstream gas_mole_ss_out ((out_dir / ("gas_mole_ss." + file_ext)).string(), ios::out);
                 ofstream gas_mass_ss_out ((out_dir / ("gas_mass_ss." + file_ext)).string(), ios::out);
                 ofstream gas_sdot_ss_out ((out_dir / ("gas_sdot_ss." + file_ext)).string(), ios::out);
+                ofstream gas_gdot_ss_out((out_dir / ("gas_gdot_ss." + file_ext)).string(), ios::out);
                 ofstream surf_cov_ss_out ((out_dir / ("surf_cov_ss." + file_ext)).string(), ios::out);
                 ofstream surf_sdot_ss_out ((out_dir / ("surf_sdot_ss." + file_ext)).string(), ios::out);
                 ofstream state_var_ss_out ((out_dir / ("rctr_state_ss." + file_ext)).string(), ios::out);
@@ -366,6 +367,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     gas_mole_ss_out << "# Gas Mole fractions at Steady State\n";
                     gas_mass_ss_out << "# Gas Mass fractions at Steady State\n";
                     gas_sdot_ss_out << "# Surface Production Rates of  Gas Species (units of kmol/s) at Steady State\n";
+                    gas_gdot_ss_out << "# Gas phase Production Rates of  Gas Species (units of kmol/s) at Steady State\n";
                     surf_cov_ss_out << "# Surface Coverages of Surface Species at Steady State\n"; 
                     surf_sdot_ss_out << "# Production Rates of Surface Species (units of kmol/m2/s) at Steady State\n"; 
                     state_var_ss_out << "# Steady State Reactor State\n";
@@ -422,6 +424,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     print_gas_species_hdr(gas_mole_ss_out, gas->thermo().get(), "z(m^3)");
                     print_gas_species_hdr(gas_mass_ss_out, gas->thermo().get(), "z(m^3)");
                     print_gas_species_hdr(gas_sdot_ss_out, gas->thermo().get(), "z(m^3)");
+                    print_gas_species_hdr(gas_gdot_ss_out, gas->thermo().get(), "z(m^3)");
                     print_surface_species_hdr(surf_cov_ss_out, surfaces, "z(m^3)");
                     print_surface_species_hdr(surf_sdot_ss_out, surfaces, "z(m^3)");
                     print_0d_rctr_state_hdr(state_var_ss_out, "z(m^3)");
@@ -429,6 +432,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     print_gas_species_hdr(gas_mole_ss_out, gas->thermo().get(), "t(s)");
                     print_gas_species_hdr(gas_mass_ss_out, gas->thermo().get(), "t(s)");
                     print_gas_species_hdr(gas_sdot_ss_out, gas->thermo().get(), "t(s)");
+                    print_gas_species_hdr(gas_gdot_ss_out, gas->thermo().get(), "t(s)");
                     print_surface_species_hdr(surf_cov_ss_out, surfaces, "t(s)");
                     print_surface_species_hdr(surf_sdot_ss_out, surfaces, "t(s)");
                     print_0d_rctr_state_hdr(state_var_ss_out, "t(s)");
@@ -447,9 +451,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                     // Print the inlet state
                     //rnet.reinitialize();
                 if (rctr_type != BATCH) {
-                    print_0d_rctr_state(0, rctr.get(), surf_phases, 
+                    print_0d_rctr_state(0, rctr.get(), surf_phases, gas, 
                                         gas_mole_ss_out, gas_mass_ss_out, gas_sdot_ss_out, 
-                                        surf_cov_ss_out, surf_sdot_ss_out, 
+                                        gas_gdot_ss_out, surf_cov_ss_out, surf_sdot_ss_out,  
                                         state_var_ss_out);
                 }
 
@@ -457,6 +461,7 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                 ofstream gas_mole_tr_out ((out_dir / ("gas_mole_tr." + file_ext)).string(), ios::out);
                 ofstream gas_mass_tr_out ((out_dir / ("gas_mass_tr." + file_ext)).string(), ios::out);
                 ofstream gas_sdot_tr_out ((out_dir / ("gas_sdot_tr." + file_ext)).string(), ios::out);
+                ofstream gas_gdot_tr_out((out_dir / ("gas_gdot_tr." + file_ext)).string(), ios::out);
                 ofstream surf_cov_tr_out ((out_dir / ("surf_cov_tr." + file_ext)).string(), ios::out);
                 ofstream surf_sdot_tr_out ((out_dir / ("surf_sdot_tr." + file_ext)).string(), ios::out);
                 ofstream state_var_tr_out ((out_dir / ("rctr_state_tr." + file_ext)).string(), ios::out);
@@ -465,12 +470,14 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         gas_mole_tr_out << "# Transient Gas Mole fractions"  << endl;
                         gas_mass_tr_out << "# Transient Gas Mass fractions"  << endl;
                         gas_sdot_tr_out << "# Transient Surface Production Rates of Gas Species (units of kmol/s)"  << endl;
+                        gas_gdot_tr_out << "# Transient Gas Production Rates of Gas Species (units of kmol/s)" << endl;
                         surf_cov_tr_out << "# Transient Surface Coverages of Surface Species"  << endl;
                         surf_sdot_tr_out << "# Transient Production Rates of Surface Species (units of kmol/m2/s)"  << endl;
                     }
                     print_gas_species_hdr(gas_mole_tr_out, gas->thermo().get(), "t(s)");
                     print_gas_species_hdr(gas_mass_tr_out, gas->thermo().get(), "t(s)");
                     print_gas_species_hdr(gas_sdot_tr_out, gas->thermo().get(), "t(s)");
+                    print_gas_species_hdr(gas_gdot_tr_out, gas->thermo().get(), "t(s)");
                     print_surface_species_hdr(surf_cov_tr_out, surfaces, "t(s)");
                     print_surface_species_hdr(surf_sdot_tr_out, surfaces, "t(s)");
                     print_0d_rctr_state_hdr(state_var_tr_out, "t(s)");
@@ -503,8 +510,8 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         for (const auto & tm : times) {
                             rnet.advance(tm);
                             if (transient_log) {
-                                print_0d_rctr_state(tm, rctr.get(), surf_phases, 
-                                                    gas_mole_tr_out, gas_mass_tr_out, gas_sdot_tr_out, 
+                                print_0d_rctr_state(tm, rctr.get(), surf_phases, gas, 
+                                                    gas_mole_tr_out, gas_mass_tr_out, gas_sdot_tr_out, gas_gdot_tr_out,
                                                     surf_cov_tr_out, surf_sdot_tr_out, 
                                                     state_var_tr_out);
 
@@ -521,9 +528,9 @@ void run_0d_reactor(ReactorParser& rctr_parser,
                         ind_val = times.back();
                     }
                         
-                    print_0d_rctr_state(ind_val, rctr.get(), surf_phases, 
+                    print_0d_rctr_state(ind_val, rctr.get(), surf_phases, gas, 
                                         gas_mole_ss_out, gas_mass_ss_out, gas_sdot_ss_out, 
-                                        surf_cov_ss_out, surf_sdot_ss_out, 
+                                        gas_gdot_ss_out, surf_cov_ss_out, surf_sdot_ss_out, 
                                         state_var_ss_out);
 
                     if (rpa_flag) {
