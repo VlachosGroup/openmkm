@@ -471,8 +471,9 @@ void print_surface_species_hdr(ostream&out, const vector<shared_ptr<Solution>>& 
  * Utility function to print PFR state at given distance z from inlet
  */
 void print_pfr_rctr_state(double z, PFR1d* rctr, //vector<SurfPhase*> surfaces,
+                          std::shared_ptr<Solution> gas,
                           ostream& gas_mole_out, ostream& gas_mass_out, ostream& gas_sdot_out, 
-                          ostream& surf_cov_out, ostream& surf_sdot_out,
+                          ostream& gas_gdot_out, ostream& surf_cov_out, ostream& surf_sdot_out,
                           ostream& state_var_out)
 {
 
@@ -520,7 +521,12 @@ void print_pfr_rctr_state(double z, PFR1d* rctr, //vector<SurfPhase*> surfaces,
 
     rctr->getSurfaceProductionRates(work.data());
     gas_var_print(gas_sdot_out);
-    
+ 
+    if (gas->kinetics()->nReactions() > 0)
+    {
+        gas->kinetics()->getNetProductionRates(work.data());
+        gas_var_print(gas_gdot_out);
+    }
     surf_cov_out << scientific;
     if (data_format == OutputFormat::CSV) {
         surf_cov_out << z;
@@ -575,9 +581,11 @@ void print_0d_rctr_state_hdr(ostream& out, std::string ind0)
 
 
 void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
+                         std::shared_ptr<Solution> gas,
                          ostream& gas_mole_out, ostream& gas_mass_out,
-                         ostream& gas_sdot_out, ostream& surf_cov_out,
-                         ostream& surf_sdot_out, ostream& state_var_out)
+                         ostream& gas_sdot_out, ostream& gas_gdot_out, 
+                         ostream& surf_cov_out, ostream& surf_sdot_out, 
+                         ostream& state_var_out)
 {
 
     vector<double> work(rctr->contents().nSpecies());
@@ -642,6 +650,12 @@ void print_0d_rctr_state(double z, Reactor* rctr, vector<SurfPhase*> surfaces,
 
     rctr->getSurfaceProductionRates(work.data());
     gas_var_print(gas_sdot_out);
+
+    if (gas->kinetics()->nReactions() > 0)
+    {
+                gas->kinetics()->getNetProductionRates(work.data());
+        gas_var_print(gas_gdot_out);
+    }
 
     surf_cov_out << scientific;
     if (data_format == OutputFormat::CSV) {
