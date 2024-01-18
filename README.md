@@ -28,6 +28,11 @@ OpenMKM is dependent on [Cantera][cantera_page].
 # License
 MIT License
 
+# Citation
+If you use OpenMKM please consider citing the following publication. 
+
+- Bharat Medasani, Sashank Kasiraju, and Dionisios G. Vlachos, OpenMKM: An Open-Source C++ Multiscale Modeling Simulator for Homogeneous and Heterogeneous Catalytic Reactions, JCIM, 2023 63 (11), 3377-3391, [DOI][doi].
+
 # Funding
 Development of OpenMKM is funded by [RAPID Manufacturing Institute][rapid_page].
 
@@ -35,3 +40,4 @@ Development of OpenMKM is funded by [RAPID Manufacturing Institute][rapid_page].
 [cantera_page]: http://www.cantera.org
 [rapid_page]: http://www.aiche.org/rapid
 [examples]: https://github.com/VlachosGroup/openmkm/tree/master/examples
+[doi]: https://doi.org/10.1021/acs.jcim.3c00088
